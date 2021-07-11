@@ -1,0 +1,12 @@
+This takes the directories containing data for a region, and packs and then splits them into the format that the app downloads. It's split so that we can sidestep the lack of range requests / max download size in Sandstorm, though it also gives us easy progress info. Oh, and make sure you have a manifest json, I should probably write instructions for that, or a script that generates it.
+
+See the script to see which region codes (bstn, etc) we have.
+
+Setup:
+
+in/<region_code>/tiles - .pmtiles file
+in/<region_code>/search - .json.gz gazetteer output
+
+(for each region)
+
+TODO - make sure this works
