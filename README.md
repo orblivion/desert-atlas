@@ -27,6 +27,12 @@ Yeah this is a TODO, feel free to fill this in with useful info.
 
 `spk dev`
 
+## Without Sandstorm
+
+Sometimes useful. I should add some instructions. But it's currently shaky, so not worth documenting since it'll probably change.
+
+But it involves running `./demo.py`. This will start a web server on port 3857 and possibly open a browser.
+
 # Making the data
 
 VERY rough instructions. This will probably not be enough, but it's a starting point so ppl can see where the various parts are.
@@ -35,12 +41,6 @@ VERY rough instructions. This will probably not be enough, but it's a starting p
 * Go to protomaps.com and use the region geojson to export a pmtiles file for the region, or define a new region and extract it. This is the _tiles that are displayed_.
 * Use the region to get the search data with the stuff in `geocoding/gazetteer/`. This lets you _search for stuff_.
 * Use the search data output and the pmtiles file and go to `package-data/` to make the final downloadable files.
-
-## Without Sandstorm
-
-Sometimes useful. I should add some instructions. But it's currently shaky, so not worth documenting since it'll probably change.
-
-But it involves running `./demo.py`. This will start a web server on port 3857 and possibly open a browser.
 
 # License/Credit
 
