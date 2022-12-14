@@ -186,7 +186,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if url.path == '/search':
-            # TODO - if the query has & I think it messes things up? need encoding.
+            # TODO - if the query has & or # I think it messes things up? need encoding.
             qs = urllib.parse.parse_qs(url.query)
             search_query = query.query(query.search_normalize(qs['q'][0]))
             results = []
