@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-import os, sys, glob, urllib.parse, tempfile, gzip, json, uuid, requests, tarfile, time, threading, shutil, zipfile
+import os, sys, glob, urllib.parse, tempfile, gzip, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile
 
-import unidecode
-
-def search_normalize(s):
-    return unidecode.unidecode(s).lower()
+import query
 
 # TODO - actually fix the ssl warnings from the proxy's cert. For now this makes the console unreadable.
 import urllib3
@@ -29,10 +26,17 @@ else:
 
 big_tmp_dir = os.path.join(basedir, 'big_tmp') # since /tmp/ runs out of space. TODO - empty on startup for bad failures that don't clean up
 tile_dir = os.path.join(basedir, 'tiles')
-search_dir = os.path.join(basedir, 'search') # TODO - eventually it'll organized as map-data/<data-id>/tiles and map-data/<data-id>/search, so it's all bundled per map data segment
+
+search_imported_marker_dir = os.path.join(basedir, 'search_imported')
+
+# TODO - eventually it'll organized as map-data/<data-id>/tiles and map-data/<data-id>/search,
+# so it's all bundled per map data segment (at least that was the old plan. with a db that may
+# not work...)
+search_db_path = os.path.join(basedir, 'search.db')
+
 user_data_dir = os.path.join(basedir, 'data')
 
-for data_dir in [big_tmp_dir, tile_dir, search_dir, user_data_dir]:
+for data_dir in [big_tmp_dir, tile_dir, search_imported_marker_dir, user_data_dir]:
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
@@ -41,6 +45,65 @@ bookmarks_path = os.path.join(user_data_dir, bookmarks_fname)
 if not os.path.exists(bookmarks_path):
     with open(bookmarks_path, 'w') as f:
         f.write("{}")
+
+# TODO - The downloads be a csv with only the data we need. We might even be able
+#   to import it with sqlite's csv import feature. However:
+# * If csv import *allows for appending* to a table, we'd delete where tile_id=xyz
+#   as now
+# * If csv import *does not allow for appending* to a table, we'd need to either
+#   keep around the old csvs to append them all together and re-import, OR
+#   delete where tile_id=xyz, export to csv, append the new csv to the export, and re-import.
+# TODO - Think about concurrency (This is where Go will make things a lot easier).
+#   Ideally we:
+# * Copy the db file to a working location (assuming the search function doesn't
+#   somehow alter it)
+# * Add the new data
+# * Stop the connection that the search uses
+# * Copy the altered db over the working one
+# * Restart the connection that the search uses
+def import_search(tile_id, search_import_fname):
+    con = sqlite3.connect(search_db_path)
+    cur = con.cursor()
+    cur.execute("""
+        CREATE VIRTUAL TABLE IF NOT EXISTS locations USING fts5(
+            name, normalized_name, tile_id UNINDEXED, lat UNINDEXED, lng UNINDEXED
+        )
+    """)
+
+    print_err ("Putting", tile_id, "into search db")
+
+    # TODO - make a transaction so that on error we roll back the delete and can fall back to previous data
+    cur.execute('DELETE from locations where tile_id=?', (tile_id,))
+    with gzip.open(search_import_fname, 'r') as gzip_f:
+        for line in gzip_f:
+            location = json.loads(line.decode('utf-8'))
+            if 'name' in location:
+                # TODO - Deal with duplicates somehow. There seem to be
+                # address points and poi points. I guess we probably want
+                # to collect all of that eventually into one entry, though.
+
+                # TODO cur.executemany? I'm afraid that it might OOM. Can it
+                # work with a generator though?
+                cur.execute(
+                    'INSERT INTO locations VALUES (?, ?, ?, ?, ?)',
+                    (
+                        location['name'],
+                        query.search_normalize_save(location['name']),
+                        tile_id,
+                        location["center_point"]["lat"],
+                        location["center_point"]["lon"],
+                    ),
+                )
+            else:
+                pass
+                # TODO - There may still be useful things to extract here. amenity=, etc, that are not named.
+                # But we should be careful. For instance I found ferry terminals without names. But maybe the
+                # associated port POI has a name?
+                # That said, something like toilets may be a useful search.
+                # Maybe we could have the `name` and a few useful tags (amenities etc) in one table,
+                # and fts5 vtable have a foreign key with it
+
+    con.commit()
 
 if sys.version_info.major < 3:
     print_err("demo.py requires python3 or later: python3 demo.py")
@@ -125,18 +188,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if url.path == '/search':
             # TODO - if the query has & I think it messes things up? need encoding.
             qs = urllib.parse.parse_qs(url.query)
-            search_query = search_normalize(qs['q'][0])
+            search_query = query.query(query.search_normalize(qs['q'][0]))
             results = []
-            for search_fname in glob.glob(os.path.join(search_dir, '*.search.gz')):
-                with gzip.open(search_fname, 'r') as gzip_f:
-                    for line in gzip_f:
-                        location = json.loads(line.decode('utf-8'))
-                        if len(search_query) > 2 and 'name' in location and search_query in search_normalize(location['name']):
-                            # Ex: [{"loc":[41.57573,13.002411],"title":"black"}]
-                            results.append({
-                                "title": location["name"],
-                                "loc": [location["center_point"]["lat"], location["center_point"]["lon"]],
-                            })
+
+            if search_query:
+                con = sqlite3.connect(search_db_path)
+                cur = con.cursor()
+                q_results = cur.execute(
+                    "SELECT name,lat,lng from locations WHERE locations MATCH ? ORDER BY rank",
+                    (search_query,),
+                )
+
+                for name, lat, lng in q_results:
+                    # Ex: [{"loc":[41.57573,13.002411],"title":"Some establishment name"}]
+                    results.append({
+                        "title": name, "loc": [lat, lng],
+                    })
+
             self.send_response(HTTPStatus.OK)
             self.end_headers()
             self.wfile.write(bytes(json.dumps(results), "utf-8"))
@@ -147,7 +215,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if url.path.endswith('list-tiles'):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
-            self.wfile.write(bytes(json.dumps(get_tile_fnames()), "utf-8"))
+            self.wfile.write(bytes(json.dumps(list(filemaps.keys())), "utf-8"))
             return
 
         if url.path.endswith('map-download-status'):
@@ -274,13 +342,14 @@ def update_filemaps():
 # TODO - map + search "index" in one file
 def download_map(tile_id):
     tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
-    search_out_path = os.path.join(search_dir, tile_id + '.search.gz')
+    search_imported_marker_path = os.path.join(search_imported_marker_dir, tile_id)
 
     dl_url_dir = 'https://danielkrol.com/assets/tiles-demo/'
 
-    if os.path.exists(tiles_out_path) and os.path.exists(search_out_path):
+    if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path):
         # TODO Obviously in the future we'll have updates and stuff. This is for the demo.
         print_err ("Already have " + tile_id)
+        return
 
     print_err("downloading", tile_id)
 
@@ -315,6 +384,7 @@ def download_map(tile_id):
 
             map_download_status[tile_id]['downloaded'] = num_got
 
+        # TODO - Put a md5sum in there somewhere for integrity since I'm getting parts. Something could get screwed up.
         print_err("Downloaded", tile_id, "! Now extracting...")
 
         with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_extract_path:
@@ -323,11 +393,21 @@ def download_map(tile_id):
             print_err("Extracted")
 
             # The tar we will download has the tile_id as a dir in its tree
-            shutil.move(os.path.join(tmp_extract_path, tile_id, 'search'), search_out_path)
+            # TODO - Reflect progress on this in the download status somehow.
+            #   Right now it takes a couple seconds with no UI feedback.
+            import_search(tile_id, os.path.join(tmp_extract_path, tile_id, 'search'))
+
+            # Do this second, so that it doesn't show up on the map until search is imported.
+            #   (especially important in case of error)
+            # Also, it needs to be in filemaps for it to work anyway.
             shutil.move(os.path.join(tmp_extract_path, tile_id, 'tiles'), tiles_out_path)
 
+            # For the "already downloaded" check above. We may want a better plan later.
+            with open(search_imported_marker_path, "w"):
+                pass
+
     update_filemaps()
-    print_err("Downloaded and extracted", tile_id, "to", search_out_path, "and", tiles_out_path)
+    print_err("Downloaded and extracted", tile_id, "to", tiles_out_path, "and search imported to sqlite db")
 
 # TODO - save the queue to disk so we can continue after restart
 download_queue = set()
@@ -340,7 +420,7 @@ def downloader():
             download_map(tile_id)
         except Exception as e:
             # Probably could do this smarter
-            print_err("downloader exception", repr(e))
+            print_err("\n\nDownloader Exception", repr(e), '\n\n')
             download_queue.add(tile_id)
             time.sleep(1)
 

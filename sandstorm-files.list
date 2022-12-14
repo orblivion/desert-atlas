@@ -2,6 +2,9 @@
 # This file is automatically updated and rewritten in sorted order every time
 # the app runs in dev mode. You may manually add or remove files, but don't
 # expect comments or ordering to be retained.
+Leaflet/dist/leaflet.css
+Leaflet/dist/leaflet.js
+__pycache__/query.cpython-39.pyc
 app.js
 assets/css/leaflet-search.css
 assets/css/leaflet.css
@@ -26,6 +29,10 @@ etc/ssl/certs/ca-certificates.crt
 etc/ssl/openssl.cnf
 index.html
 launcher.sh
+leaflet-search/images/loader.gif
+leaflet-search/images/search-icon.png
+leaflet-search/src/leaflet-search.css
+leaflet-search/src/leaflet-search.js
 lib
 lib32
 lib64
@@ -33,6 +40,8 @@ libx32
 powerbox-http-proxy/build/index.js
 powerbox-http-proxy/powerbox-http-proxy
 proc/cpuinfo
+protomaps.js/protomaps.js
+query.py
 sandstorm-http-bridge
 sandstorm-http-bridge-config
 sandstorm-manifest
@@ -177,6 +186,7 @@ usr/lib/python3.9/lib-dynload/_hashlib.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/_json.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/_lzma.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/_queue.cpython-39-x86_64-linux-gnu.so
+usr/lib/python3.9/lib-dynload/_sqlite3.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/_ssl.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/_uuid.cpython-39-x86_64-linux-gnu.so
 usr/lib/python3.9/lib-dynload/mmap.cpython-39-x86_64-linux-gnu.so
@@ -184,6 +194,9 @@ usr/lib/python3.9/logging/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3.9/sitecustomize.py
 usr/lib/python3.9/socket.py
 usr/lib/python3.9/socketserver.py
+usr/lib/python3.9/sqlite3
+usr/lib/python3.9/sqlite3/__pycache__/__init__.cpython-39.pyc
+usr/lib/python3.9/sqlite3/__pycache__/dbapi2.cpython-39.pyc
 usr/lib/python3.9/ssl.py
 usr/lib/python3.9/tarfile.py
 usr/lib/python3.9/urllib
@@ -276,7 +289,17 @@ usr/lib/python3/dist-packages/unidecode
 usr/lib/python3/dist-packages/unidecode/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x000.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x001.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x003.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x020.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x024.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x057.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x058.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x060.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x065.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x06c.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x077.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x089.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x098.cpython-39.pyc
 usr/lib/python3/dist-packages/urllib3
 usr/lib/python3/dist-packages/urllib3/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3/dist-packages/urllib3/__pycache__/_collections.cpython-39.pyc
@@ -396,6 +419,8 @@ usr/lib/x86_64-linux-gnu/librtmp.so.1
 usr/lib/x86_64-linux-gnu/libsasl2.so.2
 usr/lib/x86_64-linux-gnu/libsasl2.so.2.0.25
 usr/lib/x86_64-linux-gnu/libselinux.so.1
+usr/lib/x86_64-linux-gnu/libsqlite3.so.0
+usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6
 usr/lib/x86_64-linux-gnu/libssh2.so.1
 usr/lib/x86_64-linux-gnu/libssh2.so.1.0.1
 usr/lib/x86_64-linux-gnu/libssl.so.1.1
