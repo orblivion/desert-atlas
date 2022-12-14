@@ -1,3 +1,7 @@
+# 2022/12/3 - appVersion 5
+
+* Use sqlite3 and fts5 for much faster search
+
 # 2022/12/3 - appVersion 4
 
 * Fix XML escaping for KML export. It was unnecessarily escaping quotes for XML _elements_, and I was seeing `Crackskull&apos;` in OrganicMaps
