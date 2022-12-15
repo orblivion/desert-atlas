@@ -1,4 +1,8 @@
-# 2022/12/3 - appVersion 5
+# 2022/12/14 - appVersion 6
+
+* Progress bar in UI for search import (to sqlite3).
+
+# 2022/12/14 - appVersion 5
 
 * Use sqlite3 and fts5 for much faster search
 
