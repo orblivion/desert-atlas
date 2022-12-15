@@ -74,8 +74,11 @@ def import_search(tile_id, search_import_fname):
 
     # TODO - make a transaction so that on error we roll back the delete and can fall back to previous data
     cur.execute('DELETE from locations where tile_id=?', (tile_id,))
+    map_update_status[tile_id]['searchImportTotal'] = os.path.getsize(search_import_fname)
+    map_update_status[tile_id]['searchImportDone'] = 0
     with gzip.open(search_import_fname, 'r') as gzip_f:
         for line in gzip_f:
+            map_update_status[tile_id]['searchImportDone'] = gzip_f.fileobj.tell()
             location = json.loads(line.decode('utf-8'))
             if 'name' in location:
                 # TODO - Deal with duplicates somehow. There seem to be
@@ -115,7 +118,7 @@ from socketserver import ThreadingMixIn
 from http import HTTPStatus
 
 filemaps = None
-map_download_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
+map_update_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
 
 def byterange(s):
     m = re.compile(r'bytes=(\d+)-(\d+)?$').match(s)
@@ -222,7 +225,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
             full_status = {
-                "in-progress": map_download_status,
+                "in-progress": map_update_status,
                 "queued": list(download_queue),
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
             }
@@ -362,9 +365,9 @@ def download_map(tile_id):
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
     files = requests.get('https://danielkrol.com/assets/tiles-demo/manifest.json', **params).json()[tile_id]['files']
 
-    map_download_status[tile_id] = {
-        "downloaded": 0,
-        "total": len(files),
+    map_update_status[tile_id] = {
+        "downloadDone": 0,
+        "downloadTotal": len(files),
     }
 
     with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_dl_dir:
@@ -382,7 +385,7 @@ def download_map(tile_id):
             with open(tmp_dl_path, "ab") as f:
                 f.write(r.content)
 
-            map_download_status[tile_id]['downloaded'] = num_got
+            map_update_status[tile_id]['downloadDone'] = num_got
 
         # TODO - Put a md5sum in there somewhere for integrity since I'm getting parts. Something could get screwed up.
         print_err("Downloaded", tile_id, "! Now extracting...")

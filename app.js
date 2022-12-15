@@ -304,13 +304,24 @@ function updateDownloadStatuses() {
             } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === "started") {
                 downloadMarkers[tileId].getTooltip().setContent("Downloaded. Loading on screen...")
             } else if (tileId in inProgress) {
-                percentageDone = Math.round(100 * (inProgress[tileId].downloaded / inProgress[tileId].total))
-                downloadMarkers[tileId].getTooltip().setContent(
-                    'Downloading ' + name +
-                    `<div style='width:100px;border-style:solid;'>
-                        <div style='width:${percentageDone}%; background-color:#555'>&nbsp</div>
-                    </div>`
-                )
+                if (inProgress[tileId].downloadDone !== inProgress[tileId].downloadTotal) {
+                    downloadPercentage = Math.round(100 * (inProgress[tileId].downloadDone / inProgress[tileId].downloadTotal))
+                    downloadMarkers[tileId].getTooltip().setContent(
+                        'Downloading ' + name +
+                        `<div style='width:100px;border-style:solid;'>
+                            <div style='width:${downloadPercentage}%; background-color:#555'>&nbsp</div>
+                        </div>`
+                    )
+                } else {
+                    searchImportPercentage = inProgress[tileId].searchImportTotal ?
+                        Math.round(100 * (inProgress[tileId].searchImportDone / inProgress[tileId].searchImportTotal)) : 0
+                    downloadMarkers[tileId].getTooltip().setContent(
+                        'Importing search data for ' + name +
+                        `<div style='width:100px;border-style:solid;'>
+                            <div style='width:${searchImportPercentage}%; background-color:#555'>&nbsp</div>
+                        </div>`
+                    )
+                }
             } else if (fullStatus.queued.includes(tileId)) {
                 downloadMarkers[tileId].getTooltip().setContent('Queued for download: ' + name)
             } else {
