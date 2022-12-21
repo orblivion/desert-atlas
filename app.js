@@ -458,7 +458,7 @@ const renderLoop = () => {
 renderLoop()
 
 // TODO - this doesn't work in sandstorm! figure something out...
-function getLoc() {
+function getLocFromHash() {
     coords = location.hash.split('_').slice(1).map(Number)
     if (coords.length != 4 || coords.includes(undefined) || coords.includes(NaN)) {
         return null // deal with it another way
@@ -469,6 +469,19 @@ function getLoc() {
     return L.latLngBounds(
         L.latLng(north, east),
         L.latLng(south, west),
+    )
+}
+
+function getLocFromBookmarks() {
+    bookmarks = #BOOKMARKS
+    if (!bookmarks) return null
+
+    // Don't know which corners are which cardinal directions, don't care
+    let [lat1, lng1, lat2, lng2] = bookmarks
+
+    return L.latLngBounds(
+        L.latLng(lat1, lng1),
+        L.latLng(lat2, lng2),
     )
 }
 
@@ -488,7 +501,7 @@ function setLoc() {
 }
 
 // TODO - this doesn't work in sandstorm! figure something out...
-initialLoc = getLoc()
+initialLoc = getLocFromHash() || getLocFromBookmarks()
 if (initialLoc !== null) {
     map.fitBounds(initialLoc)
 } else {
