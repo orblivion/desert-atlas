@@ -1,3 +1,6 @@
+// Text-replace this with the permissions when we render app.js. This of course
+// should not be relied on for security, just UI changes to not confuse the
+// user.
 permissions = #PERMISSIONS
 
 const map = L.map('map')
@@ -481,6 +484,9 @@ function getLocFromHash() {
 }
 
 function getLocFromBookmarks() {
+    // Text-replace this with the bookmarks when we render app.js. I wanted to avoid
+    // having to make an extra request before setting the zoom, having a delay,
+    // and changing the location out from under the user if they change it.
     bookmarks = #BOOKMARKS
     if (!bookmarks) return null
 
