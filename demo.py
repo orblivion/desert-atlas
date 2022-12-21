@@ -218,7 +218,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 con = sqlite3.connect(search_db_path)
                 cur = con.cursor()
                 q_results = cur.execute(
-                    "SELECT name,lat,lng from locations WHERE locations MATCH ? ORDER BY rank",
+                    "SELECT name,lat,lng from locations WHERE locations MATCH ? ORDER BY rank LIMIT 50",
                     (search_query,),
                 )
 
