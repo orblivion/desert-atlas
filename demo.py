@@ -138,7 +138,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         url = urllib.parse.urlparse(self.path)
+        permissions = self.headers['X-Sandstorm-Permissions'].split(',')
         if url.path == '/bookmark':
+            if 'bookmarks' not in permissions:
+                self.send_response(HTTPStatus.Forbidden)
+                self.end_headers()
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             bookmarkId = bookmark.get('id', str(uuid.uuid1()))
             if 'id' in bookmark:
@@ -158,6 +162,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         # TODO - should be a DELETE request but I didn't want to figure it out
         if url.path == '/bookmark-delete':
+            if 'bookmarks' not in permissions:
+                self.send_response(HTTPStatus.Forbidden)
+                self.end_headers()
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             bookmarkId = bookmark.get('id', str(uuid.uuid1()))
 
@@ -173,6 +180,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
         if url.path == '/download-map':
+            if 'download' not in permissions:
+                self.send_response(HTTPStatus.Forbidden)
+                self.end_headers()
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
@@ -182,6 +192,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
         if url.path == '/app.js':
+            permissions = self.headers['X-Sandstorm-Permissions'].split(',')
             with open(bookmarks_path) as f:
                 bookmarks = json.load(f)
 
@@ -199,7 +210,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 ])
 
             with open('app.js') as f:
-                self.wfile.write(bytes(f.read().replace("#BOOKMARKS", bounds), "utf-8"))
+                content = (
+                    f.read()
+                    .replace("#BOOKMARKS", bounds)
+                    .replace("#PERMISSIONS", repr(permissions))
+                )
+                self.wfile.write(bytes(content, "utf-8"))
             return
         if url.path.endswith('bookmarks'):
             self.send_response(HTTPStatus.OK)

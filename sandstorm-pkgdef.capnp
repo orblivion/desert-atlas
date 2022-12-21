@@ -170,7 +170,7 @@ const pkgdef :Spk.PackageDefinition = (
   # not have been detected as a dependency during `spk dev`. If you list
   # a directory here, its entire contents will be included recursively.
 
-  #bridgeConfig = (
+  bridgeConfig = (
   #  # Used for integrating permissions and roles into the Sandstorm shell
   #  # and for sandstorm-http-bridge to pass to your app.
   #  # Uncomment this block and adjust the permissions and roles to make
@@ -179,11 +179,11 @@ const pkgdef :Spk.PackageDefinition = (
   #  # https://docs.sandstorm.io/en/latest/developing/auth/
   #  # and advanced details in the "BridgeConfig" section of
   #  # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
-  #  viewInfo = (
+    viewInfo = (
   #    # For details on the viewInfo field, consult "ViewInfo" in
   #    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
   #
-  #    permissions = [
+      permissions = [
   #    # Permissions which a user may or may not possess.  A user's current
   #    # permissions are passed to the app as a comma-separated list of `name`
   #    # fields in the X-Sandstorm-Permissions header with each request.
@@ -192,52 +192,63 @@ const pkgdef :Spk.PackageDefinition = (
   #    # will change behavior and permissions for existing grains!  To deprecate a
   #    # permission, or for more information, see "PermissionDef" in
   #    # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/grain.capnp
-  #      (
-  #        name = "editor",
+        (
+          name = "download",
   #        # Name of the permission, used as an identifier for the permission in cases where string
   #        # names are preferred.  Used in sandstorm-http-bridge's X-Sandstorm-Permissions HTTP header.
   #
-  #        title = (defaultText = "editor"),
+          title = (defaultText = "download areas"),
   #        # Display name of the permission, e.g. to display in a checklist of permissions
   #        # that may be assigned when sharing.
   #
-  #        description = (defaultText = "grants ability to modify data"),
+          description = (defaultText = "grants ability to download areas"),
   #        # Prose describing what this role means, suitable for a tool tip or similar help text.
-  #      ),
-  #    ],
-  #    roles = [
+        ),
+        (
+          name = "bookmarks",
+          title = (defaultText = "edit bookmarks"),
+          description = (defaultText = "grants ability to edit bookmarks"),
+        ),
+      ],
+      roles = [
   #      # Roles are logical collections of permissions.  For instance, your app may have
   #      # a "viewer" role and an "editor" role
-  #      (
-  #        title = (defaultText = "editor"),
+        (
+          title = (defaultText = "editor"),
   #        # Name of the role.  Shown in the Sandstorm UI to indicate which users have which roles.
   #
-  #        permissions  = [true],
+          permissions  = [true, true],
   #        # An array indicating which permissions this role carries.
   #        # It should be the same length as the permissions array in
   #        # viewInfo, and the order of the lists must match.
   #
-  #        verbPhrase = (defaultText = "can make changes to the document"),
+          verbPhrase = (defaultText = "can download areas and edit bookmarks"),
   #        # Brief explanatory text to show in the sharing UI indicating
   #        # what a user assigned this role will be able to do with the grain.
   #
   #        description = (defaultText = "editors may view all site data and change settings."),
   #        # Prose describing what this role means, suitable for a tool tip or similar help text.
-  #      ),
-  #      (
-  #        title = (defaultText = "viewer"),
-  #        permissions  = [false],
-  #        verbPhrase = (defaultText = "can view the document"),
-  #        description = (defaultText = "viewers may view what other users have written."),
-  #      ),
-  #    ],
-  #  ),
+        ),
+        (
+          title = (defaultText = "bookmarker"),
+          permissions  = [false, true],
+          verbPhrase = (defaultText = "can edit bookmarks"),
+          description = (defaultText = "bookmarkers may edit bookmarks."),
+        ),
+        (
+          title = (defaultText = "viewer"),
+          permissions  = [false, false],
+          verbPhrase = (defaultText = "can view the map"),
+          description = (defaultText = "viewers may view maps that other users have put together."),
+        ),
+      ],
+    ),
   #  #apiPath = "/api",
   #  # Apps can export an API to the world.  The API is to be used primarily by Javascript
   #  # code and native apps, so it can't serve out regular HTML to browsers.  If a request
   #  # comes in to your app's API, sandstorm-http-bridge will prefix the request's path with
   #  # this string, if specified.
-  #),
+  ),
 );
 
 const myCommand :Spk.Manifest.Command = (

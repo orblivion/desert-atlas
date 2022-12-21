@@ -1,3 +1,5 @@
+permissions = #PERMISSIONS
+
 const map = L.map('map')
 
 var lastPulledBookmarks = {}
@@ -129,6 +131,7 @@ const searchMarker = L.marker([0, 0], {
         }, 100)
     })
     .on('click', () => {
+        if (permissions.indexOf("bookmarks") === -1) return
         popupMarkerBookmark = searchResultBookmark
         bookmarkPopup
             .setLatLng(L.latLng(searchResultBookmark.latlng))
@@ -142,6 +145,7 @@ const savedBookmarkMarker = L.marker([0, 0], {
         })
     })
     .on('click', () => {
+        if (permissions.indexOf("bookmarks") === -1) return
         popupMarkerBookmark = selectedSavedBookmark
         bookmarkPopup
             .setLatLng(L.latLng(selectedSavedBookmark.latlng))
@@ -191,8 +195,10 @@ downloadMarkers = {
     bstn: downloadMarker('Boston area', 'bstn', [42.3551, -71.0657]),
 }
 
-for (tileId in downloadMarkers) {
-    downloadMarkers[tileId].addTo(map)
+if (permissions.indexOf("download") !== -1) {
+    for (tileId in downloadMarkers) {
+        downloadMarkers[tileId].addTo(map)
+    }
 }
 
 const bookmarkKeydown = (e => {
@@ -428,7 +434,9 @@ getGeoJson("countries")
 getGeoJson("states")
 
 loadAvailableAreas()
-updateDownloadStatuses()
+if (permissions.indexOf("download") !== -1) {
+    updateDownloadStatuses()
+}
 
 const searchControl = new L.Control.Search({
     url: 'search?q={s}',
