@@ -432,7 +432,7 @@ updateDownloadStatuses()
 
 const searchControl = new L.Control.Search({
     url: 'search?q={s}',
-    textPlaceholder: 'Cafes, stores, post offices...',
+    textPlaceholder: 'Cafes, streets, parks...',
     position: 'topright',
     marker: searchMarker,
     zoom: 17, // TODO - redundant at some point given the explicit on('add' stuff?
