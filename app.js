@@ -1,3 +1,46 @@
+var data = {bookmarks: {}}
+
+// TODO websockets
+
+var renderTimeout = null
+
+const renderLoop = () => {
+    // Allow for calling renderLoop on demand without having
+    // it run again in less than 5 seconds.
+    clearTimeout(renderTimeout)
+
+    // Set a new one right away. This is less than optimal
+    // if there are slow response times; ideally we'd only
+    // reset the timer after it finishes. However this way
+    // makes it easier for us to be able to run renderLoop
+    // on demand.
+    renderTimeout = setTimeout(renderLoop, 5000)
+
+    fetch('bookmarks', {
+        method: 'GET'
+    })
+    .then(e => {
+        e.json().then(updatedBookmarks => {
+            // Set the ids before the comparison, since what it'll be
+            // comparing against will have the ids
+            for (bookmarkId in updatedBookmarks) {
+                updatedBookmarks[bookmarkId].id = bookmarkId
+            }
+
+            // Don't reload it if it's the same
+            if (JSON.stringify(updatedBookmarks) !== JSON.stringify(data.bookmarks)) {
+                data.bookmarks = updatedBookmarks
+
+                bookmarksList.render()
+                updateBookmarkMarkers()
+            }
+        })
+    })
+    .catch(console.log)
+}
+
+renderLoop()
+
 // Text-replace this with the permissions when we render app.js. This of course
 // should not be relied on for security, just UI changes to not confuse the
 // user.
@@ -5,10 +48,7 @@ permissions = #PERMISSIONS
 
 const map = L.map('map')
 
-var lastPulledBookmarks = {}
-
 var searchResultBookmark = null
-var selectedSavedBookmark = null
 
 // TODO - don't really do this, it's precarious. only for demo. We could fail to set this and save the wrong bookmark or whatever.
 var popupMarkerBookmark = null
@@ -23,49 +63,35 @@ L.Control.BookmarksList = L.Control.extend({
     },
 
     render: function() {
-        return fetch('bookmarks', {
-                method: 'GET'
-            })
-            .then(e => {
-                e.json().then(bookmarks => {
-                    // Don't reload it if it's the same
-                    if (JSON.stringify(bookmarks) === JSON.stringify(lastPulledBookmarks)) {
-                        return
-                    }
-                    lastPulledBookmarks = bookmarks
+        let listItems = `<div id='bookmarks-export'>Export Bookmarks</div>`
+        for (bookmarkId in data.bookmarks) {
+            divId = `bookmark-list-${bookmarkId}`
+            bookmarkData = JSON.stringify(data.bookmarks[bookmarkId])
+            listItems += `
+            <div id='${divId}' data-bookmark-id=${bookmarkId} class='bookmark-list-item'>
+                ${data.bookmarks[bookmarkId]['name']}
+            </div>
+            `
+        }
 
-                    let listItems = `<div id='bookmarks-export'>Export Bookmarks</div>`
-                    for (id in bookmarks) {
-                        divId = `bookmark-list-${id}`
-                        bookmarkData = JSON.stringify(bookmarks[id])
-                        listItems += `
-                        <div id='${divId}' data-bookmark-id=${id} class='bookmark-list-item'>
-                            <div class='bookmark-data' style='display:none;'>${bookmarkData}</div>
-                            ${bookmarks[id]['name']}
-                        </div>
-                        `
-                    }
+        // TODO - This is a hack to keep the scroll the same. Eventually
+        // we want to not refresh it entirely on each change. Only
+        // refresh/add/remove items etc etc so user events don't get messed up.
+        let inner = document.getElementById('bookmark-list')
+        let scrollSave = null
+        if (inner !== null) scrollSave = inner.scrollTop
+        this.list.innerHTML = "<div id='bookmark-list'>" + listItems + "</div>"
+        inner = document.getElementById('bookmark-list') // it's a new one now
+        if (scrollSave !== null) inner.scrollTop = scrollSave
 
-                    // TODO - This is a hack to keep the scroll the same. In
-                    // reality we want to just not refresh it on a timer really.
-                    // Only refresh/add/remove items etc etc so user events don't get messed up.
-                    // For now though lastPulledBookmarks does it for us.
-                    let inner = document.getElementById('bookmark-list')
-                    let scrollSave = null
-                    if (inner !== null) scrollSave = inner.scrollTop
-                    this.list.innerHTML = "<div id='bookmark-list'>" + listItems + "</div>"
-                    inner = document.getElementById('bookmark-list') // it's a new one now
-                    if (scrollSave !== null) inner.scrollTop = scrollSave
-
-                    document.getElementById('bookmarks-export').addEventListener("click", clickBookmarksExport)
-                    for (id in bookmarks) {
-                        divId = `bookmark-list-${id}`
-                        document.getElementById(divId).addEventListener("click", clickBookmarkListItem)
-                    }
-                })
-            })
-            .catch(console.log)
-    }
+        setTimeout(() => { // setTimeout, my solution for everything. As written, it can't find bookmarks-export without this.
+            document.getElementById('bookmarks-export').addEventListener("click", clickBookmarksExport)
+            for (id in data.bookmarks) {
+                divId = `bookmark-list-${id}`
+                document.getElementById(divId).addEventListener("click", clickBookmarkListItem)
+            }
+        }, 100)
+    },
 });
 
 L.control.bookmarksList = function() {
@@ -141,21 +167,7 @@ const searchMarker = L.marker([0, 0], {
             .openOn(map)
     })
 
-const savedBookmarkMarker = L.marker([0, 0], {
-        icon: new L.Icon({
-            iconUrl: 'assets/images/bookmark-marker.svg',
-            iconSize: [75, 75]
-        })
-    })
-    .on('click', () => {
-        if (permissions.indexOf("bookmarks") === -1) return
-        popupMarkerBookmark = selectedSavedBookmark
-        bookmarkPopup
-            .setLatLng(L.latLng(selectedSavedBookmark.latlng))
-            .openOn(map)
-    })
-
-// TODO - Properly extend marker class
+// TODO - Properly extend other marker classes
 
 const downloadPopup = L.popup()
 
@@ -224,14 +236,22 @@ const addBookmark = (() => {
             document.getElementById("search-marker-submit").style.display = 'none';
             document.getElementById("search-marker-save-success").style.display = 'block';
             setTimeout(() => {
-                bookmarksList.render()
                 bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
 
                 // Hide the search marker, replace it with the new saved
                 // bookmark marker (which has a different style, so it
                 // indicates to the user that it's now saved)
                 searchMarker.remove()
-                setSavedBookmarkMarker(bookmarkId, bookmark)
+
+                // Whether to use renderLoop or updateBookmarkMarkers/bookmarksList.render is debatable.
+                // renderLoop is safer since only one place changes data.bookmarks; changing data.bookmarks
+                // here and now and updating the visual elements is faster and perhaps less prone to the
+                // error of missing the new ID (I think that happened to me once)
+                data.bookmarks[bookmarkId] = bookmark
+                bookmarksList.render()
+                updateBookmarkMarkers()
+
+                selectBookmarkMarker(bookmarkId)
             }, 500)
         })
         .catch(console.log)
@@ -248,7 +268,11 @@ const deleteBookmark = (() => {
             document.getElementById("search-marker-submit").style.display = 'none';
             document.getElementById("search-marker-delete-success").style.display = 'block';
             setTimeout(() => {
-                bookmarksList.render()
+                // Whether to use renderLoop or updateBookmarkMarkers/bookmarksList.render is debatable.
+                // renderLoop is safer since only one place changes data.bookmarks; changing data.bookmarks
+                // here and now and updating the visual elements is faster and perhaps less prone to the
+                // error of using an invalid ID.
+                renderLoop()
                 bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
             }, 500)
         })
@@ -261,26 +285,75 @@ const clickBookmarksExport = e => {
 }
 
 const clickBookmarkListItem = e => {
-    bookmarkId = e.target.getAttribute('data-bookmark-id')
-    bookmark = JSON.parse(e.target.getElementsByClassName("bookmark-data")[0].textContent)
-    setSavedBookmarkMarker(bookmarkId, bookmark)
+    selectBookmarkMarker(e.target.getAttribute('data-bookmark-id'))
 }
 
-const setSavedBookmarkMarker = (bookmarkId, bookmark) => {
-    selectedSavedBookmark = bookmark
-    selectedSavedBookmark.id = bookmarkId
+L.SavedBookmarkMarker = L.Marker.extend({
+    options: {
+        icon: new L.Icon({
+            iconUrl: 'assets/images/bookmark-marker.svg',
+            iconSize: [75, 75]
+        })
+    },
+})
 
-    map.setView(L.latLng(selectedSavedBookmark.latlng), 17)
+var bookmarkMarkers = {} // just for lookup by id.
+var bookmarkMarkerFeatureGroup = L.featureGroup()
+    .addTo(map)
+    .on('click', e => {
+        if (permissions.indexOf("bookmarks") === -1) return
 
-    savedBookmarkMarker
-        .setLatLng(L.latLng(selectedSavedBookmark.latlng))
-        .addTo(map)
+        popupMarkerBookmark = data.bookmarks[e.layer.options.bookmarkId]
+        if (popupMarkerBookmark) { // timing issues?
+            bookmarkPopup
+                .setLatLng(L.latLng(popupMarkerBookmark.latlng))
+                .openOn(map)
+        }
+    })
 
-    // A real hack around the fact that zoom seems to make the tooltip disappear
-    setTimeout(() => {
-        savedBookmarkMarker
-            .bindTooltip(selectedSavedBookmark.name)
-            .openTooltip()
+function bookmarkMarkerTooltip(marker) {
+    let bookmark = data.bookmarks[marker.options.bookmarkId]
+    return bookmark && bookmark.name
+}
+
+function updateBookmarkMarkers() {
+    for (bookmarkId in data.bookmarks) {
+        if (!(bookmarkId in bookmarkMarkers)) {
+            let bookmark = data.bookmarks[bookmarkId]
+            // Add marker for newly added bookmark
+            bookmarkMarkers[bookmarkId] = new L.SavedBookmarkMarker(
+                L.latLng(bookmark.latlng), {bookmarkId}
+            )
+
+            // If I bindTooltip on the feature group, openTooltip() doesn't work for
+            // some reason (though, mouseover tooltip does; maybe it's a bug in
+            // the version of leaflet I'm currently on.) So I bindTooltip on each
+            // marker individually.
+            bookmarkMarkers[bookmarkId].bindTooltip(bookmarkMarkerTooltip)
+
+            bookmarkMarkerFeatureGroup.addLayer(bookmarkMarkers[bookmarkId])
+        } else {
+            // Update existing bookmark markers
+            bookmarkMarkers[bookmarkId]
+                .setLatLng(L.latLng(data.bookmarks[bookmarkId].latlng))
+        }
+    }
+    for (bookmarkId in bookmarkMarkers) {
+        if (!(bookmarkId in data.bookmarks)) {
+            // Remove marker for newly deleted bookmark
+            bookmarkMarkerFeatureGroup.removeLayer(bookmarkMarkers[bookmarkId])
+            delete bookmarkMarkers[bookmarkId]
+        }
+    }
+}
+
+const selectBookmarkMarker = (bookmarkId) => {
+    let bookmark = data.bookmarks[bookmarkId]
+    map.setView(L.latLng(bookmark.latlng), 17)
+
+    setTimeout(() => { // setTimeout, my solution for everything
+        // Some indication that this thing has been selected
+        bookmarkMarkers[bookmarkId].openTooltip()
     }, 100)
 }
 
@@ -457,16 +530,6 @@ searchControl.on('search:locationfound', function(event) {
 });
 
 map.addControl(searchControl);
-
-// TODO websockets
-const renderLoop = () => {
-    bookmarksList.render()
-        .then(() => {
-            setTimeout(renderLoop, 5000)
-        })
-}
-
-renderLoop()
 
 // TODO - this doesn't work in sandstorm! figure something out...
 function getLocFromHash() {
