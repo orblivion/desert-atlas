@@ -193,27 +193,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         url = urllib.parse.urlparse(self.path)
         if url.path == '/app.js':
             permissions = self.headers['X-Sandstorm-Permissions'].split(',')
-            with open(bookmarks_path) as f:
-                bookmarks = json.load(f)
 
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
-            bounds = "null"
-            print_err([b for b in bookmarks])
-            if bookmarks:
-                bounds = repr([
-                    min(b['latlng']['lat'] for b in bookmarks.values()) - .001,
-                    min(b['latlng']['lng'] for b in bookmarks.values()) - .001,
-                    max(b['latlng']['lat'] for b in bookmarks.values()) + .001,
-                    max(b['latlng']['lng'] for b in bookmarks.values()) + .001,
-                ])
-
             with open('app.js') as f:
                 content = (
                     f.read()
-                    .replace("#BOOKMARKS", bounds)
-                    .replace("#PERMISSIONS", repr(permissions))
+                    .replace("PERMISSIONS_REPLACE_ME", repr(permissions))
                 )
                 self.wfile.write(bytes(content, "utf-8"))
             return

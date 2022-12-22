@@ -1,4 +1,49 @@
+// Hackish way to check if the grain is selected. This might break if Sandstorm changes its implementation.
+// We want this because map.fitBounds goes haywire if you run it on an open but unselected grain. This can
+// happen because we run fitBounds on startup. If the grain is running but not selected, and the user
+// reloads the page, the startup sequence will happen while the grain is still unselected.
+function isGrainSelected() {
+    var body = document.body
+    var html = document.documentElement
+
+    return Math.min(
+        body.scrollHeight,
+        body.offsetHeight,
+        html.clientHeight,
+        html.scrollHeight,
+        html.offsetHeight,
+    ) > 0;
+}
+
 var data = {bookmarks: {}}
+
+var initlBoundsStarted = false
+function initBounds() {
+    if (initlBoundsStarted) return
+    initlBoundsStarted = true
+    initBoundsLoop()
+}
+
+var initialBounds = null
+function initBoundsLoop() {
+    if (!isGrainSelected()) {
+        // We don't mind running this 10 times a second, it barely does
+        // anything until the grain is selected at which point it stops
+        // looping.
+        setTimeout(initBoundsLoop, 100)
+        return
+    }
+    if (initialBounds !== null) return
+
+    var [bounds, padding] = getBoundsFromHash() || getBoundsFromBookmarks() || getBoundsZoomedOut()
+    if (padding) {
+        map.fitBounds(bounds, {padding})
+    } else {
+        map.fitBounds(bounds)
+    }
+
+    initialBounds = bounds
+}
 
 // TODO websockets
 
@@ -34,6 +79,9 @@ const renderLoop = () => {
                 bookmarksList.render()
                 updateBookmarkMarkers()
             }
+
+            // Now that we have bookmarks, we're in a good position to set initial bounds
+            initBounds()
         })
     })
     .catch(console.log)
@@ -44,7 +92,7 @@ renderLoop()
 // Text-replace this with the permissions when we render app.js. This of course
 // should not be relied on for security, just UI changes to not confuse the
 // user.
-permissions = #PERMISSIONS
+permissions = PERMISSIONS_REPLACE_ME
 
 const map = L.map('map')
 
@@ -531,8 +579,8 @@ searchControl.on('search:locationfound', function(event) {
 
 map.addControl(searchControl);
 
-// TODO - this doesn't work in sandstorm! figure something out...
-function getLocFromHash() {
+// TODO - this doesn't work in sandstorm! because of how urls are handled. figure something out...
+function getBoundsFromHash() {
     coords = location.hash.split('_').slice(1).map(Number)
     if (coords.length != 4 || coords.includes(undefined) || coords.includes(NaN)) {
         return null // deal with it another way
@@ -540,30 +588,43 @@ function getLocFromHash() {
 
     [north, east, south, west] = coords
 
-    return L.latLngBounds(
-        L.latLng(north, east),
-        L.latLng(south, west),
-    )
+    return [
+        L.latLngBounds(
+            L.latLng(north, east),
+            L.latLng(south, west),
+        ),
+        null // no padding
+    ]
 }
 
-function getLocFromBookmarks() {
-    // Text-replace this with the bookmarks when we render app.js. I wanted to avoid
-    // having to make an extra request before setting the zoom, having a delay,
-    // and changing the location out from under the user if they change it.
-    bookmarks = #BOOKMARKS
-    if (!bookmarks) return null
+function getBoundsFromBookmarks() {
+    if (Object.values(bookmarkMarkers).length === 0) {
+        return null
+    }
 
-    // Don't know which corners are which cardinal directions, don't care
-    let [lat1, lng1, lat2, lng2] = bookmarks
+    return [
+        bookmarkMarkerFeatureGroup.getBounds(),
+        // Some padding is nice for keeping markers in view and not on the fringes
+        // Horizontal is higher because of the menu on the left
+        [200, 50]
+    ]
+}
 
-    return L.latLngBounds(
-        L.latLng(lat1, lng1),
-        L.latLng(lat2, lng2),
-    )
+// This is the final fallback, it can't return null
+function getBoundsZoomedOut() {
+    return [
+        L.latLngBounds(
+            L.latLng(17.476432197195518, -166.99218750000003),
+            L.latLng(59.489726035537075, 0.3515625),
+        ),
+        null // no padding
+    ]
 }
 
 // TODO - this doesn't work in sandstorm! figure something out...
 function setLoc() {
+    if (!initialBounds) return // the map is probably not ready for this yet
+
     // number of significant figures of lat/long that we save in the URL bar
     // so that we return there when we refresh
     REFRESH_PRECISION = 4
@@ -574,19 +635,6 @@ function setLoc() {
         '_' + map.getBounds().getEast() +
         '_' + map.getBounds().getSouth() +
         '_' + map.getBounds().getWest()
-    )
-}
-
-// TODO - this doesn't work in sandstorm! figure something out...
-initialLoc = getLocFromHash() || getLocFromBookmarks()
-if (initialLoc !== null) {
-    map.fitBounds(initialLoc)
-} else {
-    map.fitBounds(
-        L.latLngBounds(
-            L.latLng(17.476432197195518, -166.99218750000003),
-            L.latLng(59.489726035537075, 0.3515625),
-        )
     )
 }
 
