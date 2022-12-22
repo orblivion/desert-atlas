@@ -237,6 +237,8 @@ function downloadMarker(name, tileId, coords) {
                 </div>`)
                 .setLatLng(L.latLng(coords))
                 .addTo(map)
+            } else {
+                map.fitBounds(areaBoundses[tileId])
             }
         })
         .setLatLng(L.latLng(coords))
@@ -476,6 +478,8 @@ function loadAvailableAreas() {
     }))
 }
 
+areaBoundses = {}
+
 // TODO
 // Have this check loaded[filename] or whatever. If set, return (take it out of
 // loadAvailableAreas). If not set, set it *before* and proceed. Should prevent double
@@ -505,6 +509,11 @@ function loadArea(tilesName) {
             bounds: areaBounds
         })
         areaLayer.addTo(map)
+
+        let tnSplit = tilesName.split('.pmtiles')
+        if (tnSplit.length != 2 || tnSplit[1] !== "") throw "tilesName not formatted as expected"
+        let tileId = tnSplit[0]
+        areaBoundses[tileId] = areaBounds
     })
     .then(() => {
         console.log('added', tilesName)
