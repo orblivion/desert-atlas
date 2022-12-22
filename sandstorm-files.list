@@ -12,6 +12,7 @@ assets/images/bookmark-marker.svg
 assets/images/loader.gif
 assets/images/search-icon.png
 assets/images/search-marker.svg
+assets/js/jquery.min.js
 assets/js/leaflet-search.js
 assets/js/leaflet.js
 assets/js/powerbox-helper.js
@@ -28,6 +29,7 @@ etc/mime.types
 etc/ssl/certs/ca-certificates.crt
 etc/ssl/openssl.cnf
 index.html
+jquery/jquery.min.js
 launcher.sh
 leaflet-search/images/loader.gif
 leaflet-search/images/search-icon.png

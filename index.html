@@ -8,21 +8,33 @@
         <script src="assets/js/leaflet.js"></script>
         <script src="assets/js/protomaps.js"></script>
         <script src="assets/js/leaflet-search.js"></script>
+        <script src="assets/js/jquery.min.js"></script>
         <style>
             body, #map {
                 height:100vh;
             }
-            #bookmark-list {
+            #bookmark-list-container {
                 background-color: #DDE;
-                height: 300px;
                 overflow-y: auto;
                 border-style: solid;
                 border-color: #888;
+            }
+            #bookmark-list {
+                height: 300px;
             }
             .bookmark-list-item {
                 border-style: solid;
                 background-color: #CCD;
                 margin: 5px;
+                border-color: #BBC;
+                cursor: pointer;
+            }
+            #bookmark-list-toggle {
+                font-size: 1.3em;
+                border-style: solid;
+                background-color: #FEA;
+                margin: 5px;
+                padding: 5px;
                 border-color: #BBC;
                 cursor: pointer;
             }

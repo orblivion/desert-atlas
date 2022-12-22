@@ -2,3 +2,4 @@ __pycache__
 geocoding/gazetteer/gazetteer.jar
 protomaps.js/protomaps.js
 protomaps.js/protomaps.js.orig
+jquery/jquery.min.js

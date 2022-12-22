@@ -143,7 +143,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.Forbidden)
                 self.end_headers()
+            # TODO - validate this input! When I move to Go.
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+
             bookmarkId = bookmark.get('id', str(uuid.uuid1()))
             if 'id' in bookmark:
                 del bookmark['id']

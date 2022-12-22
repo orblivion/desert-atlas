@@ -99,12 +99,15 @@ const map = L.map('map')
 var searchResultBookmark = null
 
 // TODO - don't really do this, it's precarious. only for demo. We could fail to set this and save the wrong bookmark or whatever.
+// Probably best to bind the bookmarkId to the popup as we render it. I think that'd keep it in sync? More in sync at least?
 var popupMarkerBookmark = null
 
 // TODO allow show all bookmarks
 
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
+        this.expanded = true
+
         this.list = L.DomUtil.create('div');
         this.render()
         return this.list;
@@ -121,6 +124,14 @@ L.Control.BookmarksList = L.Control.extend({
             </div>
             `
         }
+        if (this.expanded) {
+            style = ''
+            showHide = 'Hide Bookmarks'
+        } else {
+            style = 'display:none;'
+            showHide = 'Show Bookmarks'
+        }
+        newHtml = "<div id='bookmark-list-container'><div id='bookmark-list-toggle'>" + showHide + "</div><div id='bookmark-list' style='" + style + "'>" + listItems + "</div></div>"
 
         // TODO - This is a hack to keep the scroll the same. Eventually
         // we want to not refresh it entirely on each change. Only
@@ -128,15 +139,34 @@ L.Control.BookmarksList = L.Control.extend({
         let inner = document.getElementById('bookmark-list')
         let scrollSave = null
         if (inner !== null) scrollSave = inner.scrollTop
-        this.list.innerHTML = "<div id='bookmark-list'>" + listItems + "</div>"
+        this.list.innerHTML = newHtml
         inner = document.getElementById('bookmark-list') // it's a new one now
         if (scrollSave !== null) inner.scrollTop = scrollSave
 
         setTimeout(() => { // setTimeout, my solution for everything. As written, it can't find bookmarks-export without this.
-            document.getElementById('bookmarks-export').addEventListener("click", clickBookmarksExport)
+            $('#bookmarks-export').off("click")
+            $('#bookmarks-export').on("click", clickBookmarksExport)
+            let thisControl = this
+            $('#bookmark-list-toggle').off("click")
+            $('#bookmark-list-toggle').on("click", () => {
+                // We can't just rely on toggle because the state would get
+                // reset when a new bookmark gets added (and yet we need to
+                // call .off("click") to not have multiple click handlers.
+                // I don't *really* understand what's going on here.)
+                if (thisControl.expanded) {
+                    $('#bookmark-list').slideUp()
+                    thisControl.expanded = false
+                    $('#bookmark-list-toggle').html("Show Bookmarks")
+                } else {
+                    $('#bookmark-list').slideDown()
+                    thisControl.expanded = true
+                    $('#bookmark-list-toggle').html("Hide Bookmarks")
+                }
+            })
             for (id in data.bookmarks) {
                 divId = `bookmark-list-${id}`
-                document.getElementById(divId).addEventListener("click", clickBookmarkListItem)
+                $('#' + divId).off("click")
+                $('#' + divId).on("click", clickBookmarkListItem)
             }
         }, 100)
     },
@@ -636,7 +666,7 @@ function setLoc() {
 
     // number of significant figures of lat/long that we save in the URL bar
     // so that we return there when we refresh
-    REFRESH_PRECISION = 4
+    REFRESH_PRECISION = 4 // TODO wait I didn't use this. I think I wanted to reduce the sigfigs to not have such a long URL.
 
     location = (
         "#loc" +
