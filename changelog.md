@@ -1,3 +1,8 @@
+# 2022/12/22 - appVersion 8
+
+* Fix start-up zoom to fit only one Pin
+* Fix start-up zoom to fit Pins on mobile (low width screen)
+
 # 2022/12/22 - appVersion 7
 
 * Permissions for downloading maps and editing bookmarks
