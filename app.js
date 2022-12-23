@@ -15,6 +15,19 @@ function isGrainSelected() {
     ) > 0;
 }
 
+function screenWidth() {
+    var body = document.body
+    var html = document.documentElement
+
+    return Math.min(
+        body.scrollWidth,
+        body.offsetWidth,
+        html.clientWidth,
+        html.scrollWidth,
+        html.offsetWidth,
+    );
+}
+
 var data = {bookmarks: {}}
 
 var initlBoundsStarted = false
@@ -36,7 +49,15 @@ function initBoundsLoop() {
     if (initialBounds !== null) return
 
     var [bounds, padding] = getBoundsFromHash() || getBoundsFromBookmarks() || getBoundsZoomedOut()
-    if (padding) {
+
+    MIN_DISTANCE = 0.0005
+    if (
+        Math.abs(bounds.getNorth() - bounds.getSouth()) < MIN_DISTANCE &&
+        Math.abs(bounds.getEast() - bounds.getWest()) < MIN_DISTANCE
+    ) {
+        // Probably just one marker
+        map.setView(L.latLng(bounds.getNorthWest()), 17)
+    } else if (padding) {
         map.fitBounds(bounds, {padding})
     } else {
         map.fitBounds(bounds)
@@ -641,11 +662,17 @@ function getBoundsFromBookmarks() {
         return null
     }
 
-    return [
-        bookmarkMarkerFeatureGroup.getBounds(),
+    if (screenWidth() > 400) {
         // Some padding is nice for keeping markers in view and not on the fringes
         // Horizontal is higher because of the menu on the left
-        [200, 50]
+        padding = [200, 50]
+    } else {
+        // If we're on mobile or something, padding will break, so forget it.
+        padding = null
+    }
+
+    return [
+        bookmarkMarkerFeatureGroup.getBounds(), padding
     ]
 }
 
