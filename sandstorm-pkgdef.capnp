@@ -51,24 +51,25 @@ const pkgdef :Spk.PackageDefinition = (
       # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
       icons = (
         # Various icons to represent the app in various contexts.
-        appGrid = (svg = embed "osm-logo.svg"),
-        grain = (svg = embed "osm-logo.svg"),
-        market = (svg = embed "osm-logo.svg"),
-        marketBig = (svg = embed "osm-logo.svg"),
+        appGrid = (svg = embed "market/osm-logo.svg"),
+        grain = (svg = embed "market/osm-logo.svg"),
+        market = (svg = embed "market/osm-logo.svg"),
+        marketBig = (svg = embed "market/osm-logo.svg"),
       ),
 
-      website = "http://example.com",
+      website = "https://github.com/orblivion/sandstorm-share-a-map",
       # This should be the app's main website url.
 
-      codeUrl = "http://example.com",
+      codeUrl = "https://github.com/orblivion/sandstorm-share-a-map",
       # URL of the app's source code repository, e.g. a GitHub URL.
       # Required if you specify a license requiring redistributing code, but optional otherwise.
 
-      license = (none = void),
+      # TODO - Lots of licenses though! Not sure which one to pick.
+      license = (none = apache2),
       # The license this package is distributed under.  See
       # https://docs.sandstorm.io/en/latest/developing/publishing-apps/#license
 
-      categories = [productivity],
+      categories = [other],
       # A list of categories/genres to which this app belongs, sorted with best fit first.
       # See the list of categories at
       # https://docs.sandstorm.io/en/latest/developing/publishing-apps/#categories
@@ -95,7 +96,7 @@ const pkgdef :Spk.PackageDefinition = (
         # Further details including how to set up GPG and how to use keybase.io can be found
         # at https://docs.sandstorm.io/en/latest/developing/publishing-apps/#verify-your-identity
 
-        upstreamAuthor = "Example App Team",
+        # upstreamAuthor = "Example App Team",
         # Name of the original primary author of this app, if it is different from the person who
         # produced the Sandstorm package. Setting this implies that the author connected to the PGP
         # signature only "packaged" the app for Sandstorm, rather than developing the app.
@@ -127,8 +128,7 @@ const pkgdef :Spk.PackageDefinition = (
         # Sizes are given in device-independent pixels, so if you took these
         # screenshots on a Retina-style high DPI screen, divide each dimension by two.
 
-        #(width = 746, height = 795, jpeg = embed "path/to/screenshot-1.jpeg"),
-        #(width = 640, height = 480, png = embed "path/to/screenshot-2.png"),
+        (width = 1700, height = 900, jpeg = embed "market/screenshots/screenshot-1.png"),
       ],
       changeLog = (defaultText = embed "changelog.md"),
       # Documents the history of changes in Github-flavored markdown format (with the same restrictions
