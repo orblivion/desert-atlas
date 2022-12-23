@@ -1,3 +1,15 @@
+Share-a-Map is a general purpose, fully self-hosted map app for [Sandstorm](https://sandstorm.io), based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+
+![Screenshot](market/screenshots/screenshot-1.png)
+
+It allows you to plan trip destinations with friends, store important locations, etc, and have access to the result on a convenient phone application like OrganicMaps. Use with a phone application currently requires manual export/import of a bookmarks file, but some day maybe we can have sync working. If there are other bits of standard functionality you would like to see, please let me know!
+
+Some self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With this app, all of the map data would be fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map. The map data needs to come from somewhere of course, so you need to download it, but you only need to download it once per grain. Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
+
+This is a work in progress. As of this writing, only a couple areas are supported. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
+
+This app is currently an "experimental" app [in the Sandstorm App Market](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true). You can try it as a demo from here, or install it on your Sandstorm instance.
+
 # Building
 
 `spk` only for now. **WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
