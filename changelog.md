@@ -1,3 +1,13 @@
+# 2022/12/22 - appVersion 7
+
+* Permissions for downloading maps and editing bookmarks
+* All bookmark pins visible at the same time
+* On startup, zoom to nicely fit all bookmarks (if you have any).
+  * This will be nice for sharing read-only, since they'll probably only want to see the pins anyway.
+* If you download a map and click on the download pin again, it will now to zoom to that map
+* Bookmarks list collapsable (will be a relief on the phone)
+* Limit 50 for search results (in case a ton get returned from the db)
+
 # 2022/12/14 - appVersion 6
 
 * Progress bar in UI for search import (to sqlite3).
