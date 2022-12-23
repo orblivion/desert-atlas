@@ -65,7 +65,7 @@ const pkgdef :Spk.PackageDefinition = (
       # Required if you specify a license requiring redistributing code, but optional otherwise.
 
       # TODO - Lots of licenses though! Not sure which one to pick.
-      license = (none = apache2),
+      license = (openSource = apache2),
       # The license this package is distributed under.  See
       # https://docs.sandstorm.io/en/latest/developing/publishing-apps/#license
 
