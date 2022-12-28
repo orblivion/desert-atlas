@@ -1,10 +1,12 @@
-Share-a-Map is a general purpose, fully self-hosted map app for [Sandstorm](https://sandstorm.io), based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+Share-A-Map is a general purpose, fully self-hosted map app for [Sandstorm](https://sandstorm.io), based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
 
 ![Screenshot](market/screenshots/screenshot-1.png)
 
-It allows you to plan trip destinations with friends, store important locations, etc, and have access to the result on a convenient phone application like OrganicMaps. Use with a phone application currently requires manual export/import of a bookmarks file, but some day maybe we can have sync working. If there are other bits of standard functionality you would like to see, please let me know!
+Share-A-Map allows you to plan trip destinations with friends, store important locations, etc, and have access to the result on a convenient phone application like OrganicMaps. Use with a phone application currently requires manual export/import of a bookmarks file, but perhaps some day (with some work on the phone app side) there could be a sync option. If there are other bits of standard functionality you would like to see, please let me know!
 
 Some self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With this app, all of the map data would be fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map. The map data needs to come from somewhere of course, so you need to download it, but you only need to download it once per grain. Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
+
+This is simpler than other fully self-hosted OSM solutions, because the tech stack is much simpler. The full OSM stack generally includes something like postgres for generating tiles and elasticsearch for search. Neither postgres or elasticsearch play nicely with Sandstorm, and in any case startup would probably be slow. Share-A-Map uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search. This likely makes search less sophisticated but hopefully the tradeoff works well for this use case.
 
 This is a work in progress. As of this writing, only a couple areas are supported. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
 
