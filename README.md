@@ -1,4 +1,4 @@
-Share-A-Map is a general purpose, fully self-hosted map app for [Sandstorm](https://sandstorm.io), based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+Share-A-Map is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
 
 ![Screenshot](market/screenshots/screenshot-1.png)
 
@@ -11,6 +11,34 @@ The tech stack is much simpler than other fully self-hosted OSM solutions. The f
 This is a work in progress. As of this writing, only a couple areas are supported. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
 
 This app is currently an "experimental" app [in the Sandstorm App Market](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true). You can try it as a demo from here, or install it on your Sandstorm instance.
+
+## What is Sandstorm?
+
+Sandstorm is a user friendly platform for self-hosted web applications. Installation of the Sandstorm platform itself is pretty easy, and it updates itself in the background automatically. Once the platform is installed, everything is administered in-browser. Installing individual apps is like using an app store on the phone or desktop. The headaches of maintaning individual web apps are gone.
+
+From a developer's point of view it can be a double-edged sword. Sandstorm has usability and security features built in, taking care of a lot of the overhead, allowing devs to focus on the core features of the app. On the other hand, it comes with a lot of restrictions, which can be especially challenging when porting existing apps. Share-A-Map is a new app, but it reuses some existing components that took a little work to fit into Sandstorm's restrictions.
+
+You can read about Sandstorm's model in some depth [on their website](https://sandstorm.io/how-it-works), but we'll go over it briefly here.
+
+### Users and Grains
+
+Most self-hosted web applications come in a single installation to handle all of its users. A usual word processor web application, for example, might have 2 users and 3 documents in one database. With Sandstorm's model, each app is designed to be controlled by only one user and (ideally) have only one document. However, Sandstorm will allow any user to spin up any number of their own instances of the app on demand, each with its own database and other data. These instances are called "grains".
+
+### Sandbox Environment
+
+Sandstorm apps run in a restrictive, isolated container environment. No grain has access to any other grain without explicit user permission (via a popup in the UI), whether of the same or different apps.
+
+Sandstorm restricts the app's access to the kernel API, which adds security. The environment is also single-user (as in, Unix user), which makes running databases like Postgres very difficult. However sqlite tends to scale just fine on Sandstorm because each grain will rarely have more than a few users interacting with it. Sqlite also starts faster, which is good since grains start and stop often on Sandstorm. The standard "full OpenStreetMap stack" for Share-A-Map uses Postgres and Elasticsearch, so I opted for more stripped-down alternatives.
+
+All of the grain's data ends up in one directory, making grain backups a simple matter of clicking a button in the UI and downloading a zip file.
+
+### Connections and Access
+
+Each grain's url contains a randomly generated string, making it hard for attackers to guess. A user can share one of their grains with other users (or even non-users) via a share link that contains its own hard-to-guess string. Each share link is revokable, and has a permission level associated. While the permissions UI is built into Sandstorm, the app defines the permission levels and is responsible for implementing them. For instance Share-A-Map has separate permissions for downloading map data and editing bookmarks.
+
+Inbound connections go through a proxy to handle authentication. It adds special headers to tell the app which Sandstorm user is making the request and what permissions they're supposed to have.
+
+Outbound network connections from the backend require explicit user permission (again via a popup) to prevent a malicious app from "phoning home". Share-A-Map makes use of this as users request to download map data for a given region.
 
 # Building
 
@@ -102,3 +130,4 @@ These things aren't vendored in this repo, but they will be bundled in the resul
 * Protomaps JS (with modifications) - BSD 3-Clause
 * Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, and plan to rewrite it in Go.
 * Powerbox Proxy (for Sandstorm) - Apache 2
+
