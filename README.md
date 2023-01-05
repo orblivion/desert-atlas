@@ -22,7 +22,7 @@ You can read about Sandstorm's model in some depth [on their website](https://sa
 
 ### Users and Grains
 
-Most self-hosted web applications come in a single installation to handle all of its users. A usual word processor web application, for example, might have two users, each owning three documents in one database. With Sandstorm's model, each app is designed to be controlled by only one user and (ideally) have only one document. However, with Sandstorm those same two users would each spin up three different instances of the app on demand, each with its own database. These instances are called "grains".
+Most self-hosted web applications come in a single installation to handle all of its users. A usual word processor web application, for example, might have two users, each owning three documents in one database. With Sandstorm's model, a word processor app would be designed to be controlled by only one user and have only one document. However, those same two users would still be able to each have 3 documents by spinning up three different instances of the app on demand, each with its own database. These instances are called "grains".
 
 ### Sandbox Environment
 
