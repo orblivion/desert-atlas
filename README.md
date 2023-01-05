@@ -10,7 +10,7 @@ The tech stack is much simpler than other fully self-hosted OSM solutions. The f
 
 This is a work in progress. As of this writing, only a couple areas are supported. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
 
-This app is currently an "experimental" app [in the Sandstorm App Market](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true). You can try it as a demo from here, or install it on your Sandstorm instance.
+You can check out a live demo [here](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
 
 ## What is Sandstorm?
 
