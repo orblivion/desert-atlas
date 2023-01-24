@@ -17,6 +17,13 @@ def print_err(*lines):
     sys.stderr.write(" ".join(str(line) for line in lines) + "\n")
     sys.stderr.flush()
 
+def get_permissions(headers):
+    if is_local:
+        # local demo gets all permissions
+        return ['bookmarks', 'download']
+    else:
+        return headers['X-Sandstorm-Permissions'].split(',')
+
 if is_local:
     # Can't mess with var if not in sandstorm
     # TODO - allow param to be set to save it, and a different param for this. require one or the other.
@@ -138,7 +145,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         url = urllib.parse.urlparse(self.path)
-        permissions = self.headers['X-Sandstorm-Permissions'].split(',')
+        permissions = get_permissions(self.headers)
         if url.path == '/bookmark':
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.Forbidden)
@@ -194,7 +201,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
         if url.path == '/app.js':
-            permissions = self.headers['X-Sandstorm-Permissions'].split(',')
+            permissions = get_permissions(self.headers)
 
             self.send_response(HTTPStatus.OK)
             self.end_headers()
