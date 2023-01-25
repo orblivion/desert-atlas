@@ -273,7 +273,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 with zipfile.ZipFile(kmz_path, "w") as zf:
                     zf.write(kml_path, "doc.kml")
                 self.send_response(HTTPStatus.OK)
-                self.send_header('Content-Disposition', 'attachment; filename=export.kmz')
+                self.send_header('Content-Disposition', 'attachment;filename=export.kmz')
+                self.send_header('Content-Type', 'application/vnd.google-earth.kmz')
                 self.end_headers()
                 self.wfile.write(open(kmz_path, "rb").read())
             return
@@ -283,7 +284,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             fname = url.path.split('/')[-1]
             qs = urllib.parse.parse_qs(url.query)
             self.send_response(HTTPStatus.PARTIAL_CONTENT)
-            self.send_header('Content-type','application/pbf')
+            self.send_header('Content-Type','application/pbf')
             first, last = int(qs['rangeFirst'][0]), int(qs['rangeLast'][0])
             # Hack, until we get range headers in Sandstorm
             #first, last = byterange(self.headers['Range'])
@@ -297,7 +298,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             fname = url.path.split('/')[-1]
             qs = urllib.parse.parse_qs(url.query)
             self.send_response(HTTPStatus.PARTIAL_CONTENT)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-Type','application/json')
             self.end_headers()
             self.wfile.write(open(os.path.join("base-map", fname), 'rb').read())
             return
