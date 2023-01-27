@@ -10,9 +10,6 @@ OUTPUT_DIR=output
 
 mkdir -p $BUILD_DIR
 
-# TODO - loop over all of the regions
-REGION=new-hampshire
-
 PBF_FILE_NAME=$REGION-latest.osm.pbf
 PBF_FILE_TMP=$BUILD_DIR/$PBF_FILE_NAME
 # Keep pbf file (not in a temp dir). Don't want to abuse Geofabrik by
