@@ -5,3 +5,4 @@ protomaps.js/protomaps.js.orig
 jquery/jquery.min.js
 leaflet/leaflet.js
 leaflet/leaflet.css
+generate-data/pbf/*.pbf

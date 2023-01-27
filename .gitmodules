@@ -4,3 +4,9 @@
 [submodule "leaflet-search"]
 	path = leaflet-search
 	url = https://github.com/stefanocudini/leaflet-search
+[submodule "generate-data/tilemaker"]
+	path = generate-data/tilemaker
+	url = https://github.com/systemed/tilemaker
+[submodule "generate-data/go-pmtiles"]
+	path = generate-data/go-pmtiles
+	url = https://github.com/protomaps/go-pmtiles
