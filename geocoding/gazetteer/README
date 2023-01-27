@@ -1,7 +1,0 @@
-Get gazetteer.jar with get-gazetteer.sh
-
-Get large region osm.bz2 files from https://download.geofabrik.de
-
-Then export to make the out.tar.gz. Then the protomaps app can use it.
-
-a-few-exports.sh is a temp little thing I made to export specific regions I was trying out

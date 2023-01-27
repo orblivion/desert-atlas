@@ -1,0 +1,11 @@
+This was my first attempt at extracting search data out of regional pbf files. I later switched to a custom python script using pyosmium (found in generate-data) because gazetteer was crashing a lot. That said, I see the benefit of such a tool; classifying OSM data isn't trivial. Maybe I'll go back to it later.
+
+---
+
+Get gazetteer.jar with get-gazetteer.sh
+
+Get large region osm.bz2 files from https://download.geofabrik.de
+
+Then export to make the out.tar.gz. Then the protomaps app can use it.
+
+a-few-exports.sh is a temp little thing I made to export specific regions I was trying out
