@@ -429,6 +429,7 @@ function process_water_polygons(way, way_area)
 
     -- TODO - why doesn't Cocheco river in Dover NH show up?
     -- TODO - why don't those bodies of water next to New Castle NH shohw up? Though I guess the normal protomaps tiles even miss those(?)
+    -- TODO - wait, the above actually looks good now for some reason. Did I accidentally fix it?
     -- TODO - Maybe I need the ocean shapefiles etc.
     -- TODO - Show big lakes only when you're zoomed in enough
 
@@ -528,6 +529,7 @@ function process_land(way)
 	local amenity = way:Find("amenity")
 
     -- TODO natural glacier here? or keep it in water?
+    -- TODO - Prescott Park in Portsmouth NH should obviously be green but it's not
 
 	if landuse == "forest" or natural == "wood" then
         do_natural(way, "wood", 7)
