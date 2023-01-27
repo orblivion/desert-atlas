@@ -1,5 +1,5 @@
---- protomaps.js.orig	1985-10-26 04:15:00.000000000 -0400
-+++ protomaps.js	2022-12-09 15:54:53.711000000 -0500
+--- protomaps.js.orig	2023-01-26 21:38:08.488000000 -0500
++++ protomaps.js	2023-01-26 21:43:15.780000000 -0500
 @@ -1,3 +1,12 @@
 +// Until we get range headers in Sandstorm
 +function sandstormRangeHack(url, rangeFirst, rangeLast) {
@@ -13,63 +13,33 @@
  var protomaps = (() => {
    var __create = Object.create;
    var __defProp = Object.defineProperty;
-@@ -1780,7 +1789,10 @@
-             this.outstanding_requests.get(offset).push(resolve);
-           } else {
-             this.outstanding_requests.set(offset, []);
--            fetch(this.url, {headers: {Range: "bytes=" + offset + "-" + (offset + len - 1)}}).then((resp) => {
-+            const rangeFirst = offset
-+            const rangeLast = (offset + len - 1)
-+            const rangeUrl = sandstormRangeHack(this.url, rangeFirst, rangeLast)
-+            fetch(rangeUrl, {headers: {Range: "bytes=" + rangeFirst + "-" + rangeLast}}).then((resp) => {
-               return resp.arrayBuffer();
-             }).then((buf) => {
-               var map = bytesToMap(new DataView(buf), len / 17);
-@@ -1833,7 +1845,10 @@
-           var strid = tid.z + "_" + tid.x + "_" + tid.y;
-           this.getZxy(tid.z, tid.x, tid.y).then((val) => {
-             if (val) {
--              done({url: this.url, headers: {Range: "bytes=" + val[0] + "-" + (val[0] + val[1] - 1)}});
-+              const rangeFirst = val[0]
-+              const rangeLast = (val[0] + val[1] - 1)
-+              const rangeUrl = sandstormRangeHack(this.url, rangeFirst, rangeLast)
-+              done({url: rangeUrl, headers: {Range: "bytes=" + rangeFirst + "-" + rangeLast}});
-             }
+@@ -2487,9 +2496,12 @@
+           controller = new AbortController();
+           signal = controller.signal;
+         }
+-        let resp = yield fetch(this.url, {
++        const rangeFirst = offset
++        const rangeLast = (offset + length - 1)
++        const rangeUrl = sandstormRangeHack(this.url, rangeFirst, rangeLast)
++        let resp = yield fetch(rangeUrl, {
+           signal,
+-          headers: { Range: "bytes=" + offset + "-" + (offset + length - 1) }
++          headers: { Range: "bytes=" + rangeFirst + "-" + rangeLast }
+         });
+         if (resp.status === 416 && offset === 0) {
+           const content_range = resp.headers.get("Content-Range");
+@@ -2497,9 +2509,12 @@
+             throw Error("Missing content-length on 416 response");
+           }
+           const actual_length = +content_range.substr(8);
+-          resp = yield fetch(this.url, {
++          const rangeFirst = 0
++          const rangeLast = (actual_length - 1)
++          const rangeUrl = sandstormRangeHack(this.url, rangeFirst, rangeLast)
++          resp = yield fetch(rangeUrl, {
+             signal,
+-            headers: { Range: "bytes=0-" + (actual_length - 1) }
++            headers: { Range: "bytes=" + rangeFirst + "-" + rangeLast }
            });
          }
-@@ -1848,7 +1863,10 @@
-             self2.getZxy(coord.z, coord.x, coord.y).then((result) => {
-               if (result === null)
-                 return;
--              fetch(self2.url, {headers: {Range: "bytes=" + result[0] + "-" + (result[0] + result[1] - 1)}}).then((resp) => {
-+              const rangeFirst = result[0]
-+              const rangeLast = (result[0] + result[1] - 1)
-+              const rangeUrl = sandstormRangeHack(self2.url, rangeFirst, rangeLast)
-+              fetch(rangeurl, {headers: {Range: "bytes=" + rangeFirst + "-" + rangeLast}}).then((resp) => {
-                 return resp.arrayBuffer();
-               }).then((buf) => {
-                 var blob = new Blob([buf], {type: "image/png"});
-@@ -1880,7 +1898,10 @@
-       this.url = url;
-       const controller = new AbortController();
-       const signal = controller.signal;
--      this.root = fetch(this.url, {signal, headers: {Range: "bytes=0-511999"}}).then((resp) => {
-+      const rangeFirst = 0
-+      const rangeLast = 511999
-+      const rangeUrl = sandstormRangeHack(this.url, rangeFirst, rangeLast)
-+      this.root = fetch(rangeUrl, {signal, headers: {Range: "bytes=" + rangeFirst + "-" + rangeLast}}).then((resp) => {
-         if (resp.headers.get("Content-Length") != 512e3) {
-           console.error("Content-Length mismatch indicates byte serving not supported; aborting.");
-           controller.abort();
-@@ -1959,7 +1980,10 @@
-         this.controllers.push([c.z, controller]);
-         const signal = controller.signal;
-         return new Promise((resolve, reject) => {
--          fetch(this.p.url, {headers: {Range: "bytes=" + result[0] + "-" + (result[0] + result[1] - 1)}, signal}).then((resp) => {
-+          const rangeFirst = result[0]
-+          const rangeLast = (result[0] + result[1] - 1)
-+          const rangeUrl = sandstormRangeHack(this.p.url, rangeFirst, rangeLast)
-+          fetch(rangeUrl, {headers: {Range: "bytes=" + rangeFirst + "-" + rangeLast}, signal}).then((resp) => {
-             return resp.arrayBuffer();
-           }).then((buffer) => {
-             let result2 = parseTile(buffer);
+         if (resp.status >= 300) {

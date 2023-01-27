@@ -285,8 +285,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             qs = urllib.parse.parse_qs(url.query)
             self.send_response(HTTPStatus.PARTIAL_CONTENT)
             self.send_header('Content-Type','application/pbf')
-            first, last = int(qs['rangeFirst'][0]), int(qs['rangeLast'][0])
             # Hack, until we get range headers in Sandstorm
+            if 'rangeFirst' in qs:
+                first, last = int(qs['rangeFirst'][0]), int(qs['rangeLast'][0])
+            else:
+                first, last = 0, len(filemaps[fname])
+            # In case we want to go back to the original for a second
             #first, last = byterange(self.headers['Range'])
             self.send_header('Content-Length',str(last-first+1))
             self.end_headers()

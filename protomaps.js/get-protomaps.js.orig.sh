@@ -2,6 +2,6 @@
 
 set -euf -o pipefail
 
-wget https://unpkg.com/protomaps@0.3.5/dist/protomaps.js -O /tmp/protomaps.js
-sha256sum /tmp/protomaps.js | grep 844230d1b0269a1a9fd10ff36d786d198a7b89a70fe21811281c091c1a64efc3 || (echo "sha256sum did not match"; exit 1)
+wget https://unpkg.com/protomaps@1.23.0/dist/protomaps.js -O /tmp/protomaps.js
+sha256sum /tmp/protomaps.js | grep 34c1522a16d8df029938a5494147d4fdd6cf050553e6f5b8b145e3e2bc0cd364 || (echo "sha256sum did not match"; exit 1)
 mv /tmp/protomaps.js protomaps.js.orig

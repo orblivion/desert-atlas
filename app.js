@@ -266,11 +266,22 @@ const searchMarker = L.marker([0, 0], {
             .openOn(map)
     })
 
+// TODO - put this in the manifest
+let areaBoundses = {
+    psmt: [[42.91268628221676, -71.00601196289064],[43.26870627217971, -70.69427490234376]],
+    bstn: [[42.321239545673116, -71.12789154052736], [42.39405131362432, -70.9490203857422]]
+}
+
 // TODO - Properly extend other marker classes
 
 const downloadPopup = L.popup()
 
-function downloadMarker(name, tileId, coords) {
+function downloadMarker(name, tileId) {
+        let bounds = areaBoundses[tileId]
+        let coords = [
+            (bounds[1][0] + bounds[0][0]) / 2,
+            (bounds[1][1] + bounds[0][1]) / 2,
+        ]
         return L.marker([0, 0], {
             icon: new L.Icon({
                 iconUrl: 'assets/images/bookmark-marker.svg', // TODO different color
@@ -307,8 +318,8 @@ function downloadMap(tileId) {
 
 // TODO - grab from manifest
 downloadMarkers = {
-    psmt: downloadMarker('New Hampshire seacoast', 'psmt', [43.0718, -70.7626]),
-    bstn: downloadMarker('Boston area', 'bstn', [42.3551, -71.0657]),
+    psmt: downloadMarker('New Hampshire seacoast', 'psmt'),
+    bstn: downloadMarker('Boston area', 'bstn'),
 }
 
 if (permissions.indexOf("download") !== -1) {
@@ -529,8 +540,6 @@ function loadAvailableAreas() {
     }))
 }
 
-areaBoundses = {}
-
 // TODO
 // Have this check loaded[filename] or whatever. If set, return (take it out of
 // loadAvailableAreas). If not set, set it *before* and proceed. Should prevent double
@@ -544,32 +553,17 @@ function loadArea(tilesName) {
     loaded[tilesName] = "started"
     console.log('adding', tilesName)
 
-    const area = new protomaps.PMTiles(tilesName)
-    return area.metadata().then(areaMetadata => {
-        let bounds_str
-        let bounds
-
-        bounds_str = areaMetadata.bounds.split(',')
-        areaBounds = [
-            [+bounds_str[1], +bounds_str[0]],
-            [+bounds_str[3], +bounds_str[2]]
-        ]
-        areaLayer = new protomaps.LeafletLayer({
-            attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
-            url: area,
-            bounds: areaBounds
-        })
-        areaLayer.addTo(map)
-
-        let tnSplit = tilesName.split('.pmtiles')
-        if (tnSplit.length != 2 || tnSplit[1] !== "") throw "tilesName not formatted as expected"
-        let tileId = tnSplit[0]
-        areaBoundses[tileId] = areaBounds
+    areaLayer = protomaps.leafletLayer({
+        attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+        url: tilesName,
     })
-    .then(() => {
-        console.log('added', tilesName)
-        loaded[tilesName] = "done"
-    })
+    areaLayer.addTo(map)
+
+    let tnSplit = tilesName.split('.pmtiles')
+    if (tnSplit.length != 2 || tnSplit[1] !== "") throw "tilesName not formatted as expected"
+    let tileId = tnSplit[0]
+    console.log('added', tilesName)
+    loaded[tilesName] = "done"
 }
 
 function getGeoJson(name) {
