@@ -1,9 +1,6 @@
 [submodule "powerbox-http-proxy"]
 	path = powerbox-http-proxy
 	url = https://github.com/zenhack/powerbox-http-proxy
-[submodule "Leaflet"]
-	path = Leaflet
-	url = https://github.com/Leaflet/Leaflet
 [submodule "leaflet-search"]
 	path = leaflet-search
 	url = https://github.com/stefanocudini/leaflet-search

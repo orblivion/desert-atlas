@@ -2,8 +2,6 @@
 # This file is automatically updated and rewritten in sorted order every time
 # the app runs in dev mode. You may manually add or remove files, but don't
 # expect comments or ordering to be retained.
-Leaflet/dist/leaflet.css
-Leaflet/dist/leaflet.js
 __pycache__/query.cpython-39.pyc
 app.js
 assets/css/leaflet-search.css
@@ -35,6 +33,8 @@ leaflet-search/images/loader.gif
 leaflet-search/images/search-icon.png
 leaflet-search/src/leaflet-search.css
 leaflet-search/src/leaflet-search.js
+leaflet/leaflet.css
+leaflet/leaflet.js
 lib
 lib32
 lib64

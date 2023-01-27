@@ -1,1 +1,1 @@
-../../Leaflet/dist/leaflet.js
+../../leaflet/leaflet.js
