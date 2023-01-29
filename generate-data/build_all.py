@@ -23,7 +23,7 @@ manifest = {
         "files" : [
             os.path.basename(path)
             for path
-            in glob(os.path.join(output_dir, region + '.tar.gz.[0-9]*'))
+            in sorted(glob(os.path.join(output_dir, region + '.tar.gz.[0-9]*')))
         ],
     }
     for region in regions
