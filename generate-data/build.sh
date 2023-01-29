@@ -31,7 +31,7 @@ ls $PBF_FILE || (wget https://download.geofabrik.de/north-america/us/$REGION-lat
 
 python3 extract_search.py $PBF_FILE $SEARCH_FILE
 
-./tilemaker/build/tilemaker \
+./tilemaker/tilemaker \
     --config config-protomaps.json \
     --process process-protomaps.lua \
     --input $PBF_FILE \
