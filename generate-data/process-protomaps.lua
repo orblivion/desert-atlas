@@ -289,7 +289,7 @@ function process_place_layer(node)
 		local populationNum = tonumber(population)
 		if populationNum ~= nil then
 			node:AttributeNumeric("population", populationNum)
-			node:ZOrder(math.floor(math.log(populationNum) * 10))
+			node:ZOrder(math.floor(math.log(populationNum) * 5))
 		end
 	end
 end
