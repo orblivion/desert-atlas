@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import subprocess, os, json
+import subprocess, os, json, time
 from glob import glob
 from pprint import pprint
 
@@ -10,23 +10,24 @@ regions = [
     "massachusetts",
 ]
 
-MANIFEST_PATH = "output/manifest.json"
+output_dir = os.path.join("output", str(time.time()))
+manifest_path = os.path.join(output_dir, "manifest.json")
 
-os.remove(MANIFEST_PATH)
+os.makedirs(output_dir)
 
 for region in regions:
-    subprocess.run(['bash', 'build.sh'], env={"REGION": region})
+    subprocess.run(['bash', 'build.sh'], env={"REGION": region, "OUTPUT_DIR": output_dir})
 
 manifest = {
     region: {
         "files" : [
             os.path.basename(path)
             for path
-            in glob(os.path.join("output", region + '.tar.gz.[0-9]*'))
+            in glob(os.path.join(output_dir, region + '.tar.gz.[0-9]*'))
         ],
     }
     for region in regions
 }
 
-with open(MANIFEST_PATH, "w") as f:
+with open(manifest_path, "w") as f:
     json.dump(manifest, f, indent=2)

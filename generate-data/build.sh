@@ -6,7 +6,6 @@ HERE="$(dirname "$(readlink -f "$0")")"
 cd $HERE
 
 BUILD_DIR=$(mktemp -d)
-OUTPUT_DIR=output
 
 mkdir -p $BUILD_DIR
 
