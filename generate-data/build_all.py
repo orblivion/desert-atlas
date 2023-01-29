@@ -10,6 +10,10 @@ regions = [
     "massachusetts",
 ]
 
+MANIFEST_PATH = "output/manifest.json"
+
+os.remove(MANIFEST_PATH)
+
 for region in regions:
     subprocess.run(['bash', 'build.sh'], env={"REGION": region})
 
@@ -24,5 +28,5 @@ manifest = {
     for region in regions
 }
 
-with open("output/manifest.json", "w") as f:
+with open(MANIFEST_PATH, "w") as f:
     json.dump(manifest, f, indent=2)
