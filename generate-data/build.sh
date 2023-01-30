@@ -6,8 +6,9 @@ HERE="$(dirname "$(readlink -f "$0")")"
 cd $HERE
 
 BUILD_DIR=$(mktemp -d)
+PKG_DIR=$BUILD_DIR/pkg
 
-mkdir -p $BUILD_DIR
+mkdir $PKG_DIR
 
 PBF_FILE_NAME=$REGION-latest.osm.pbf
 PBF_FILE_TMP=$BUILD_DIR/$PBF_FILE_NAME
@@ -15,14 +16,13 @@ PBF_FILE_TMP=$BUILD_DIR/$PBF_FILE_NAME
 # downloading over and over in case we need to re-run this.
 PBF_FILE=pbf/$PBF_FILE_NAME
 
-MBT_FILE=$BUILD_DIR/$REGION.mbtiles
-PMT_FILE=$BUILD_DIR/$REGION.pmtiles
-SEARCH_FILE=$BUILD_DIR/$REGION.csv
+MBT_FILE=$BUILD_DIR/tiles.mbtiles
+PMT_FILE=$PKG_DIR/tiles.pmtiles
+SEARCH_FILE=$PKG_DIR/search.csv
 
 # Note the . at the end. The package will be split into mulitple files
 # and they will be numbered, starting with this prefix.
 PKG_PREFIX=$REGION.tar.gz.
-PKG_TMP=$(mktemp)
 
 # Download *only if we don't have it already* (again, not to abuse Geofabrik)
 # TODO - could md5 verify that we have the right thing
@@ -38,7 +38,10 @@ python3 extract_search.py $PBF_FILE $SEARCH_FILE
 
 ./go-pmtiles/go-pmtiles convert $MBT_FILE $PMT_FILE
 
-rm $MBT_FILE # We don't want it in the resulting package.
+# Remember that `pkg` is the package dir, and it's in the build dir. We want to
+# be here so that the tree of the tar shows up the way we want.
+cd $BUILD_DIR
+tar -czvf pkg.tar.gz pkg
 
-tar -czvf $PKG_TMP $BUILD_DIR
-split -d -b 2M $PKG_TMP $OUTPUT_DIR/$PKG_PREFIX
+cd -
+split -d -b 2M $BUILD_DIR/pkg.tar.gz $OUTPUT_DIR/$PKG_PREFIX
