@@ -62,12 +62,12 @@ class SearchIndexer(o.SimpleHandler):
             }
         ) and e.tags.get('emergency') != "ambulance_station"
 
-    def _write_row(self, name, x, y):
+    def _write_row(self, name, lat, lng):
         self.csv_writer.writerow(
             {
                 "name": name,
-                "lat": y,
-                "lng": x,
+                "lat": lat,
+                "lng": lng,
             }
         )
 
@@ -79,9 +79,7 @@ class SearchIndexer(o.SimpleHandler):
             pprint(dict(n.tags), skipfile)
             return
 
-        #if set(n.tags["name"]) <= set(string.digits):
-        #    pprint(dict(n.tags))
-        self._write_row(n.tags["name"], n.location.x, n.location.y)
+        self._write_row(n.tags["name"], n.location.lat, n.location.lon)
 
     def way(self, w):
         if self._skip_quietly(w):
