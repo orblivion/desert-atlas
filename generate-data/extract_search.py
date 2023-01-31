@@ -41,26 +41,29 @@ class SearchIndexer(o.SimpleHandler):
 
     def _skip_loudly(self, e):
         # We want to skip and make note of it for debugging
-        return not set(dict(e.tags)).intersection(
-            {
-                "building",
-                "amenity",
-                "shop",
-                "place",
-                "natural",
-                "landuse",
-                "historic",
-                "leisure",
-                "waterway",
-                "tourism",
-                "junction",  # Some of these seem to have useful names so long as we remove the number-only ones
-                (  # TODO - Oh boy. We need to deduplicate a ton here. Maybe combine based on
-                    # common nodes. Or basic proximity. But also, we need duplicated names to
-                    # show up in search results in the first place.
-                    "highway"
-                ),
-            }
-        ) and e.tags.get('emergency') != "ambulance_station"
+        return (
+            not set(dict(e.tags)).intersection(
+                {
+                    "building",
+                    "amenity",
+                    "shop",
+                    "place",
+                    "natural",
+                    "landuse",
+                    "historic",
+                    "leisure",
+                    "waterway",
+                    "tourism",
+                    "junction",  # Some of these seem to have useful names so long as we remove the number-only ones
+                    (  # TODO - Oh boy. We need to deduplicate a ton here. Maybe combine based on
+                        # common nodes. Or basic proximity. But also, we need duplicated names to
+                        # show up in search results in the first place.
+                        "highway"
+                    ),
+                }
+            )
+            and e.tags.get("emergency") != "ambulance_station"
+        )
 
     def _write_row(self, name, lat, lng):
         self.csv_writer.writerow(
