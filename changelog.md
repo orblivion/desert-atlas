@@ -1,3 +1,12 @@
+# 2023/01/31 - appVersion 9
+
+* Switch search import format to csv
+* Offer 3 entire U.S. states: IL, MA, NH (not just small regions).
+  * Caveat 1: To get such big regions, I generate my own tiles now instead of downloading manually from Protomaps' website. However this required a fair amount of playing with how the data is represented. I now deem it *passable* but it could use a lot of improvement. See generate-data/ directory for details.
+  * Caveat 2: The search data that I put in the CSV *only includes nodes* (points) for the time being. I have to figure out how to get the data I need out of the ways (lines and areas), which will include buildings and streets.
+* Upgrade protomaps.js (necessary for the newly generated tiles) and leaflet (maybe not necessary but nice to have)
+* Bugfix for exporting of .kmz file - Set the content type. Chromium on Android was appending .zip.
+
 # 2022/12/22 - appVersion 8
 
 * Fix start-up zoom to fit only one Pin
