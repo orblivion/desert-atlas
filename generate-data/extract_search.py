@@ -85,6 +85,8 @@ class SearchIndexer(o.SimpleHandler):
         self._write_row(n.tags["name"], n.location.lat, n.location.lon)
 
     def way(self, w):
+        return # TEMP - this is generating bad coordinates. TODO fix and re-enable
+
         if self._skip_quietly(w):
             return
 
