@@ -268,8 +268,9 @@ const searchMarker = L.marker([0, 0], {
 
 // TODO - put this in the manifest
 let areaBoundses = {
-    psmt: [[42.91268628221676, -71.00601196289064],[43.26870627217971, -70.69427490234376]],
-    bstn: [[42.321239545673116, -71.12789154052736], [42.39405131362432, -70.9490203857422]]
+    "new-hampshire": [[42.69699, -72.557247],[45.305476, -70.610621]],
+    "massachusetts": [[41.237964, -73.508142], [42.886589, -69.928393]],
+    "illinois": [[36.970298, -91.513079], [42.508481, -87.494756]],
 }
 
 // TODO - Properly extend other marker classes
@@ -318,8 +319,9 @@ function downloadMap(tileId) {
 
 // TODO - grab from manifest
 downloadMarkers = {
-    psmt: downloadMarker('New Hampshire seacoast', 'psmt'),
-    bstn: downloadMarker('Boston area', 'bstn'),
+    "new-hampshire": downloadMarker('New Hampshire', "new-hampshire"),
+    "massachusetts": downloadMarker('Massachusetts', "massachusetts"),
+    "illinois": downloadMarker('Illinois', "illinois"),
 }
 
 if (permissions.indexOf("download") !== -1) {

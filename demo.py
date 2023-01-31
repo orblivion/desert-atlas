@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, glob, urllib.parse, tempfile, gzip, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile
+import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile
 
 import query
 
@@ -53,8 +53,7 @@ if not os.path.exists(bookmarks_path):
     with open(bookmarks_path, 'w') as f:
         f.write("{}")
 
-# TODO - The downloads be a csv with only the data we need. We might even be able
-#   to import it with sqlite's csv import feature. However:
+# TODO - Try to import with sqlite's csv import feature? However:
 # * If csv import *allows for appending* to a table, we'd delete where tile_id=xyz
 #   as now
 # * If csv import *does not allow for appending* to a table, we'd need to either
@@ -81,37 +80,39 @@ def import_search(tile_id, search_import_fname):
 
     # TODO - make a transaction so that on error we roll back the delete and can fall back to previous data
     cur.execute('DELETE from locations where tile_id=?', (tile_id,))
-    map_update_status[tile_id]['searchImportTotal'] = os.path.getsize(search_import_fname)
-    map_update_status[tile_id]['searchImportDone'] = 0
-    with gzip.open(search_import_fname, 'r') as gzip_f:
-        for line in gzip_f:
-            map_update_status[tile_id]['searchImportDone'] = gzip_f.fileobj.tell()
-            location = json.loads(line.decode('utf-8'))
-            if 'name' in location:
-                # TODO - Deal with duplicates somehow. There seem to be
-                # address points and poi points. I guess we probably want
-                # to collect all of that eventually into one entry, though.
+    with open(search_import_fname, 'r') as f:
+        fieldnames = ["name", "lat", "lng"]
+        map_update_status[tile_id]['searchImportTotal'] = sum(1 for _ in csv.DictReader(f, fieldnames=fieldnames))
+        map_update_status[tile_id]['searchImportDone'] = 0
 
-                # TODO cur.executemany? I'm afraid that it might OOM. Can it
-                # work with a generator though?
-                cur.execute(
-                    'INSERT INTO locations VALUES (?, ?, ?, ?, ?)',
-                    (
-                        location['name'],
-                        query.search_normalize_save(location['name']),
-                        tile_id,
-                        location["center_point"]["lat"],
-                        location["center_point"]["lon"],
-                    ),
-                )
-            else:
-                pass
-                # TODO - There may still be useful things to extract here. amenity=, etc, that are not named.
-                # But we should be careful. For instance I found ferry terminals without names. But maybe the
-                # associated port POI has a name?
-                # That said, something like toilets may be a useful search.
-                # Maybe we could have the `name` and a few useful tags (amenities etc) in one table,
-                # and fts5 vtable have a foreign key with it
+        f.seek(0)
+        reader = csv.DictReader(f, fieldnames=fieldnames)
+        for idx, row in enumerate(reader):
+            map_update_status[tile_id]['searchImportDone'] = idx + 1
+
+            cur.execute(
+                'INSERT INTO locations VALUES (?, ?, ?, ?, ?)',
+                (
+                    row['name'],
+                    query.search_normalize_save(row['name']),
+                    tile_id,
+                    row["lat"],
+                    row["lng"],
+                ),
+            )
+            # TODO - Deal with duplicates somehow. There seem to be
+            # address points and poi points. I guess we probably want
+            # to collect all of that eventually into one entry, though.
+
+            # TODO cur.executemany? I'm afraid that it might OOM. Can it
+            # work with a generator though?
+
+            # TODO - There may still be useful things to extract here. amenity=, etc, that are not named.
+            # But we should be careful. For instance I found ferry terminals without names. But maybe the
+            # associated port POI has a name?
+            # That said, something like toilets may be a useful search.
+            # Maybe we could have the `name` and a few useful tags (amenities etc) in one table,
+            # and fts5 vtable have a foreign key with it
 
     con.commit()
 
@@ -384,7 +385,7 @@ def download_map(tile_id):
     tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
     search_imported_marker_path = os.path.join(search_imported_marker_dir, tile_id)
 
-    dl_url_dir = 'https://danielkrol.com/assets/tiles-demo/'
+    dl_url_dir = 'https://danielkrol.com/assets/tiles-demo/2/'
 
     if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path):
         # TODO Obviously in the future we'll have updates and stuff. This is for the demo.
@@ -400,7 +401,7 @@ def download_map(tile_id):
     # TODO - get range headers working. how does ttrss do it? But for now we split the files and that's pretty convenient. Gives us easy progress updates too.
     # TODO - manifest eventually gets title and coordinates as well, and we put it on the map based on that
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
-    files = requests.get('https://danielkrol.com/assets/tiles-demo/manifest.json', **params).json()[tile_id]['files']
+    files = requests.get('https://danielkrol.com/assets/tiles-demo/2/manifest.json', **params).json()[tile_id]['files']
 
     map_update_status[tile_id] = {
         "downloadDone": 0,
@@ -432,15 +433,14 @@ def download_map(tile_id):
                 tar_f.extractall(tmp_extract_path)
             print_err("Extracted")
 
-            # The tar we will download has the tile_id as a dir in its tree
             # TODO - Reflect progress on this in the download status somehow.
             #   Right now it takes a couple seconds with no UI feedback.
-            import_search(tile_id, os.path.join(tmp_extract_path, tile_id, 'search'))
+            import_search(tile_id, os.path.join(tmp_extract_path, 'pkg', 'search.csv'))
 
             # Do this second, so that it doesn't show up on the map until search is imported.
             #   (especially important in case of error)
             # Also, it needs to be in filemaps for it to work anyway.
-            shutil.move(os.path.join(tmp_extract_path, tile_id, 'tiles'), tiles_out_path)
+            shutil.move(os.path.join(tmp_extract_path, 'pkg', 'tiles.pmtiles'), tiles_out_path)
 
             # For the "already downloaded" check above. We may want a better plan later.
             with open(search_imported_marker_path, "w"):
