@@ -2,16 +2,31 @@ import osmium as o
 import string, csv, sys
 from pprint import pprint
 
-
 # TODO - Do this much smarter. Now I understand what Gazetteer is for. Maybe we
 # want to get Gazetteer working instead. Though this gives us more power in the
 # long run to format search data how we want it.
 
+class WayNodeList(o.SimpleHandler):
+    def __init__(self):
+        self.way_nodes = set()
+        super(WayNodeList, self).__init__()
+
+    def way(self, w):
+        if not w.is_closed():
+            middle_index = int(len(w.nodes) / 2)
+            self.way_nodes.add(w.nodes[middle_index].ref)
+        else:
+            for n in w.nodes:
+                self.way_nodes.add(n.ref)
+
 class SearchIndexer(o.SimpleHandler):
-    def __init__(self, csvfile, skipfile):
+    def __init__(self, csvfile, skipfile, way_nodes):
         fieldnames = ["name", "lat", "lng"]
         self.csv_writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         self.csv_writer.writeheader()
+
+        self.way_node_locations_by_id = {}
+        self.way_nodes = way_nodes
 
         # Skipping is just for debugging the data
         self.skipfile = skipfile
@@ -75,6 +90,9 @@ class SearchIndexer(o.SimpleHandler):
         )
 
     def node(self, n):
+        if n.id in self.way_nodes:
+            self.way_node_locations_by_id[n.id] = (n.location.lat, n.location.lon)
+
         if self._skip_quietly(n):
             return
 
@@ -85,8 +103,6 @@ class SearchIndexer(o.SimpleHandler):
         self._write_row(n.tags["name"], n.location.lat, n.location.lon)
 
     def way(self, w):
-        return # TEMP - this is generating bad coordinates. TODO fix and re-enable
-
         if self._skip_quietly(w):
             return
 
@@ -94,22 +110,29 @@ class SearchIndexer(o.SimpleHandler):
             pprint(dict(w.tags), skipfile)
             return
 
-        if w.is_closed:
-            # For closed ways aka areas, the pin should probably be in the center of all of the nodes
-
-            # TODO - shapely or whatever it's called has a center function that's probably better
-            x = sum(n.location.x for n in w.nodes) / len(w.nodes)
-            y = sum(n.location.y for n in w.nodes) / len(w.nodes)
-        else:
+        if not w.is_closed():
             # For open ways, the pin should probably be on one of the nodes. Let's pick one in the middle.
 
-            middle_node = w.nodes[len(w.nodes) / 2]
-            x, y = middle_node.location.x, middle_node.location.y
+            middle_index = int(len(w.nodes) / 2)
+            middle_node_location = self.way_node_locations_by_id[w.nodes[middle_index].ref]
+            lat, lng = middle_node_location[0], middle_node_location[1]
 
-        #if set(w.tags["name"]) <= set(string.digits):
-        #    pprint(dict(w.tags))
-        self._write_row(w.tags["name"], x, y)
+        else:
+            # For places we can identify as "areas", the pin should probably
+            # be in the center of all of the nodes.
 
+            # TODO - shapely has a centering function that's probably better.
+            # But there was an error when I tried it. See the amenity_list.py
+            # example in the pyosmium repo and try again.
+            node_refs = [n.ref for n in w.nodes]
+            lat = round(float(
+               sum(self.way_node_locations_by_id[ref][0] for ref in node_refs) / len(node_refs)
+            ), 10)
+            lng = round(float(
+                sum(self.way_node_locations_by_id[ref][1] for ref in node_refs) / len(node_refs)
+            ), 10)
+
+        self._write_row(w.tags["name"], lat, lng)
 
 # Empty it once before appending across all regions
 with open("/tmp/skipping", "w", newline="") as skipfile:
@@ -119,5 +142,8 @@ in_file_path = sys.argv[1]
 out_file_path = sys.argv[2]
 with open(out_file_path, "w", newline="") as csvfile:
     with open("/tmp/skipping", "a", newline="") as skipfile:
-        handler = SearchIndexer(csvfile, skipfile)
+        way_node_list = WayNodeList()
+        way_node_list.apply_file(in_file_path)
+
+        handler = SearchIndexer(csvfile, skipfile, way_node_list.way_nodes)
         handler.apply_file(in_file_path)
