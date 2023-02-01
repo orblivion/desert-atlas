@@ -6,6 +6,9 @@ from pprint import pprint
 # want to get Gazetteer working instead. Though this gives us more power in the
 # long run to format search data how we want it.
 
+# NOTE - This will require a substantial amount of memory to export a larger
+# region.
+
 class WayNodeList(o.SimpleHandler):
     def __init__(self):
         self.way_nodes = set()
