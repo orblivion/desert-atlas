@@ -202,13 +202,24 @@ L.control.bookmarksList = function() {
 const bookmarksList = L.control.bookmarksList()
 bookmarksList.addTo(map)
 
+if (permissions.indexOf("bookmarks") === -1) {
+    bookmarkEditClass = "is-read-only"
+} else {
+    bookmarkEditClass = "is-editor"
+}
+
 const bookmarkPopup = L.popup()
     .setContent(
         `
       <h1>Bookmark</h1>
-      <div id="search-marker-submit">
-          <input id="bookmark-edit-name">
+      <div id="search-marker-submit" class="${bookmarkEditClass}">
+          <input id="bookmark-edit-name" class="for-editor">
+          <input id="bookmark-edit-name-readonly" class="for-read-only" readonly>
           <div style="margin-top: 7px">
+              <button id="bookmark-edit-geo-button">Open location in app</button>
+          </div>
+          <br>
+          <div style="margin-top: 7px" class="for-editor">
               <button id="bookmark-edit-save-button">Save</button>
               <button id="bookmark-edit-delete-button" style="display:none;">Delete</button>
           </div>
@@ -222,6 +233,7 @@ const bookmarkPopup = L.popup()
       `
     )
     .on('add', e => {
+        document.getElementById("bookmark-edit-name-readonly").value = popupMarkerBookmark.name
         document.getElementById("bookmark-edit-name").value = popupMarkerBookmark.name
         document.getElementById("bookmark-edit-name").focus()
 
@@ -229,10 +241,12 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-save-button').removeEventListener("click", addBookmark)
         document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmark)
         document.getElementById('bookmark-edit-name').removeEventListener("keydown", bookmarkKeydown)
+        document.getElementById('bookmark-edit-geo-button').removeEventListener("click", openBookmarkInApp)
 
         document.getElementById('bookmark-edit-save-button').addEventListener("click", addBookmark)
         document.getElementById('bookmark-edit-name').addEventListener("keydown", bookmarkKeydown)
         document.getElementById('bookmark-edit-delete-button').addEventListener("click", deleteBookmark)
+        document.getElementById('bookmark-edit-geo-button').addEventListener("click", openBookmarkInApp)
 
         if (popupMarkerBookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
@@ -259,7 +273,6 @@ const searchMarker = L.marker([0, 0], {
         }, 100)
     })
     .on('click', () => {
-        if (permissions.indexOf("bookmarks") === -1) return
         popupMarkerBookmark = searchResultBookmark
         bookmarkPopup
             .setLatLng(L.latLng(searchResultBookmark.latlng))
@@ -329,6 +342,11 @@ if (permissions.indexOf("download") !== -1) {
         downloadMarkers[tileId].addTo(map)
     }
 }
+
+const openBookmarkInApp = (() => {
+    const {lat, lng} = popupMarkerBookmark.latlng
+    window.open(`geo://${lat},${lng}`, "_blank")
+})
 
 const bookmarkKeydown = (e => {
     if (e.which === 13) {
@@ -415,8 +433,6 @@ var bookmarkMarkers = {} // just for lookup by id.
 var bookmarkMarkerFeatureGroup = L.featureGroup()
     .addTo(map)
     .on('click', e => {
-        if (permissions.indexOf("bookmarks") === -1) return
-
         popupMarkerBookmark = data.bookmarks[e.layer.options.bookmarkId]
         if (popupMarkerBookmark) { // timing issues?
             bookmarkPopup
