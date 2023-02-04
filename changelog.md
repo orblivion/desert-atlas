@@ -1,3 +1,7 @@
+# 2023/02/03 - appVersion 10
+
+* "Open location in app" button on Markers. A hopefully smoother alternative to "export bookmarks". Probably works on more apps, maybe even Google Maps?
+
 # 2023/01/31 - appVersion 9
 
 * Switch search import format to csv
