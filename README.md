@@ -79,7 +79,7 @@ But it involves running `./demo.py`. This will start a web server on port 3857 a
 
 # Generating map data
 
-For generating map tile and search data, [see here](generate-data/README.md).
+For generating map tile and search data, [see here](generate-data).
 
 # License/Credit
 
