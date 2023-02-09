@@ -51,7 +51,7 @@ Now that we have a `.pmtiles` file for tiles and a `.csv` file for search for th
 
 Finally, the file names are added to the manifest file so that the requesting grain can figure out what to download.
 
-## TODO - properly roll the following into the above
+## TODO - properly roll the following (out of date) stuff into the above
 
 This takes the directories containing data for a region, and packs and then splits them into the format that the app downloads. It's split so that we can sidestep the lack of range requests / max download size in Sandstorm, though it also gives us easy progress info. Oh, and make sure you have a manifest json, I should probably write instructions for that, or a script that generates it.
 
