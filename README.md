@@ -77,14 +77,9 @@ Sometimes useful. I should add some instructions. But it's currently shaky, so n
 
 But it involves running `./demo.py`. This will start a web server on port 3857 and possibly open a browser.
 
-# Making the data
+# Generating map data
 
-VERY rough instructions. This will probably not be enough, but it's a starting point so ppl can see where the various parts are.
-
-* Get a region geojson; you can see them in the `regions/` directory or you can make your own (one easy option is on protomaps.com as part of the next step)
-* Go to protomaps.com and use the region geojson to export a pmtiles file for the region, or define a new region and extract it. This is the _tiles that are displayed_.
-* Use the region to get the search data with the stuff in `geocoding/gazetteer/`. This lets you _search for stuff_.
-* Use the search data output and the pmtiles file and go to `package-data/` to make the final downloadable files.
+For generating map tile and search data, [see here](generate-data/README.md).
 
 # License/Credit
 
