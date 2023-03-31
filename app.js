@@ -268,7 +268,7 @@ const searchMarker = L.marker([0, 0], {
         // TODO - search tooltip is getting stuck on a previous search result sometimes. try searching for a couple different items to trigger this.
         setTimeout(() => { // setTimeout, my solution for everything
             searchMarker
-                .bindTooltip(searchResultBookmark.name)
+                .bindTooltip(() => searchResultBookmark.name)
                 .openTooltip()
         }, 100)
     })
