@@ -722,3 +722,20 @@ setLoc()
 map.on('zoomend', setLoc)
 map.on('moveend', setLoc)
 map.on('zoomend', setGeoJsonOpacity)
+
+map.on('contextmenu', function (event) {
+    popupMarkerBookmark = {
+        latlng: event.latlng,
+        name: ''
+    }
+
+    // Close the popup before opening it again, to trigger the "on add" event.
+    // For some reason, closing is not necessary when clicking between multiple
+    // existing markers.
+    // TODO - investigate this phenomenon more, perhaps
+    bookmarkPopup.close()
+
+    bookmarkPopup
+        .setLatLng(L.latLng(popupMarkerBookmark.latlng))
+        .openOn(map)
+})
