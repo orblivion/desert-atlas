@@ -728,6 +728,9 @@ map.on('moveend', setLoc)
 map.on('zoomend', setGeoJsonOpacity)
 
 map.on('contextmenu', function (event) {
+    if (permissions.indexOf("bookmarks") === -1) {
+        return
+    }
     popupMarkerBookmark = {
         latlng: event.latlng,
         name: ''

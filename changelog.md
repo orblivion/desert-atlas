@@ -1,3 +1,7 @@
+# 2023/03/31 - appVersion 12
+
+* Don't show the bookmark context menu if you're a read-only user
+
 # 2023/03/31 - appVersion 11
 
 * Fix #5 - Searching twice kept the name of the first result on the marker's tooltip
