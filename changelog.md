@@ -1,3 +1,12 @@
+# 2023/03/31 - appVersion 11
+
+* Fix #5 - Searching twice kept the name of the first result on the marker's tooltip
+* Implement #11 - Give up downloading a file after 7 or 8 tries.
+  * This is particularly useful if the data is wrong.
+  * Otherwise you'd need to restart your grain
+* Implement #7 - Allow user to add a marker wherever without searching using context menu
+  * Also don't zoom to level 17 every time you add a new marker
+
 # 2023/02/03 - appVersion 10
 
 * "Open location in app" button on Markers. A hopefully smoother alternative to "export bookmarks". Probably works on more apps, maybe even Google Maps?
