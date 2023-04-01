@@ -383,7 +383,7 @@ const addBookmark = (() => {
                 bookmarksList.render()
                 updateBookmarkMarkers()
 
-                selectBookmarkMarker(bookmarkId)
+                selectBookmarkMarker(bookmarkId, false)
             }, 500)
         })
         .catch(console.log)
@@ -417,7 +417,7 @@ const clickBookmarksExport = e => {
 }
 
 const clickBookmarkListItem = e => {
-    selectBookmarkMarker(e.target.getAttribute('data-bookmark-id'))
+    selectBookmarkMarker(e.target.getAttribute('data-bookmark-id'), true)
 }
 
 L.SavedBookmarkMarker = L.Marker.extend({
@@ -477,9 +477,13 @@ function updateBookmarkMarkers() {
     }
 }
 
-const selectBookmarkMarker = (bookmarkId) => {
+const selectBookmarkMarker = (bookmarkId, doZoom) => {
     let bookmark = data.bookmarks[bookmarkId]
-    map.setView(L.latLng(bookmark.latlng), 17)
+    if (doZoom) {
+        map.setView(L.latLng(bookmark.latlng), 17)
+    } else {
+        map.setView(L.latLng(bookmark.latlng))
+    }
 
     setTimeout(() => { // setTimeout, my solution for everything
         // Some indication that this thing has been selected
