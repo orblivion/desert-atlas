@@ -197,7 +197,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
-            download_queue.add(tile_id)
+            download_queue[tile_id] = DOWNLOAD_TRIES
 
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
@@ -450,19 +450,30 @@ def download_map(tile_id):
     print_err("Downloaded and extracted", tile_id, "to", tiles_out_path, "and search imported to sqlite db")
 
 # TODO - save the queue to disk so we can continue after restart
-download_queue = set()
+# TODO - handle errors in a nice enough way that we don't mind keeping them in
+#        the queue forever. It doesn't need to be retrying forever by default,
+#        but the intention to download the given region should be saved so that
+#        the user can decide to try it again.
+download_queue = {}
+DOWNLOAD_TRIES = 7
 def downloader():
     while True:
         while not download_queue:
             time.sleep(0.1)
-        tile_id = download_queue.pop()
-        try:
-            download_map(tile_id)
-        except Exception as e:
-            # Probably could do this smarter
-            print_err("\n\nDownloader Exception", repr(e), '\n\n')
-            download_queue.add(tile_id)
-            time.sleep(1)
+        tile_id = list(download_queue.keys())[0]
+        tries_left = download_queue.pop(tile_id)
+        if tries_left > 0:
+            try:
+                download_map(tile_id)
+            except Exception as e:
+                # Probably could do this smarter
+                print_err("\n\nDownloader Exception", repr(e), '\n\n')
+                download_queue[tile_id] = tries_left - 1
+                time.sleep(1)
+        else:
+            if tile_id in map_update_status:
+                del map_update_status[tile_id]
+
 
 threading.Thread(target=downloader).start()
 
