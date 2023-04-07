@@ -1,3 +1,15 @@
+# 2023/04/07 - appVersion 13
+
+* Fix #17 - Made the map 15 pixels shorter to make sure the attribution shows
+  up on the bottom (and it's generally better not to have the scroll bar on the
+  right)
+* Implement #12 - When you click Save or Delete on a bookmark, show "SAVING
+  CHANGES..." until the response actually comes back to confirm it. (This is a
+  pet peeve of mine)
+* (Hopefully) Implement #13 - Give more info about opening a bookmark in an
+  external app. Namely that it only works under specific circumstances. Not
+  calling #13 fixed until I get some user feedback since it's subjective.
+
 # 2023/03/31 - appVersion 12
 
 * Don't show the bookmark context menu if you're a read-only user
