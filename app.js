@@ -600,6 +600,12 @@ function getGeoJson(name) {
             // southern borders though.
             geoJson.features = geoJson.features.filter(f => f.properties.ADMIN !== "United States of America")
             const geoJsonLayer = L.geoJson(geoJson, {
+                // Public domain but they said they'd appreciate attribution
+                attribution: (
+                    '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
+                    '<a href="https://github.com/lexman">Lexman</a>, ' +
+                    '<a href="https://okfn.org/">Open Knowledge Foundation</a>'
+                ),
                 style: {
                     weight: 1,
                     color: '#000',

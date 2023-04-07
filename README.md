@@ -90,23 +90,21 @@ For generating map tile and search data, [see here](generate-data).
 * US States https://datahub.io/core/geo-admin1-us
 * World https://datahub.io/core/geo-countries
 
-### Downloadable region polygons
-
-As of this writing I've defined the region polygons manually on the protomaps extraction website.
-
 # Map Data
 
 OpenStreetMap® is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
 
-## Search Data (derived from Map Data)
-
-As of this writing, I get large regions (US states, etc) data from https://download.geofabrik.de (who derives it from OpenStreetMap) and extract smaller regions for search.
+As of this writing, I get large regions (US states, etc) data from https://download.geofabrik.de (who derives it from OpenStreetMap).
 
 I'm not sure if this is a requirement for attribution but I do not mind shouting them out!
 
+## Search Data (derived from Map Data)
+
+I extract search data from the above into an sqlite database that uses the fts5 plugin. See `generate-data` directory.
+
 ## Tiles (derived from Map Data)
 
-[Protomaps](https://protomaps.com) (who derives it from OpenStreetMap).
+I extract tile data from the above into a file in the pmtiles format (see [Protomaps](https://protomaps.com)) and Protomaps schema. See `generate-data` directory.
 
 # Images
 
