@@ -215,13 +215,32 @@ const bookmarkPopup = L.popup()
       <div id="search-marker-submit" class="${bookmarkEditClass}">
           <input id="bookmark-edit-name" class="for-editor">
           <input id="bookmark-edit-name-readonly" class="for-read-only" readonly>
-          <div style="margin-top: 7px">
-              <button id="bookmark-edit-geo-button">Open location in app</button>
-          </div>
           <br>
           <div style="margin-top: 7px" class="for-editor">
               <button id="bookmark-edit-save-button">Save</button>
               <button id="bookmark-edit-delete-button" style="display:none;">Delete</button>
+          </div>
+          <hr>
+          <div style="margin-top: 7px">
+              <button id="bookmark-edit-geo-button" style="">
+                  <center>
+                      <span class="emoji">&#x23CF;&#xFE0F;</span>
+                  </center>
+                  Open location in external app
+              </button>
+              <br>
+              <br>
+              <center>(Depends on your setup. <a id="bookmark-edit-geo-button-learn-more-button" href="#">Learn More.</a>)</center>
+              <div id="bookmark-edit-geo-button-learn-more">
+              <div>
+                  This will work on limited systems. It's known to work for:
+                  <ul>
+                      <li>OrganicMaps on iOS and Android</li>
+                      <li>OsmAnd on Android</li>
+                      <li>Gnome Maps on Linux Desktop</li>
+                  </ul>
+              </div>
+              </div>
           </div>
       </div>
       <div id="search-marker-save-success" style="display:none;">
@@ -242,6 +261,7 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmark)
         document.getElementById('bookmark-edit-name').removeEventListener("keydown", bookmarkKeydown)
         document.getElementById('bookmark-edit-geo-button').removeEventListener("click", openBookmarkInApp)
+        document.getElementById('bookmark-edit-geo-button-learn-more-button').removeEventListener("click", showGeoButtonLearnMore)
 
         document.getElementById('bookmark-edit-save-button').addEventListener("click", addBookmark)
         document.getElementById('bookmark-edit-name').addEventListener("keydown", bookmarkKeydown)
@@ -251,6 +271,8 @@ const bookmarkPopup = L.popup()
         if (popupMarkerBookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
         }
+
+        document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
     })
 
 const searchMarker = L.marker([0, 0], {
@@ -342,6 +364,10 @@ if (permissions.indexOf("download") !== -1) {
         downloadMarkers[tileId].addTo(map)
     }
 }
+
+const showGeoButtonLearnMore = (() => {
+    $('#bookmark-edit-geo-button-learn-more').slideDown()
+})
 
 const openBookmarkInApp = (() => {
     const {lat, lng} = popupMarkerBookmark.latlng
