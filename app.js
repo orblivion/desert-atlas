@@ -219,6 +219,7 @@ const bookmarkPopup = L.popup()
           <div style="margin-top: 7px" class="for-editor">
               <button id="bookmark-edit-save-button">Save</button>
               <button id="bookmark-edit-delete-button" style="display:none;">Delete</button>
+              <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <hr>
           <div style="margin-top: 7px">
@@ -381,6 +382,12 @@ const bookmarkKeydown = (e => {
 })
 
 const addBookmark = (() => {
+    // The popup is generated anew each time so we don't need to worry about
+    // undoing these changes
+    $('#bookmark-edit-loading').show()
+    $('#bookmark-edit-save-button').hide()
+    $('#bookmark-edit-delete-button').hide()
+
     fetch('bookmark', {
             method: 'POST',
             body: JSON.stringify({
@@ -416,6 +423,12 @@ const addBookmark = (() => {
 })
 
 const deleteBookmark = (() => {
+    // The popup is generated anew each time so we don't need to worry about
+    // undoing these changes
+    $('#bookmark-edit-loading').show()
+    $('#bookmark-edit-save-button').hide()
+    $('#bookmark-edit-delete-button').hide()
+
     fetch('bookmark-delete', {
             method: 'POST', // should be DELETE on the same path as POST, but I don't want to figure this out now
             body: JSON.stringify({
