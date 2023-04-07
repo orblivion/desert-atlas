@@ -21,7 +21,12 @@
                 display: none;
             }
             body, #map {
-                height:100vh;
+                /*
+                   -15px because 100vh seems to be slighly bigger than the frame it's in,
+                    which is generally not preferred, but particularly cuts off the
+                    attribution at the bottom unless you scroll down.
+                */
+                height: calc(100vh - 15px);
             }
             #bookmark-list-container {
                 background-color: #DDE;
