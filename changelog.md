@@ -1,3 +1,8 @@
+# 2023/04/07 - appVersion 14
+
+* Fix UI caveat related to #13 - Give bookmark popups more padding on the top
+  to make room for Learn More expansion.
+
 # 2023/04/07 - appVersion 13
 
 * Fix #17 - Made the map 15 pixels shorter to make sure the attribution shows
