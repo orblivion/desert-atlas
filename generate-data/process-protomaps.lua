@@ -1,9 +1,12 @@
+-- Forked from 68c28e503f0281af82645bf871c45fca329e77ed of https://github.com/geofabrik/shortbread-tilemaker
+-- Notice from original version:
 -- SPDX-License-Identifier: FTWPL
 -- Data processing for Geofabrik Vector Tiles schema
--- Original Copyright (c) 2021, Geofabrik GmBH
+-- Copyright (c) 2021, Geofabrik GmBH
 -- Licensed under FTWPL
+
 -- Changes By Daniel Krol
--- Altered Version under the parent license of this project (I assume that relicensing is covered under "WTF [I] WANT TO")
+-- Altered Version under the same license as share-a-map (I assume that relicensing is covered under "WTF [I] WANT TO")
 
 -- NOTE - This is a SUPER UGLY edit from something that generates a file in
 -- the shortbread schema, to something that just passably renders in protomaps.js
