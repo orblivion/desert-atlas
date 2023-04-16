@@ -276,6 +276,8 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
     })
 
+L.Util.setOptions(bookmarkPopup, {autoPanPadding: [0, 150]})
+
 const searchMarker = L.marker([0, 0], {
         icon: new L.Icon({
             iconUrl: 'assets/images/search-marker.svg',
