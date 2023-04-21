@@ -8,7 +8,10 @@ regions = [
     {"REGION": "new-hampshire", "REGION_PATH": "north-america/us"},
     {"REGION": "illinois", "REGION_PATH": "north-america/us"},
     {"REGION": "massachusetts", "REGION_PATH": "north-america/us"},
-    {"REGION": "ontario", "REGION_PATH": "north-america/canada"},
+
+    # Currently too much for a 16 Gig memory VPS! Maybe I'll try a bigger one though.
+    # But it would be better to just do the region splitting.
+    # {"REGION": "ontario", "REGION_PATH": "north-america/canada"},
 ]
 
 output_dir = os.path.join("output", str(time.time()))
