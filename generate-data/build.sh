@@ -26,7 +26,7 @@ PKG_PREFIX=$REGION.tar.gz.
 
 # Download *only if we don't have it already* (again, not to abuse Geofabrik)
 # TODO - could md5 verify that we have the right thing
-ls $PBF_FILE || (wget https://download.geofabrik.de/north-america/us/$REGION-latest.osm.pbf -O $PBF_FILE_TMP && mv $PBF_FILE_TMP $PBF_FILE) || exit 1
+ls $PBF_FILE || (wget https://download.geofabrik.de/$REGION_PATH/$REGION-latest.osm.pbf -O $PBF_FILE_TMP && mv $PBF_FILE_TMP $PBF_FILE) || exit 1
 
 python3 extract_search.py $PBF_FILE $SEARCH_FILE
 

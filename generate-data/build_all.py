@@ -5,9 +5,10 @@ from glob import glob
 from pprint import pprint
 
 regions = [
-    "new-hampshire",
-    "illinois",
-    "massachusetts",
+    {"REGION": "new-hampshire", "REGION_PATH": "/north-america/us"},
+    {"REGION": "illinois", "REGION_PATH": "/north-america/us"},
+    {"REGION": "massachusetts", "REGION_PATH": "/north-america/us"},
+    {"REGION": "ontario", "REGION_PATH": "/north-america/canada"},
 ]
 
 output_dir = os.path.join("output", str(time.time()))
@@ -16,14 +17,16 @@ manifest_path = os.path.join(output_dir, "manifest.json")
 os.makedirs(output_dir)
 
 for region in regions:
-    subprocess.run(['bash', 'build.sh'], env={"REGION": region, "OUTPUT_DIR": output_dir})
+    subprocess.run(['bash', 'build.sh'], env=dict(region, OUTPUT_DIR=output_dir))
 
 manifest = {
     region: {
         "files" : [
             os.path.basename(path)
             for path
-            in sorted(glob(os.path.join(output_dir, region + '.tar.gz.[0-9]*')))
+            # TODO - with REGION name collisions, we'll probably actually want
+            # to put these files in the appropriate path
+            in sorted(glob(os.path.join(output_dir, region["REGION"] + '.tar.gz.[0-9]*')))
         ],
     }
     for region in regions

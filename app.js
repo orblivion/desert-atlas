@@ -309,6 +309,7 @@ let areaBoundses = {
     "new-hampshire": [[42.69699, -72.557247],[45.305476, -70.610621]],
     "massachusetts": [[41.237964, -73.508142], [42.886589, -69.928393]],
     "illinois": [[36.970298, -91.513079], [42.508481, -87.494756]],
+    "ontario": [[41.66, -95.16], [56.86, -74.34]],
 }
 
 // TODO - Properly extend other marker classes
@@ -360,6 +361,7 @@ downloadMarkers = {
     "new-hampshire": downloadMarker('New Hampshire', "new-hampshire"),
     "massachusetts": downloadMarker('Massachusetts', "massachusetts"),
     "illinois": downloadMarker('Illinois', "illinois"),
+    "ontario": downloadMarker('Ontario', "ontario"),
 }
 
 if (permissions.indexOf("download") !== -1) {
