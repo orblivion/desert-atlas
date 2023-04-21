@@ -20,7 +20,7 @@ for region in regions:
     subprocess.run(['bash', 'build.sh'], env=dict(region, OUTPUT_DIR=output_dir))
 
 manifest = {
-    region: {
+    region["REGION"]: {
         "files" : [
             os.path.basename(path)
             for path
