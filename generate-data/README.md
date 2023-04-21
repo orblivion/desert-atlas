@@ -4,9 +4,27 @@
 
 ## Get `tilemaker` and `go-pmtiles`
 
-Build-from-source option: Build them in the respective submodules inside this directory.
+### Build-from-source option: Build them in the respective submodules inside this directory.
 
-~~Lazy~~ Pragmatic and efficient option: Get the release that corresponds to the tag currently checked out in the submodule:
+Since they have dependencies I'll give some specific instructions on how to get them. These should work on the specific versions referred to by git submodules.
+
+#### tilemaker
+
+_(let me know if I left something out!)_
+
+I think this works on Debian 11. Install build dependencies:
+
+```
+apt install build-essential libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-program-options-dev libboost-system-dev liblua5.1-0-dev libprotobuf-dev libshp-dev libsqlite3-dev protobuf-compiler rapidjson-dev
+```
+
+In the `tilemaker` directory, just run `make`. The executable will end up in the right place (don't worry about `make install`).
+
+#### go-pmtiles
+
+[Install golang](https://go.dev/doc/install) if you haven't already. In the `go-pmtiles` directory, just run `go build`. The executable will end up in the right place.
+
+### ~~Lazy~~ Pragmatic and efficient option: Get the release that corresponds to the tag currently checked out in the submodule:
 
 * https://github.com/systemed/tilemaker/releases/
 * https://github.com/protomaps/go-pmtiles/releases
