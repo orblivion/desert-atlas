@@ -17,7 +17,9 @@ manifest_path = os.path.join(output_dir, "manifest.json")
 os.makedirs(output_dir)
 
 for region in regions:
-    subprocess.run(['bash', 'build.sh'], env=dict(region, OUTPUT_DIR=output_dir))
+    result = subprocess.run(['bash', 'build.sh'], env=dict(region, OUTPUT_DIR=output_dir))
+    if result.returncode != 0:
+        raise Exception("Error building for:", region)
 
 manifest = {
     region["REGION"]: {
