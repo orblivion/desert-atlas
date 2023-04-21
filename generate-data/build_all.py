@@ -5,10 +5,10 @@ from glob import glob
 from pprint import pprint
 
 regions = [
-    {"REGION": "new-hampshire", "REGION_PATH": "/north-america/us"},
-    {"REGION": "illinois", "REGION_PATH": "/north-america/us"},
-    {"REGION": "massachusetts", "REGION_PATH": "/north-america/us"},
-    {"REGION": "ontario", "REGION_PATH": "/north-america/canada"},
+    {"REGION": "new-hampshire", "REGION_PATH": "north-america/us"},
+    {"REGION": "illinois", "REGION_PATH": "north-america/us"},
+    {"REGION": "massachusetts", "REGION_PATH": "north-america/us"},
+    {"REGION": "ontario", "REGION_PATH": "north-america/canada"},
 ]
 
 output_dir = os.path.join("output", str(time.time()))
