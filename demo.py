@@ -401,7 +401,7 @@ def download_map(tile_id):
     # TODO - get range headers working. how does ttrss do it? But for now we split the files and that's pretty convenient. Gives us easy progress updates too.
     # TODO - manifest eventually gets title and coordinates as well, and we put it on the map based on that
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
-    files = requests.get('https://danielkrol.com/assets/tiles-demo/2/manifest.json', **params).json()[tile_id]['files']
+    files = requests.get(dl_url_dir + 'manifest.json', **params).json()[tile_id]['files']
 
     map_update_status[tile_id] = {
         "downloadDone": 0,
