@@ -304,12 +304,25 @@ const searchMarker = L.marker([0, 0], {
             .openOn(map)
     })
 
-// TODO - put this in the manifest
-let areaBoundses = {
-    "new-hampshire": [[42.69699, -72.557247],[45.305476, -70.610621]],
-    "massachusetts": [[41.237964, -73.508142], [42.886589, -69.928393]],
-    "illinois": [[36.970298, -91.513079], [42.508481, -87.494756]],
-    // "ontario": [[41.66, -95.16], [56.86, -74.34]],
+let areaBoundses = {}
+downloadMarkers = {}
+
+function tryMakeDownloadMarkers(newAreaBoundses) {
+    const boundsAvailable = !!newAreaBoundses
+    const boundsAlreadySet = !!Object.keys(areaBoundses).length
+
+    if (!boundsAvailable || boundsAlreadySet) {
+        return
+    }
+
+    areaBoundses = newAreaBoundses
+    for (key in areaBoundses) {
+        // Later, if/when we have administrative regions again, we'll have
+        // actual names to set again. TODO - Get rid of names for marker,
+        // have square show up to indicate area on mouseover.
+        const name = key
+        downloadMarkers[key] = downloadMarker(name, key)
+    }
 }
 
 // TODO - Properly extend other marker classes
@@ -354,14 +367,6 @@ function downloadMap(tileId) {
         body: JSON.stringify({'tile-id': tileId}),
     })
     .catch(console.log)
-}
-
-// TODO - grab from manifest
-downloadMarkers = {
-    "new-hampshire": downloadMarker('New Hampshire', "new-hampshire"),
-    "massachusetts": downloadMarker('Massachusetts', "massachusetts"),
-    "illinois": downloadMarker('Illinois', "illinois"),
-    // "ontario": downloadMarker('Ontario', "ontario"),
 }
 
 if (permissions.indexOf("download") !== -1) {
@@ -546,6 +551,7 @@ function updateDownloadStatuses() {
     .then(e => e.json())
     .then(fullStatus => {
         const inProgress = fullStatus['in-progress']
+        tryMakeDownloadMarkers(fullStatus['available-areas'])
         Object.keys(downloadMarkers).forEach(tileId => {
             const name = downloadMarkers[tileId].options.areaName
 

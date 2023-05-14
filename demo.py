@@ -126,6 +126,7 @@ from socketserver import ThreadingMixIn
 from http import HTTPStatus
 
 filemaps = None
+bounds_map = None # {area-key: area_bounds}.
 map_update_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
 
 def byterange(s):
@@ -258,6 +259,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
             full_status = {
+                # This tells the UI that the areas defined in the bounds are available for download
+                "available-areas": bounds_map,
+
                 "in-progress": map_update_status,
                 "queued": list(download_queue),
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
@@ -380,12 +384,25 @@ def update_filemaps():
         in files.items()
     }
 
+DL_URL_DIR = 'https://danielkrol.com/assets/tiles-demo/3/'
+
 # TODO - map + search "index" in one file
+def download_bounds_map():
+    global bounds_map
+
+    params = {}
+    if not is_local:
+        params = {"verify": '/var/powerbox-http-proxy.pem'}
+
+    bounds_map = {
+        tile_id: item['bounds']
+        for (tile_id, item)
+        in requests.get(DL_URL_DIR + 'manifest.json', **params).json().items()
+    }
+
 def download_map(tile_id):
     tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
     search_imported_marker_path = os.path.join(search_imported_marker_dir, tile_id)
-
-    dl_url_dir = 'https://danielkrol.com/assets/tiles-demo/2/'
 
     if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path):
         # TODO Obviously in the future we'll have updates and stuff. This is for the demo.
@@ -401,7 +418,7 @@ def download_map(tile_id):
     # TODO - get range headers working. how does ttrss do it? But for now we split the files and that's pretty convenient. Gives us easy progress updates too.
     # TODO - manifest eventually gets title and coordinates as well, and we put it on the map based on that
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
-    files = requests.get(dl_url_dir + 'manifest.json', **params).json()[tile_id]['files']
+    files = requests.get(DL_URL_DIR + 'manifest.json', **params).json()[tile_id]['files']
 
     map_update_status[tile_id] = {
         "downloadDone": 0,
@@ -411,7 +428,7 @@ def download_map(tile_id):
     with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_dl_dir:
         tmp_dl_path = os.path.join(tmp_dl_dir, tile_id + '.tar.gz')
         for num_got, f in enumerate(files, 1):
-            dl_url = dl_url_dir + f
+            dl_url = DL_URL_DIR + f
             r = requests.get(dl_url, **params)
             print_err("Downloading part:", r.status_code)
             if r.status_code != 200:
@@ -457,6 +474,8 @@ def download_map(tile_id):
 download_queue = {}
 DOWNLOAD_TRIES = 7
 def downloader():
+    download_bounds_map()
+
     while True:
         while not download_queue:
             time.sleep(0.1)
