@@ -1,3 +1,28 @@
+# 2023/05/14 - appVersion 15
+
+* Get downloadable region definitions over the server instead of hard-coding
+    regions. This covers part of #16.
+  * The definitions are in manifest.json
+  * It asks for download permissions on grain creation. This may be confusing,
+    so I'll put a note about this in the onboard tutorial (which will be #18)
+* On the map data generation side: I was shown a way to _easily_
+  programmatically split a large region into smaller regions. This was
+  necessary to get more than a few small regions, as we've had so far. The
+  _downside_ is that it splits according to a maximum data size per region, not
+  according to administrative boundaries. It's just a bunch of rectangles. As
+  such, the regions no longer have names. (I'd like to go back to
+  administrative boundaries but I'm taking the fast and easy path for now)
+    * The code to generate this data hasn't been formalized, I have yet to
+      check it into the repo. I wanted to make a release of this as-is ASAP.
+* As of this writing, **all of North America** is available. Now that I've
+  implemented this, I could add more areas without updating the app. I'll try
+  to cover the rest of the world (and as such complete #4) soon.
+* Since the boundaries are rather arbitrary from the user's perspective, I
+  **swapped the download pins for clickable rectangles** on the map that show
+  the actual region. This covers part of #16 as well.
+  * Pending user feedback, I think this and the region definitions change above
+    take us far enough to at least remove the "launch" label from #16.
+
 # 2023/04/07 - appVersion 14
 
 * Fix UI caveat related to #13 - Give bookmark popups more padding on the top
