@@ -558,7 +558,7 @@ function updateDownloadStatuses() {
         const inProgress = fullStatus['in-progress']
         tryMakeDownloadRects(fullStatus['available-areas'])
         Object.keys(downloadRects).forEach(tileId => {
-            if (map.getZoom() > 7) {
+            if (map.getZoom() > 6) {
                 downloadRects[tileId].remove()
             } else {
                 downloadRects[tileId].addTo(map)
