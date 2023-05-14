@@ -305,9 +305,9 @@ const searchMarker = L.marker([0, 0], {
     })
 
 let areaBoundses = {}
-downloadMarkers = {}
+downloadRects = {}
 
-function tryMakeDownloadMarkers(newAreaBoundses) {
+function tryMakeDownloadRects(newAreaBoundses) {
     const boundsAvailable = !!newAreaBoundses
     const boundsAlreadySet = !!Object.keys(areaBoundses).length
 
@@ -317,11 +317,9 @@ function tryMakeDownloadMarkers(newAreaBoundses) {
 
     areaBoundses = newAreaBoundses
     for (key in areaBoundses) {
-        // Later, if/when we have administrative regions again, we'll have
-        // actual names to set again. TODO - Get rid of names for marker,
-        // have square show up to indicate area on mouseover.
-        const name = key
-        downloadMarkers[key] = downloadMarker(name, key)
+        // Later, if/when we have administrative regions again, we'll again
+        // have set a useful name to label the region with.
+        downloadRects[key] = downloadRect(key)
     }
 }
 
@@ -329,36 +327,49 @@ function tryMakeDownloadMarkers(newAreaBoundses) {
 
 const downloadPopup = L.popup()
 
-function downloadMarker(name, tileId) {
+function downloadRect(tileId) {
         let bounds = areaBoundses[tileId]
-        let coords = [
+        let center = [
             (bounds[1][0] + bounds[0][0]) / 2,
             (bounds[1][1] + bounds[0][1]) / 2,
         ]
-        return L.marker([0, 0], {
-            icon: new L.Icon({
-                iconUrl: 'assets/images/bookmark-marker.svg', // TODO different color
-                iconSize: [75, 75]
-            }),
-            areaName: name
+        return L.rectangle(bounds, {
+            weight: 1,
+            color: '#ff7800',
+            dashArray: '',
+            fillOpacity: 0,
+            opacity: .1,
         })
         .on('click', () => {
             if (!(tileId + '.pmtiles' in loaded)) {
                 downloadPopup
                 .setContent(`<div>
-                    Download ${name} to this grain?<br>
+                    Download this area to this grain?<br>
                     <button onclick="downloadMap('${tileId}'); downloadPopup.remove()">Ok</button>
                     <button onclick="downloadPopup.remove()">Cancel</button>
                 </div>`)
-                .setLatLng(L.latLng(coords))
+                .setLatLng(L.latLng(center))
                 .addTo(map)
             } else {
-                map.fitBounds(areaBoundses[tileId])
+                // If it's downloaded and you click on it, it zooms and pans
+                // you to the area, unless you're already zoomed in as far as
+                // or further than it would take you to.
+                if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
+                    map.fitBounds(areaBoundses[tileId])
+                }
             }
         })
-        .setLatLng(L.latLng(coords))
-        .bindTooltip('', {permanent: true})
-        .openTooltip()
+        .on('mouseover', e => {
+            if (loaded[tileId + '.pmtiles'] !== "done") {
+                e.target.setStyle({color: '#ffdd00', fillOpacity: 0.2})
+            }
+        })
+        .on('mouseout', e => {
+            if (loaded[tileId + '.pmtiles'] !== "done") {
+                e.target.setStyle({color: '#ff7800', fillOpacity: 0})
+
+            }
+        })
 }
 
 function downloadMap(tileId) {
@@ -545,28 +556,26 @@ function updateDownloadStatuses() {
     .then(e => e.json())
     .then(fullStatus => {
         const inProgress = fullStatus['in-progress']
-        tryMakeDownloadMarkers(fullStatus['available-areas'])
-        Object.keys(downloadMarkers).forEach(tileId => {
-            const name = downloadMarkers[tileId].options.areaName
-
-            if (map.getZoom() > 7 && (tileId + '.pmtiles') in loaded) {
-                downloadMarkers[tileId].remove()
+        tryMakeDownloadRects(fullStatus['available-areas'])
+        Object.keys(downloadRects).forEach(tileId => {
+            if (map.getZoom() > 7) {
+                downloadRects[tileId].remove()
             } else {
-                downloadMarkers[tileId].addTo(map)
+                downloadRects[tileId].addTo(map)
             }
 
+            tooltipContent = null
+
             if (loaded[tileId + '.pmtiles'] === "done") {
-                // We can keep showing the marker after done to let
-                // the user find the city if they're zoomed out
-                // it'll be hidden when they're zoomed in
-                downloadMarkers[tileId].getTooltip().setContent(name)
+                // Greenish means downloaded
+                downloadRects[tileId].setStyle({color: '#78ff00', fillOpacity: 0.1, weight: 2})
             } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === "started") {
-                downloadMarkers[tileId].getTooltip().setContent("Downloaded. Loading on screen...")
+                tooltipContent = "Downloaded. Loading on screen..."
             } else if (tileId in inProgress) {
                 if (inProgress[tileId].downloadDone !== inProgress[tileId].downloadTotal) {
                     downloadPercentage = Math.round(100 * (inProgress[tileId].downloadDone / inProgress[tileId].downloadTotal))
-                    downloadMarkers[tileId].getTooltip().setContent(
-                        'Downloading ' + name +
+                    tooltipContent = (
+                        'Downloading this area' +
                         `<div style='width:100px;border-style:solid;'>
                             <div style='width:${downloadPercentage}%; background-color:#555'>&nbsp</div>
                         </div>`
@@ -574,17 +583,30 @@ function updateDownloadStatuses() {
                 } else {
                     searchImportPercentage = inProgress[tileId].searchImportTotal ?
                         Math.round(100 * (inProgress[tileId].searchImportDone / inProgress[tileId].searchImportTotal)) : 0
-                    downloadMarkers[tileId].getTooltip().setContent(
-                        'Importing search data for ' + name +
+                    tooltipContent = (
+                        'Importing search data for this area' +
                         `<div style='width:100px;border-style:solid;'>
                             <div style='width:${searchImportPercentage}%; background-color:#555'>&nbsp</div>
                         </div>`
                     )
                 }
             } else if (fullStatus.queued.includes(tileId)) {
-                downloadMarkers[tileId].getTooltip().setContent('Queued for download: ' + name)
+                tooltipContent = 'Queued for download'
             } else {
-                downloadMarkers[tileId].getTooltip().setContent(name)
+                tooltipContent = null
+            }
+
+            let tooltip = downloadRects[tileId].getTooltip()
+            if (tooltipContent) {
+                if (tooltip) {
+                    tooltip.setContent(tooltipContent)
+                } else {
+                    downloadRects[tileId].bindTooltip(tooltipContent, {permanent: true})
+                }
+            } else {
+                if (tooltip) {
+                    downloadRects[tileId].unbindTooltip()
+                }
             }
         })
     })
@@ -650,6 +672,7 @@ function getGeoJson(name) {
                     '<a href="https://okfn.org/">Open Knowledge Foundation</a>'
                 ),
                 style: {
+                    interactive: false,
                     weight: 1,
                     color: '#000',
                     dashArray: '',
