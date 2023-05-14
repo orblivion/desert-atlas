@@ -369,12 +369,6 @@ function downloadMap(tileId) {
     .catch(console.log)
 }
 
-if (permissions.indexOf("download") !== -1) {
-    for (tileId in downloadMarkers) {
-        downloadMarkers[tileId].addTo(map)
-    }
-}
-
 const showGeoButtonLearnMore = (() => {
     $('#bookmark-edit-geo-button-learn-more').slideDown()
 })
