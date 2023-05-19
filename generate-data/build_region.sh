@@ -9,7 +9,7 @@ BUILD_DIR=$(mktemp -d)
 PKG_DIR=$BUILD_DIR/pkg
 
 mkdir $PKG_DIR
-PBF_FILE=pbf/regions/$REGION.osm.pbf
+PBF_FILE=pbf/$CONTINENT/regions/$REGION.osm.pbf
 
 MBT_FILE=$BUILD_DIR/tiles.mbtiles
 PMT_FILE=$PKG_DIR/tiles.pmtiles
