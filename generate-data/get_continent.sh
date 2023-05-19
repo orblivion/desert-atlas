@@ -9,7 +9,7 @@ CONTINENT_FILE_TMP=./pbf/continents/$CONTINENT.tmp
 OUTPUT_DIR=./pbf/regions
 
 # Download the continent if we don't already happen to have it
-ls $CONTINENT_FILE || (wget https://download.geofabrik.de/' + $CONTINENT + '-latest.osm.pbf -O $CONTINENT_FILE_TMP && mv $CONTINENT_FILE_TMP $CONTINENT_FILE)
+ls $CONTINENT_FILE || (wget https://download.geofabrik.de/${CONTINENT}-latest.osm.pbf -O $CONTINENT_FILE_TMP && mv $CONTINENT_FILE_TMP $CONTINENT_FILE)
 
 #MAX_NODES = 24000000
 # trying half the size
