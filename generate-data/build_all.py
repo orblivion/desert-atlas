@@ -13,11 +13,12 @@ def make_continent(continent, output_dir):
     if result.returncode != 0:
         raise BaseException("Error with get_continent.sh")
 
-    continent_boundses = parse_areas.parse_areas('splitter/areas.list')
+    regions_dir = os.path.join('pbf', continent, 'regions')
+    continent_boundses = parse_areas.parse_areas(os.path.join(regions_dir, 'areas.list'))
 
     regions = [
-        os.path.basename(fname).split('.')[0]           # Everything before ".osm.pbf" is what we'll use as the region name
-        for fname in glob('pbf/regions/*.osm.pbf')      # Loop over all .pbf files we generated from the splitter process
+        os.path.basename(fname).split('.')[0]                      # Everything before ".osm.pbf" in the filename is what we'll use as the region name
+        for fname in glob(os.path.join(regions_dir, '*.osm.pbf'))  # Loop over all .pbf files we generated from the splitter process
     ]
 
     for region in regions:
@@ -32,7 +33,7 @@ def make_manifest(all_boundses, output_dir):
     # Make it a set to remove dupes. There will be multiple tar.gz per region. But then,
     # sort the result.
     all_regions_with_continent = sorted({
-        os.path.basename(fname).split('.')[0]                     # Everything before ".tar.gz" is what we'll use as the region name
+        os.path.basename(fname).split('.')[0]                     # Everything before ".tar.gz" in the filename is what we'll use as the region name
         for fname in glob(os.path.join(output_dir, '*.tar.gz.*')) # Loop over all .tar.gz files we generated from the region building process
     })
 
