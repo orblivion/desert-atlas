@@ -1,12 +1,12 @@
 import json
 
-def parse_areas():
+def parse_areas(areas_file_path):
     """
     Parses areas.list created by mkgmap-splitter
     Returns {area_name: [[lat,lng], [lat,lng]]}
       (or maybe lng, lat is reversed, who knows. but it works.)
     """
-    f = open('areas.list').readlines()
+    f = open(areas_file_path).readlines()
     for x in range(3):
         assert f[x][0] == '#'
     assert f[3][0] != '#'

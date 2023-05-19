@@ -9,12 +9,7 @@ BUILD_DIR=$(mktemp -d)
 PKG_DIR=$BUILD_DIR/pkg
 
 mkdir $PKG_DIR
-
-PBF_FILE_NAME=$REGION.osm.pbf
-PBF_FILE_TMP=$BUILD_DIR/$PBF_FILE_NAME
-# Keep pbf file (not in a temp dir). Don't want to abuse Geofabrik by
-# downloading over and over in case we need to re-run this.
-PBF_FILE=pbf/$PBF_FILE_NAME
+PBF_FILE=pbf/regions/$REGION.osm.pbf
 
 MBT_FILE=$BUILD_DIR/tiles.mbtiles
 PMT_FILE=$PKG_DIR/tiles.pmtiles
@@ -22,7 +17,7 @@ SEARCH_FILE=$PKG_DIR/search.csv
 
 # Note the . at the end. The package will be split into mulitple files
 # and they will be numbered, starting with this prefix.
-PKG_PREFIX=$REGION.tar.gz.
+PKG_PREFIX=$CONTINENT-$REGION.tar.gz.
 
 python3 extract_search.py $PBF_FILE $SEARCH_FILE
 
