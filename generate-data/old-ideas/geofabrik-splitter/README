@@ -1,0 +1,1 @@
+Previous to using mkgmap-splitter to split into square regions, I was trying to replicate Geofabrik's process of splitting data into administrative regions. This is obviously a WIP. I didn't want to throw it away because maybe some day we'll go back to this plan. It's just more work than mkgmap-splitter.

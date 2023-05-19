@@ -2,40 +2,108 @@
 
 import subprocess, os, json, time
 from glob import glob
-from pprint import pprint
 
-regions = [
-    {"REGION": "new-hampshire", "REGION_PATH": "north-america/us"},
-    {"REGION": "illinois", "REGION_PATH": "north-america/us"},
-    {"REGION": "massachusetts", "REGION_PATH": "north-america/us"},
+import parse_areas
 
-    # Currently too much for a 16 Gig memory VPS! Maybe I'll try a bigger one though.
-    # But it would be better to just do the region splitting.
-    # {"REGION": "ontario", "REGION_PATH": "north-america/canada"},
-]
+def areas_list_path(output_dir, continent):
+    # NOTE - This needs to match with the same path in get_continent.sh
+    return os.path.join(output_dir, 'areas.' + continent + '.list')
 
-output_dir = os.path.join("output", str(time.time()))
-manifest_path = os.path.join(output_dir, "manifest.json")
+def continent_done_path(output_dir, continent):
+    # NOTE - This needs to match with the same path in cleanup_continent.sh
+    return os.path.join(output_dir, continent + '.done')
 
-os.makedirs(output_dir)
+def make_continent(continent, output_dir):
+    """
+    We have generated all of the pbf files for all of the regions.
+    """
 
-for region in regions:
-    result = subprocess.run(['bash', 'build.sh'], env=dict(region, OUTPUT_DIR=output_dir))
+    # If we already built the continent we can skip all of this
+    if os.path.exists(continent_done_path(output_dir, continent)):
+        return
+
+    # If we already have the areas.list we can skip this part
+    if not os.path.exists(areas_list_path(output_dir, continent)):
+        result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
+        if result.returncode != 0:
+            raise Exception("Error with get_continent.sh")
+
+    result = subprocess.run(['bash', 'init_continent_output.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
     if result.returncode != 0:
-        raise Exception("Error building for:", region)
+        raise Exception("Error with init_continent_output.sh")
 
-manifest = {
-    region["REGION"]: {
-        "files" : [
-            os.path.basename(path)
-            for path
-            # TODO - with REGION name collisions, we'll probably actually want
-            # to put these files in the appropriate path
-            in sorted(glob(os.path.join(output_dir, region["REGION"] + '.tar.gz.[0-9]*')))
-        ],
+    regions_dir = os.path.join('pbf', continent, 'regions')
+
+    # I think glob wasn't being perfectly sorted by default
+    regions = sorted(
+        os.path.basename(fname).split('.')[0]                      # Everything before ".osm.pbf" in the filename is what we'll use as the region name
+        for fname in glob(os.path.join(regions_dir, '*.osm.pbf'))  # Loop over all .pbf files we generated from the splitter process
+    )
+
+    for region in regions:
+        result = subprocess.run(['bash', 'build_region.sh'], env=dict(CONTINENT=continent, REGION=region, OUTPUT_DIR=output_dir))
+        if result.returncode != 0:
+            raise Exception("Error building for:", region)
+
+    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent))
+    if result.returncode != 0:
+        raise Exception("Error with cleanup_continent.sh")
+
+def make_manifest(continents, output_dir):
+    # Get regions from generated .tar.gz files, since this is all continents generated.
+    # Make it a set to remove dupes. There will be multiple tar.gz per region. But then,
+    # sort the result.
+    all_regions_with_continent = sorted({
+        os.path.basename(fname).split('.')[0]                     # Everything before ".tar.gz" in the filename is what we'll use as the region name
+        for fname in glob(os.path.join(output_dir, '*.tar.gz.*')) # Loop over all .tar.gz files we generated from the region building process
+    })
+
+    # Format is 'continent---region'
+    get_continent = lambda region_with_continent: region_with_continent.split('---')[0]
+    get_region = lambda region_with_continent: region_with_continent.split('---')[1]
+
+    all_boundses = {
+        continent: parse_areas.parse_areas(areas_list_path(output_dir, continent))
+        for continent in continents
     }
-    for region in regions
-}
 
-with open(manifest_path, "w") as f:
-    json.dump(manifest, f, indent=2)
+    manifest = {
+        region_with_continent: {
+            "files" : [
+                os.path.basename(path)
+                for path
+                in sorted(glob(os.path.join(output_dir, region_with_continent + '.tar.gz.[0-9]*')))
+            ],
+            "bounds" : all_boundses[get_continent(region_with_continent)][get_region(region_with_continent)],
+        }
+        for region_with_continent in all_regions_with_continent
+    }
+
+    manifest_path = os.path.join(output_dir, "manifest.json")
+
+    # TODO - gzip, it'll probably get kind of big
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+
+def make_the_world():
+    # Create this once (remember time.time() will change every run), pass into
+    # functions that need it
+    output_dir = os.path.join("output", str(time.time()))
+    os.makedirs(output_dir)
+
+    continents = [
+        "africa",
+        "antarctica",
+        "asia",
+        "australia-oceania",
+        "central-america",
+        "europe",
+        "north-america",
+        "south-america",
+    ]
+
+    for continent in continents:
+        make_continent(continent, output_dir)
+    make_manifest(continents, output_dir)
+
+make_the_world()

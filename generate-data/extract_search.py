@@ -6,6 +6,8 @@ from pprint import pprint
 # want to get Gazetteer working instead. Though this gives us more power in the
 # long run to format search data how we want it.
 
+# TODO - call this directly from build_all.py instead of through build_region.sh
+
 # NOTE - This will require a substantial amount of memory to export a larger
 # region.
 
