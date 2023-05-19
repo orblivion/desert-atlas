@@ -1,0 +1,8 @@
+https://www.mkgmap.org.uk/doc/splitter.html
+https://www.mkgmap.org.uk/download/splitter.html - build? or at least hash and download
+
+
+
+wget https://download.geofabrik.de/north-america-latest.osm.pbf
+
+java -Xmx2000m -jar splitter.jar --max-nodes=24000000 north-america-latest.osm.pbf # max-nodes makes bigger regions. runs faster than many small regions, in browser, I think, makes it not crash when splitting. maybe want to reduce by size by 33% tho.
