@@ -17,6 +17,7 @@ MAX_NODES = 12000000
 
 # Delete anything that might be here from the previous continent or a previous attempt
 ls $OUTPUT_DIR/0.osm.pbf && rm $OUTPUT_DIR/*.osm.pbf || echo ''
+ls $OUTPUT_DIR/areas.list && rm $OUTPUT_DIR/areas.list || echo ''
 
 cd splitter
 

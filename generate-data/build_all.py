@@ -10,6 +10,8 @@ def make_continent(continent, output_dir):
     We have generated all of the pbf files for all of the regions.
     """
     result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
+    if result.returncode != 0:
+        raise BaseException("Error with get_continent.sh")
 
     continent_boundses = parse_areas.get_areas('splitter/areas.list')
 
