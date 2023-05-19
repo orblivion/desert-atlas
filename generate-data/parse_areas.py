@@ -2,7 +2,7 @@ import json
 
 def parse_areas():
     """
-    Parses areas.list created by splitter.jar
+    Parses areas.list created by mkgmap-splitter
     Returns {area_name: [[lat,lng], [lat,lng]]}
       (or maybe lng, lat is reversed, who knows. but it works.)
     """
