@@ -6,8 +6,10 @@ from pprint import pprint
 
 import parse_areas
 
-# TODO - readable code
-regions = [{"REGION": os.path.basename(fname).split('.')[0]} for fname in glob('pbf/*.osm.pbf')]
+regions = [
+    {"REGION": os.path.basename(fname).split('.')[0]} # Everything before ".osm.pbf" is what we'll use as the region name
+    for fname in glob('pbf/*.osm.pbf')                # Loop over all .pbf files we generated from the splitter process
+]
 
 # Create this once (remember time.time() will change every run), pass into
 # functions that need it
