@@ -5,7 +5,7 @@ from glob import glob
 
 import parse_areas
 
-def make_continent(continent, regions, output_dir):
+def make_continent(continent, output_dir):
     """
     We have generated all of the pbf files for all of the regions.
     """
