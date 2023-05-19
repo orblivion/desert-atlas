@@ -13,7 +13,7 @@ def make_continent(continent, output_dir):
     if result.returncode != 0:
         raise BaseException("Error with get_continent.sh")
 
-    continent_boundses = parse_areas.get_areas('splitter/areas.list')
+    continent_boundses = parse_areas.parse_areas('splitter/areas.list')
 
     regions = [
         os.path.basename(fname).split('.')[0]           # Everything before ".osm.pbf" is what we'll use as the region name
