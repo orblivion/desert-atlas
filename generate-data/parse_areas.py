@@ -1,5 +1,3 @@
-import json
-
 def parse_areas(areas_file_path):
     """
     Parses areas.list created by mkgmap-splitter

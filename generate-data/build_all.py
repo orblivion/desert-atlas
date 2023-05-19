@@ -2,7 +2,6 @@
 
 import subprocess, os, json, time
 from glob import glob
-from pprint import pprint
 
 import parse_areas
 
@@ -10,7 +9,7 @@ def make_continent(continent, regions, output_dir):
     """
     We have generated all of the pbf files for all of the regions.
     """
-    result = subprocess.run(['bash', 'get_continent.sh'], env=dict(region, OUTPUT_DIR=output_dir, CONTINENT=continent))
+    result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
 
     continent_boundses = parse_areas.get_areas('splitter/areas.list')
 
@@ -32,12 +31,12 @@ def make_manifest(all_boundses, output_dir):
     # sort the result.
     all_regions_with_continent = sorted({
         os.path.basename(fname).split('.')[0]                     # Everything before ".tar.gz" is what we'll use as the region name
-        for fname in glob(op.path.join(output_dir, '*.tar.gz.*')  # Loop over all .tar.gz files we generated from the region building process
+        for fname in glob(os.path.join(output_dir, '*.tar.gz.*')) # Loop over all .tar.gz files we generated from the region building process
     })
 
     # Format is 'continent-region'
-    get_continent = lambda region_with_continent: region.split('-')[0]
-    get_region = lambda region_with_continent: region.split('-')[1]
+    get_continent = lambda region_with_continent: region_with_continent.split('-')[0]
+    get_region = lambda region_with_continent: region_with_continent.split('-')[1]
 
     manifest = {
         region_with_continent: {
@@ -48,7 +47,7 @@ def make_manifest(all_boundses, output_dir):
             ],
             "bounds" : all_boundses[get_continent(region_with_continent)][get_region(region_with_continent)],
         }
-        for region in all_regions_with_continent
+        for region_with_continent in all_regions_with_continent
     }
 
     manifest_path = os.path.join(output_dir, "manifest.json")
@@ -74,7 +73,7 @@ def make_the_world():
 
     all_areas = {}
     for continent in continents:
-        all_areas[continent] = build_continent(continent, output_dir)
+        all_areas[continent] = make_continent(continent, output_dir)
     make_manifest(all_areas, output_dir)
 
 make_the_world()
