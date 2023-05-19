@@ -11,8 +11,9 @@ OUTPUT_DIR=./pbf/regions
 # Download the continent if we don't already happen to have it
 ls $CONTINENT_FILE || (wget https://download.geofabrik.de/' + $CONTINENT + '-latest.osm.pbf -O $CONTINENT_FILE_TMP && mv $CONTINENT_FILE_TMP $CONTINENT_FILE)
 
-# TODO - try half the size
-MAX_NODES = 24000000
+#MAX_NODES = 24000000
+# trying half the size
+MAX_NODES = 12000000
 
 # Delete anything that might be here from the previous continent or a previous attempt
 ls $OUTPUT_DIR/0.osm.pbf && rm $OUTPUT_DIR/*.osm.pbf || echo ''
