@@ -8,6 +8,16 @@
 
 Since they have dependencies I'll give some specific instructions on how to get them. These should work on the specific versions referred to by git submodules.
 
+#### mkgmap splitter
+
+AS of now, I don't know for this one. The source code has no README. If you know how to build a Java application, please let me know. I'd ideally prefer to build from source, and then maybe check the source into this repo since it's in an SVN repo on their own website:
+
+http://svn.mkgmap.org.uk/splitter/trunk
+
+More documentation:
+
+https://www.mkgmap.org.uk/doc/splitter.html
+
 #### tilemaker
 
 _(let me know if I left something out!)_
@@ -24,7 +34,17 @@ In the `tilemaker` directory, just run `make`. The executable will end up in the
 
 [Install golang](https://go.dev/doc/install) if you haven't already. In the `go-pmtiles` directory, just run `go build`. The executable will end up in the right place.
 
-### ~~Lazy~~ Pragmatic and efficient option: Get the release that corresponds to the tag currently checked out in the submodule:
+### ~~Lazy~~ Pragmatic and efficient option:
+
+#### mkgmap splitter
+
+Get the latest zip, extract the contents into the "splitter" directory. I made a handy script in this directory:
+
+./get-mkgmap-splitter.sh
+
+#### tilemaker and go-pmtiles
+
+Get the release that corresponds to the tag currently checked out in the submodule:
 
 * https://github.com/systemed/tilemaker/releases/
 * https://github.com/protomaps/go-pmtiles/releases
