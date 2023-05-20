@@ -25,6 +25,3 @@ cd splitter
 
 # mapid=0 just sets the file names to start with 0
 java -Xmx2000m -jar splitter.jar --max-nodes=$MAX_NODES --mapid=0 --output-dir=$OUTPUT_DIR $CONTINENT_FILE
-
-# Save some space
-rm -r $CONTINENT_DIR

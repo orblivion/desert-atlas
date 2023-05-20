@@ -5,13 +5,13 @@ from glob import glob
 
 import parse_areas
 
-def make_continent(continent, output_dir):
+def make_continent(continent):
     """
     We have generated all of the pbf files for all of the regions.
     """
-    result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
+    result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent))
     if result.returncode != 0:
-        raise BaseException("Error with get_continent.sh")
+        raise Exception("Error with get_continent.sh")
 
     regions_dir = os.path.join('pbf', continent, 'regions')
     continent_boundses = parse_areas.parse_areas(os.path.join(regions_dir, 'areas.list'))
@@ -25,6 +25,10 @@ def make_continent(continent, output_dir):
         result = subprocess.run(['bash', 'build_region.sh'], env=dict(CONTINENT=continent, REGION=region, OUTPUT_DIR=output_dir))
         if result.returncode != 0:
             raise Exception("Error building for:", region)
+
+    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent)
+    if result.returncode != 0:
+        raise Exception("Error with cleanup_continent.sh")
 
     return continent_boundses
 
@@ -78,7 +82,7 @@ def make_the_world():
 
     all_areas = {}
     for continent in continents:
-        all_areas[continent] = make_continent(continent, output_dir)
+        all_areas[continent] = make_continent(continent)
     make_manifest(all_areas, output_dir)
 
 make_the_world()
