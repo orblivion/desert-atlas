@@ -36,3 +36,6 @@ tar -czvf pkg.tar.gz pkg
 
 cd -
 split -d -b 2M $BUILD_DIR/pkg.tar.gz $OUTPUT_DIR/$PKG_PREFIX
+
+# This would take up a ton of extra space
+rm -r $BUILD_DIR
