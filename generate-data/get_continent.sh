@@ -9,7 +9,7 @@ CONTINENT_FILE=$CONTINENT_DIR/continent.osm.pbf
 CONTINENT_FILE_TMP=$CONTINENT_FILE.tmp
 OUTPUT_DIR=$CONTINENT_DIR/regions
 
-mkdir -p OUTPUT_DIR
+mkdir -p $OUTPUT_DIR
 
 # Download the continent if we don't already happen to have it
 ls $CONTINENT_FILE || (wget https://download.geofabrik.de/${CONTINENT}-latest.osm.pbf -O $CONTINENT_FILE_TMP && mv $CONTINENT_FILE_TMP $CONTINENT_FILE)
