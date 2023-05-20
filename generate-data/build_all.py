@@ -54,6 +54,8 @@ def make_manifest(all_boundses, output_dir):
     }
 
     manifest_path = os.path.join(output_dir, "manifest.json")
+
+    # TODO - gzip, it'll probably get kind of big
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
 
