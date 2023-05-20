@@ -82,7 +82,7 @@ def make_the_world():
 
     all_areas = {}
     for continent in continents:
-        all_areas[continent] = make_continent(continent)
+        all_areas[continent] = make_continent(continent, output_dir)
     make_manifest(all_areas, output_dir)
 
 make_the_world()
