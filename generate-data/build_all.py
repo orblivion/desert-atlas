@@ -5,7 +5,7 @@ from glob import glob
 
 import parse_areas
 
-def make_continent(continent):
+def make_continent(continent, output_dir):
     """
     We have generated all of the pbf files for all of the regions.
     """
@@ -26,7 +26,7 @@ def make_continent(continent):
         if result.returncode != 0:
             raise Exception("Error building for:", region)
 
-    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent)
+    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent))
     if result.returncode != 0:
         raise Exception("Error with cleanup_continent.sh")
 
