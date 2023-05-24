@@ -59,8 +59,8 @@ def make_manifest(continents, output_dir):
     })
 
     # Format is 'continent-region'
-    get_continent = lambda region_with_continent: region_with_continent.split('-')[0]
-    get_region = lambda region_with_continent: region_with_continent.split('-')[1]
+    get_continent = lambda region_with_continent: region_with_continent.split('---')[0]
+    get_region = lambda region_with_continent: region_with_continent.split('---')[1]
 
     all_boundses = {
         continent: parse_areas.parse_areas(areas_list_path(output_dir, continent))

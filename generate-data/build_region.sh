@@ -17,7 +17,7 @@ SEARCH_FILE=$PKG_DIR/search.csv
 
 # Note the . at the end. The package will be split into mulitple files
 # and they will be numbered, starting with this prefix.
-PKG_PREFIX=$CONTINENT-$REGION.tar.gz.
+PKG_PREFIX=$CONTINENT---$REGION.tar.gz.
 
 python3 extract_search.py $PBF_FILE $SEARCH_FILE
 
