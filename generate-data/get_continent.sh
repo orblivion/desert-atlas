@@ -9,6 +9,9 @@ CONTINENT_FILE=$CONTINENT_DIR/continent.osm.pbf
 CONTINENT_FILE_TMP=$CONTINENT_FILE.tmp
 PBF_OUTPUT_DIR=$CONTINENT_DIR/regions
 
+# NOTE - This needs to match with the same path in build_all.py
+AREAS_LIST_PATH=$OUTPUT_DIR/areas.$CONTINENT.list
+
 mkdir -p $PBF_OUTPUT_DIR
 
 # Download the continent if we don't already happen to have it
@@ -25,3 +28,5 @@ cd splitter
 
 # mapid=0 just sets the file names to start with 0
 java -Xmx2000m -jar splitter.jar --max-nodes=$MAX_NODES --mapid=0 --output-dir=$PBF_OUTPUT_DIR $CONTINENT_FILE
+
+mv $PBF_OUTPUT_DIR/areas.list $AREAS_LIST_PATH

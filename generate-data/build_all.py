@@ -5,21 +5,40 @@ from glob import glob
 
 import parse_areas
 
+def areas_list_path(output_dir, continent):
+    # NOTE - This needs to match with the same path in get_continent.sh
+    return os.path.join(output_dir, 'areas.' + continent + '.list')
+
+def continent_done_path(output_dir, continent):
+    # NOTE - This needs to match with the same path in cleanup_continent.sh
+    return os.path.join(output_dir, continent + '.done')
+
 def make_continent(continent, output_dir):
     """
     We have generated all of the pbf files for all of the regions.
     """
-    result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent))
+
+    # If we already built the continent we can skip all of this
+    if os.path.exists(continent_done_path(output_dir, continent)):
+        return
+
+    # If we already have the areas.list we can skip this part
+    if not os.path.exists(areas_list_path(output_dir, continent)):
+        result = subprocess.run(['bash', 'get_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
+        if result.returncode != 0:
+            raise Exception("Error with get_continent.sh")
+
+    result = subprocess.run(['bash', 'init_continent_output.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
     if result.returncode != 0:
-        raise Exception("Error with get_continent.sh")
+        raise Exception("Error with init_continent_output.sh")
 
     regions_dir = os.path.join('pbf', continent, 'regions')
-    continent_boundses = parse_areas.parse_areas(os.path.join(regions_dir, 'areas.list'))
 
-    regions = [
+    # I think glob wasn't being perfectly sorted by default
+    regions = sorted(
         os.path.basename(fname).split('.')[0]                      # Everything before ".osm.pbf" in the filename is what we'll use as the region name
         for fname in glob(os.path.join(regions_dir, '*.osm.pbf'))  # Loop over all .pbf files we generated from the splitter process
-    ]
+    )
 
     for region in regions:
         result = subprocess.run(['bash', 'build_region.sh'], env=dict(CONTINENT=continent, REGION=region, OUTPUT_DIR=output_dir))
@@ -30,9 +49,7 @@ def make_continent(continent, output_dir):
     if result.returncode != 0:
         raise Exception("Error with cleanup_continent.sh")
 
-    return continent_boundses
-
-def make_manifest(all_boundses, output_dir):
+def make_manifest(continents, output_dir):
     # Get regions from generated .tar.gz files, since this is all continents generated.
     # Make it a set to remove dupes. There will be multiple tar.gz per region. But then,
     # sort the result.
@@ -44,6 +61,11 @@ def make_manifest(all_boundses, output_dir):
     # Format is 'continent-region'
     get_continent = lambda region_with_continent: region_with_continent.split('-')[0]
     get_region = lambda region_with_continent: region_with_continent.split('-')[1]
+
+    all_boundses = {
+        continent: parse_areas.parse_areas(areas_list_path(output_dir, continent))
+        for continent in continents
+    }
 
     manifest = {
         region_with_continent: {
@@ -80,9 +102,8 @@ def make_the_world():
         "south-america",
     ]
 
-    all_areas = {}
     for continent in continents:
-        all_areas[continent] = make_continent(continent, output_dir)
-    make_manifest(all_areas, output_dir)
+        make_continent(continent, output_dir)
+    make_manifest(continents, output_dir)
 
 make_the_world()
