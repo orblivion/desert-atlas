@@ -51,6 +51,7 @@ sbin
 service-config/mime.types
 service-config/nginx.conf
 usr/bin/bash
+usr/bin/curl
 usr/bin/env
 usr/bin/mkdir
 usr/bin/python3
@@ -281,8 +282,10 @@ usr/lib/python3/dist-packages/requests/__pycache__/structures.cpython-39.pyc
 usr/lib/python3/dist-packages/requests/__pycache__/utils.cpython-39.pyc
 usr/lib/python3/dist-packages/requests/adapters.py
 usr/lib/python3/dist-packages/requests/api.py
+usr/lib/python3/dist-packages/requests/models.py
 usr/lib/python3/dist-packages/requests/sessions.py
 usr/lib/python3/dist-packages/simplejson
+usr/lib/python3/dist-packages/simplejson/__init__.py
 usr/lib/python3/dist-packages/simplejson/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3/dist-packages/simplejson/__pycache__/compat.cpython-39.pyc
 usr/lib/python3/dist-packages/simplejson/__pycache__/decoder.cpython-39.pyc
@@ -291,6 +294,7 @@ usr/lib/python3/dist-packages/simplejson/__pycache__/errors.cpython-39.pyc
 usr/lib/python3/dist-packages/simplejson/__pycache__/raw_json.cpython-39.pyc
 usr/lib/python3/dist-packages/simplejson/__pycache__/scanner.cpython-39.pyc
 usr/lib/python3/dist-packages/simplejson/_speedups.cpython-39-x86_64-linux-gnu.so
+usr/lib/python3/dist-packages/simplejson/decoder.py
 usr/lib/python3/dist-packages/unidecode
 usr/lib/python3/dist-packages/unidecode/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x000.cpython-39.pyc
@@ -325,6 +329,7 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x05f.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x060.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x062.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x065.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x067.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x069.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x06c.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x06d.cpython-39.pyc
@@ -334,6 +339,7 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x075.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x076.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x077.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x079.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x080.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x083.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x089.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x08d.cpython-39.pyc
@@ -348,15 +354,19 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x0ad.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0af.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0b4.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0b8.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0b9.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c0.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c2.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c6.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c7.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c9.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0cd.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0ce.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0d0.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d2.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d5.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d6.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0fb.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0fe.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0ff.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x1d4.cpython-39.pyc
@@ -416,6 +426,8 @@ usr/lib/x86_64-linux-gnu/libcom_err.so.2.1
 usr/lib/x86_64-linux-gnu/libcrypt.so.1
 usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
 usr/lib/x86_64-linux-gnu/libcrypto.so.1.1
+usr/lib/x86_64-linux-gnu/libcurl.so.4
+usr/lib/x86_64-linux-gnu/libcurl.so.4.7.0
 usr/lib/x86_64-linux-gnu/libdl-2.31.so
 usr/lib/x86_64-linux-gnu/libdl.so.2
 usr/lib/x86_64-linux-gnu/libexpat.so.1
