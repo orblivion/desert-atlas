@@ -323,6 +323,42 @@ function tryMakeDownloadRects(newAreaBoundses) {
     }
 }
 
+const uiStyle = {
+    downloadRect: {
+        normal: {
+            color: '#ff7800',
+            opacity: 0.1,
+            fillOpacity: 0,
+            weight: 1,
+        },
+        highlighted: {
+            color: '#ffdd00',
+            opacity: 0.4,
+            fillOpacity: 0.4,
+            weight: 1,
+        },
+        downloaded: {
+            color: '#23ff00',
+            fillOpacity: 0.2,
+        },
+    },
+    borders: {
+        weight: 2,
+        color: '#000000',
+        fillColor: '#fff',
+        opacity: 1,
+        fillOpacity: 1,
+    },
+    background: {
+        water: {
+            color: '#b7dff2',
+        },
+        zoomedIn: {
+            color: '#fff',
+        },
+    },
+}
+
 // TODO - Properly extend other marker classes
 
 const downloadPopup = L.popup()
@@ -333,13 +369,7 @@ function downloadRect(tileId) {
             (bounds[1][0] + bounds[0][0]) / 2,
             (bounds[1][1] + bounds[0][1]) / 2,
         ]
-        return L.rectangle(bounds, {
-            weight: 1,
-            color: '#ff7800',
-            dashArray: '',
-            fillOpacity: 0,
-            opacity: .1,
-        })
+        return L.rectangle(bounds, uiStyle.downloadRect.normal)
         .on('click', () => {
             if (!(tileId + '.pmtiles' in loaded)) {
                 downloadPopup
@@ -361,13 +391,12 @@ function downloadRect(tileId) {
         })
         .on('mouseover', e => {
             if (loaded[tileId + '.pmtiles'] !== "done") {
-                e.target.setStyle({color: '#ffdd00', fillOpacity: 0.2})
+                e.target.setStyle(uiStyle.downloadRect.highlighted)
             }
         })
         .on('mouseout', e => {
             if (loaded[tileId + '.pmtiles'] !== "done") {
-                e.target.setStyle({color: '#ff7800', fillOpacity: 0})
-
+                e.target.setStyle(uiStyle.downloadRect.normal)
             }
         })
 }
@@ -568,7 +597,7 @@ function updateDownloadStatuses() {
 
             if (loaded[tileId + '.pmtiles'] === "done") {
                 // Greenish means downloaded
-                downloadRects[tileId].setStyle({color: '#78ff00', fillOpacity: 0.1, weight: 2})
+                downloadRects[tileId].setStyle(uiStyle.downloadRect.downloaded)
             } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === "started") {
                 tooltipContent = "Downloaded. Loading on screen..."
             } else if (tileId in inProgress) {
@@ -671,27 +700,41 @@ function getGeoJson(name) {
                     '<a href="https://github.com/lexman">Lexman</a>, ' +
                     '<a href="https://okfn.org/">Open Knowledge Foundation</a>'
                 ),
-                style: {
+                style:
+                {
+                    ...uiStyle.borders,
                     interactive: false,
-                    weight: 1,
-                    color: '#000',
-                    dashArray: '',
-                    fillOpacity: 0,
-                    opacity: .1,
                 }
             }).addTo(map)
             geoJsons[name] = geoJsonLayer
-            setGeoJsonOpacity()
+            setGeoJsonOpacityAndBackground()
             return geoJsonLayer
         })
     })
     .catch(console.log)
 }
 
-function setGeoJsonOpacity () {
-    opacity = 0.4 / (map.getZoom() + 1)
+function setGeoJsonOpacityAndBackground () {
+    if (map.getZoom() > 6) {
+        $('.leaflet-container').css({background: uiStyle.background.zoomedIn.color})
+    } else {
+        $('.leaflet-container').css({background: uiStyle.background.water.color})
+    }
     for (name in geoJsons) {
-        geoJsons[name].setStyle({opacity})
+        let opacity, fillOpacity
+
+        if (map.getZoom() > 9) {
+            geoJsons[name].remove()
+        } else if (map.getZoom() > 6) {
+            opacity = fillOpacity = 1 / ((map.getZoom() - 5) * (map.getZoom() - 5))
+            geoJsons[name].addTo(map)
+        } else {
+            opacity = fillOpacity = 1
+            geoJsons[name].addTo(map)
+        }
+
+        geoJsons[name].bringToBack()
+        geoJsons[name].setStyle({opacity, fillOpacity})
     }
 }
 
@@ -797,7 +840,7 @@ function setLoc() {
 setLoc()
 map.on('zoomend', setLoc)
 map.on('moveend', setLoc)
-map.on('zoomend', setGeoJsonOpacity)
+map.on('zoomend', setGeoJsonOpacityAndBackground)
 
 map.on('contextmenu', function (event) {
     if (permissions.indexOf("bookmarks") === -1) {
