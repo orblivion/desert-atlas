@@ -1,3 +1,18 @@
+# 2023/05/27 - appVersion 16
+
+* Fix occasional gateway error on startup
+* Base map:
+    * Add oceans. Probably makes #3 into a post-launch item.
+    * Much better colors for visibility. Fixes #31.
+* Bookmark menu now fits in more with the zoom controls
+* Mobile-only usability changes (address most of #29):
+    * Bookmark menu starts collapsed, to save real estate
+        * Bookmark menu flashes when you add a bookmark, so the user understands the connection even when collapsed.
+    * Keyboard doesn't come up when you click on a bookmark, to save real estate
+    * Hide bookmark menu when you click on a bookmark, so you can actually see the bookmark. Again, real estate.
+
+With all this said, I can't actually confirm that the above mobile-only changes work until I release it to the experimental store, so hypothetically that stuff won't work as advertised.
+
 # 2023/05/14 - appVersion 15
 
 * Get downloadable region definitions over the server instead of hard-coding
