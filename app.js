@@ -160,7 +160,9 @@ L.Control.BookmarksList = L.Control.extend({
         }
         newHtml = `
         <div id='bookmark-list-container' class="leaflet-interactive leaflet-bar">
-            <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
+            <div style="background-color: #f4aa88;">  <!-- For the flashing animation -->
+                <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
+            </div>
             <a class='bookmark-list-hide' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
             <div id='bookmark-list' style='${expandedDisplayStyle}'>
                 ${listItems}
@@ -475,6 +477,9 @@ const addBookmark = (() => {
                 updateBookmarkMarkers()
 
                 selectBookmarkMarker(bookmarkId, false)
+                if (!bookmarksList.expanded) {
+                    $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
+                }
             }, 500)
         })
         .catch(console.log)
