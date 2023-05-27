@@ -127,7 +127,7 @@ var popupMarkerBookmark = null
 
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
-        this.expanded = true
+        this.expanded = false
 
         this.list = L.DomUtil.create('div');
         this.render()
@@ -135,7 +135,9 @@ L.Control.BookmarksList = L.Control.extend({
     },
 
     render: function() {
-        let listItems = `<div id='bookmarks-export'>Export Bookmarks</div>`
+        let listItems = `
+            <div id='bookmarks-export'>Export</div>
+        `
         for (bookmarkId in data.bookmarks) {
             divId = `bookmark-list-${bookmarkId}`
             bookmarkData = JSON.stringify(data.bookmarks[bookmarkId])
@@ -145,14 +147,26 @@ L.Control.BookmarksList = L.Control.extend({
             </div>
             `
         }
+
+        const HIDE_BOOKMARK_MENU = '<span style="float:left;">\u{2B05}</span><center>Bookmarks</center>'
+        const SHOW_BOOKMARK_MENU = '\u{1F516}'
+
         if (this.expanded) {
-            style = ''
-            showHide = 'Hide Bookmarks'
+            expandedDisplayStyle = ''
+            collapsedDisplayStyle = 'display:none;'
         } else {
-            style = 'display:none;'
-            showHide = 'Show Bookmarks'
+            expandedDisplayStyle = 'display:none;'
+            collapsedDisplayStyle = ''
         }
-        newHtml = "<div id='bookmark-list-container'><div id='bookmark-list-toggle'>" + showHide + "</div><div id='bookmark-list' style='" + style + "'>" + listItems + "</div></div>"
+        newHtml = `
+        <div id='bookmark-list-container' class="leaflet-interactive leaflet-bar">
+            <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
+            <a class='bookmark-list-hide' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
+            <div id='bookmark-list' style='${expandedDisplayStyle}'>
+                ${listItems}
+            </div>
+        </div>
+        `
 
         // TODO - This is a hack to keep the scroll the same. Eventually
         // we want to not refresh it entirely on each change. Only
@@ -168,21 +182,22 @@ L.Control.BookmarksList = L.Control.extend({
             $('#bookmarks-export').off("click")
             $('#bookmarks-export').on("click", clickBookmarksExport)
             let thisControl = this
-            $('#bookmark-list-toggle').off("click")
-            $('#bookmark-list-toggle').on("click", () => {
-                // We can't just rely on toggle because the state would get
-                // reset when a new bookmark gets added (and yet we need to
-                // call .off("click") to not have multiple click handlers.
-                // I don't *really* understand what's going on here.)
-                if (thisControl.expanded) {
-                    $('#bookmark-list').slideUp()
-                    thisControl.expanded = false
-                    $('#bookmark-list-toggle').html("Show Bookmarks")
-                } else {
-                    $('#bookmark-list').slideDown()
-                    thisControl.expanded = true
-                    $('#bookmark-list-toggle').html("Hide Bookmarks")
-                }
+            $('.bookmark-list-show').off("click")
+            $('.bookmark-list-hide').off("click")
+            $('.bookmark-list-hide').on("click", () => {
+                thisControl.expanded = false
+                $('#bookmark-list').slideUp(400, () =>{
+                    // Change the button only after slide up completes. Looks nicer.
+                    $('.bookmark-list-show').show()
+                    $('.bookmark-list-hide').hide()
+                })
+            })
+            $('.bookmark-list-show').on("click", () => {
+                thisControl.expanded = true
+                // Change the button before the slidedown. Looks nice.
+                $('.bookmark-list-show').hide()
+                $('.bookmark-list-hide').show()
+                $('#bookmark-list').slideDown()
             })
             for (id in data.bookmarks) {
                 divId = `bookmark-list-${id}`
