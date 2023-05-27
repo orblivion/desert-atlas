@@ -127,7 +127,10 @@ var popupMarkerBookmark = null
 
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
-        this.expanded = false
+        // Mobile doesn't have that much real estate. But on desktop it might
+        // be nice to still see bookmarks as they're being added. On mobile
+        // they'll more likely see the flash.
+        this.expanded = !L.Browser.mobile
 
         this.list = L.DomUtil.create('div');
         this.render()
@@ -272,7 +275,10 @@ const bookmarkPopup = L.popup()
     .on('add', e => {
         document.getElementById("bookmark-edit-name-readonly").value = popupMarkerBookmark.name
         document.getElementById("bookmark-edit-name").value = popupMarkerBookmark.name
-        document.getElementById("bookmark-edit-name").focus()
+
+        if (!L.Browser.mobile) { // Annoying on mobile to bring up the keyboard right away
+            document.getElementById("bookmark-edit-name").focus()
+        }
 
         // Remove it first in case it's already there from a previous popup *shrug* not sure the best way to handle this
         document.getElementById('bookmark-edit-save-button').removeEventListener("click", addBookmark)
@@ -520,6 +526,10 @@ const clickBookmarksExport = e => {
 
 const clickBookmarkListItem = e => {
     selectBookmarkMarker(e.target.getAttribute('data-bookmark-id'), true)
+
+    if (L.Browser.mobile) { // Otherwise there's not really enough room to see what you just clicked on
+        $('.bookmark-list-hide').click()
+    }
 }
 
 L.SavedBookmarkMarker = L.Marker.extend({
