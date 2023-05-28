@@ -1,3 +1,14 @@
+# 2023/05/28 - appVersion 17
+
+* Small UI wording tweaks
+* Fix search relevance and duplication problems (#9)
+    * Sort by proximity to the center of the current view
+      * Ignore search match ranking for now. It feels fine for now but we'll see about feedback.
+      * Easily done right in sqlite query
+    * Return nearest option for duplicates
+      * Previously, if you searched "Starbucks", the backend would return multiple results and the front end would dedupe it some way; I'm not sure which one it picked among the dupes. Now, I have the backend dedupe it and return specifically the first one, which is now the nearest one since I sorted by proximity.
+      * This is the "Good enough" solution; a better solution would be to return address info in the search results and show multiple Starbuckses.
+
 # 2023/05/27 - appVersion 16
 
 * Fix occasional gateway error on startup
