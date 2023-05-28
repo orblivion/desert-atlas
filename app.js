@@ -784,7 +784,17 @@ if (permissions.indexOf("download") !== -1) {
 }
 
 const searchControl = new L.Control.Search({
-    url: 'search?q={s}',
+    url: () => {
+        const lat = (
+            map.getBounds().getNorth() +
+            map.getBounds().getSouth()
+        ) / 2
+        const lng = (
+            map.getBounds().getEast() +
+            map.getBounds().getWest()
+        ) / 2
+        return 'search?q={s}&lat=' + lat + '&lng=' + lng
+    },
     textPlaceholder: 'Cafes, streets, parks...',
     position: 'topright',
     marker: searchMarker,

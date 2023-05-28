@@ -226,16 +226,31 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # TODO - if the query has & or # I think it messes things up? need encoding.
             qs = urllib.parse.parse_qs(url.query)
             search_query = query.query(query.search_normalize(qs['q'][0]))
+            lat = float(qs['lat'][0])
+            lng = float(qs['lng'][0])
             results = []
 
             if search_query:
                 con = sqlite3.connect(search_db_path)
                 cur = con.cursor()
-                q_results = cur.execute(
-                    "SELECT name,lat,lng from locations WHERE locations MATCH ? ORDER BY rank LIMIT 50",
-                    (search_query,),
-                )
 
+                q_results = cur.execute(
+                    """
+                    SELECT name, lat, lng
+                    FROM locations
+                    WHERE locations MATCH ?
+
+                    -- I used to ORDER BY rank. I even tried combining them:
+                    -- ORDER BY rank + ABS(lat - ?) * ABS(lat - ?) + ABS(lng - ?) * ABS(lng - ?)
+                    -- It seems that search purely by location works the best though:
+                    ORDER BY ABS(lat - ?) * ABS(lat - ?) + ABS(lng - ?) * ABS(lng - ?)
+                    -- Unless I get complaints about result quality, but it seems fine
+                    -- enough from trying it
+
+                    LIMIT 50
+                    """,
+                    (search_query, lat, lat, lng, lng),
+                )
                 for name, lat, lng in q_results:
                     # Ex: [{"loc":[41.57573,13.002411],"title":"Some establishment name"}]
                     results.append({
