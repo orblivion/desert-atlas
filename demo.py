@@ -226,36 +226,60 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # TODO - if the query has & or # I think it messes things up? need encoding.
             qs = urllib.parse.parse_qs(url.query)
             search_query = query.query(query.search_normalize(qs['q'][0]))
-            lat = float(qs['lat'][0])
-            lng = float(qs['lng'][0])
+            lat_mid = float(qs['lat'][0])
+            lng_mid = float(qs['lng'][0])
             results = []
 
             if search_query:
                 con = sqlite3.connect(search_db_path)
                 cur = con.cursor()
 
+
+                # Nearby results, ordered by *distance*. I tried combining rank and distance:
+                # ORDER BY rank + (lat - ?) * (lat - ?) + (lng - ?) * (lng - ?)
+                # But I don't see any improvement in quality, and the distance aspect is way worse.
+                #
+                # But I didn't spend a lot of time. Maybe there's a smarter way. And maybe people
+                # will see problems in quality here.
+                #
+                # TODO - fix search proximity at the minimum/maximum of lat/lng, where it wraps
+                # from -180 to 180 or whatever. Probably need some basic modulo math
                 q_results = cur.execute(
                     """
                     SELECT name, lat, lng
                     FROM locations
                     WHERE locations MATCH ?
 
-                    -- I used to ORDER BY rank. I even tried combining them:
-                    -- ORDER BY rank + ABS(lat - ?) * ABS(lat - ?) + ABS(lng - ?) * ABS(lng - ?)
-                    -- It seems that search purely by location works the best though:
-                    ORDER BY ABS(lat - ?) * ABS(lat - ?) + ABS(lng - ?) * ABS(lng - ?)
-                    -- Unless I get complaints about result quality, but it seems fine
-                    -- enough from trying it
+                    -- Distance squared; faster to determine than distance
+                    ORDER BY (lat - ?) * (lat - ?) + (lng - ?) * (lng - ?)
 
                     LIMIT 50
                     """,
-                    (search_query, lat, lat, lng, lng),
+                    (search_query, lat_mid, lat_mid, lng_mid, lng_mid),
                 )
                 for name, lat, lng in q_results:
                     # Ex: [{"loc":[41.57573,13.002411],"title":"Some establishment name"}]
                     results.append({
                         "title": name, "loc": [lat, lng],
                     })
+
+                # Temporary solution: dedupe on the server side, so we always
+                # pick the first (thus nearest) instance of something.
+                # Otherwise, the front end seems to dedupe it by picking
+                # something other than the first result. "Starbucks" is an
+                # obvious example where this is useful.
+                #
+                # TODO Change or eliminate the front end deduper, and this
+                # deduper. Instead, send address or other qualifier with each
+                # result, to distinguish different "Starbucks" or what have
+                # you, and display it in the search results.
+                deduped_results = []
+                used_titles = set()
+                for result in results:
+                    if result['title'] not in used_titles:
+                        used_titles.add(result['title'])
+                        deduped_results.append(result)
+                results = deduped_results
 
             self.send_response(HTTPStatus.OK)
             self.end_headers()
