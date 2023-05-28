@@ -139,7 +139,7 @@ L.Control.BookmarksList = L.Control.extend({
 
     render: function() {
         let listItems = `
-            <div id='bookmarks-export'>Export</div>
+            <div id='bookmarks-export'>Export To App</div>
         `
         for (bookmarkId in data.bookmarks) {
             divId = `bookmark-list-${bookmarkId}`
@@ -795,7 +795,7 @@ const searchControl = new L.Control.Search({
         ) / 2
         return 'search?q={s}&lat=' + lat + '&lng=' + lng
     },
-    textPlaceholder: 'Cafes, streets, parks...',
+    textPlaceholder: 'Nearby cafes, streets, parks...',
     position: 'topright',
     marker: searchMarker,
     zoom: 17, // TODO - redundant at some point given the explicit on('add' stuff?
