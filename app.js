@@ -603,9 +603,9 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
     }, 100)
 }
 
+// TODO - key this by `tileId` instead of `tileId + '.pmtiles'`
 let loaded = {}
 
-// TODO maybe merge in with loadAvailableAreas. obviously the syncing sucks, we want a websocket, but good enough for demo.
 function updateDownloadStatuses() {
     setTimeout(updateDownloadStatuses, 1000)
 
@@ -614,6 +614,15 @@ function updateDownloadStatuses() {
     })
     .then(e => e.json())
     .then(fullStatus => {
+        fullStatus.done.forEach(tileId => {
+            loadArea(tileId)
+        })
+
+        // Don't care about the rest for anyone who can't download regions
+        if (permissions.indexOf("download") === -1) {
+            return
+        }
+
         const inProgress = fullStatus['in-progress']
         tryMakeDownloadRects(fullStatus['available-areas'])
         Object.keys(downloadRects).forEach(tileId => {
@@ -671,27 +680,8 @@ function updateDownloadStatuses() {
     })
 }
 
-// TODO - woah, why does portsmouth make Boston disappear if I add it after? it depends on the loading order?!
-function loadAvailableAreas() {
-    // TODO Maybe don't bother with the retry loop. The status will tell us
-    // everything we need to know and that will kick off loadArea.
-    setTimeout(loadAvailableAreas, 2000)
-
-    return fetch('list-tiles', {
-        method: 'GET'
-    })
-    .then(e => e.json())
-    .then(tileNames => tileNames.forEach(tilesName => {
-        loadArea(tilesName)
-    }))
-}
-
-// TODO
-// Have this check loaded[filename] or whatever. If set, return (take it out of
-// loadAvailableAreas). If not set, set it *before* and proceed. Should prevent double
-// loading I think. If the load fails, oh well they can reload the page. Later
-// we can add a retry loop. Actually maybe just catch failures and unset loaded[filename]
-function loadArea(tilesName) {
+function loadArea(tileId) {
+    const tilesName = tileId + ".pmtiles"
     if (tilesName in loaded) {
         return
     }
@@ -705,9 +695,6 @@ function loadArea(tilesName) {
     })
     areaLayer.addTo(map)
 
-    let tnSplit = tilesName.split('.pmtiles')
-    if (tnSplit.length != 2 || tnSplit[1] !== "") throw "tilesName not formatted as expected"
-    let tileId = tnSplit[0]
     console.log('added', tilesName)
     loaded[tilesName] = "done"
 }
@@ -778,10 +765,7 @@ geoJsons = {}
 getGeoJson("countries")
 getGeoJson("states")
 
-loadAvailableAreas()
-if (permissions.indexOf("download") !== -1) {
-    updateDownloadStatuses()
-}
+updateDownloadStatuses()
 
 const searchControl = new L.Control.Search({
     url: () => {

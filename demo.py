@@ -286,14 +286,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps(results), "utf-8"))
             return
 
-        # TODO - we can probably merge list-tiles and map-download-status
-
-        if url.path.endswith('list-tiles'):
-            self.send_response(HTTPStatus.OK)
-            self.end_headers()
-            self.wfile.write(bytes(json.dumps(list(filemaps.keys())), "utf-8"))
-            return
-
         if url.path.endswith('map-download-status'):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
