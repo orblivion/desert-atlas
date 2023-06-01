@@ -64,6 +64,7 @@ class SearchIndexer(o.SimpleHandler):
                 {
                     "building",
                     "amenity",
+                    "office",
                     "shop",
                     "place",
                     "natural",
