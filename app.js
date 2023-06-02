@@ -235,8 +235,7 @@ const bookmarkPopup = L.popup()
       <div id="search-marker-submit" class="${bookmarkEditClass}">
           <input id="bookmark-edit-name" class="for-editor bookmark-edit-name">
           <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
-          <br>
-          <div style="margin-top: 7px" class="for-read-only" id="bookmark-readonly-notice"></div>
+          <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
           <div style="margin-top: 7px" class="for-editor">
               <button id="bookmark-edit-save-button" class="bookmark-edit-button">Save</button>
               <button id="bookmark-edit-delete-button" class="bookmark-edit-button" style="display:none;">Delete</button>
@@ -298,10 +297,10 @@ const bookmarkPopup = L.popup()
         if (popupMarkerBookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
             document.getElementById('bookmark-header').textContent = "Bookmark"
-            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently edit bookmarks on this map)"
+            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently edit bookmarks)"
         } else {
             document.getElementById('bookmark-header').textContent = "Search Result"
-            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently save bookmarks on this map)"
+            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently save bookmarks)"
         }
 
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
