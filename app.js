@@ -425,6 +425,11 @@ function downloadRect(tileId) {
 }
 
 function downloadMap(tileId) {
+    loaded[tileId + '.pmtiles'] = "downloading"
+    // force it to start the faster update loop right away, since this user initiated the
+    // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
+    updateDownloadStatuses()
+
     fetch('download-map', {
         method: 'POST',
         body: JSON.stringify({'tile-id': tileId}),
@@ -606,14 +611,45 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
 // TODO - key this by `tileId` instead of `tileId + '.pmtiles'`
 let loaded = {}
 
+let updateDownloadStatusesTimeout = null
 function updateDownloadStatuses() {
-    setTimeout(updateDownloadStatuses, 1000)
+    loadedStatuses = new Set(Object.values(loaded))
+
+    clearTimeout(updateDownloadStatusesTimeout)
+    if (loadedStatuses.size === 0 || (loadedStatuses.size === 1 && loadedStatuses.has("done"))) {
+        // If every `loaded` status is "done", we can wait another 5 seconds to
+        // check on map download status. There should only be any new downloads after those 5
+        // seconds if another user/share started a download, or the downloading user refreshed
+        // the page mid-download. In these cases we don't care that much if it got a delayed
+        // start. After it starts, it'll soon kick into a faster update loop.
+
+        // Slower update loop
+        updateDownloadStatusesTimeout = setTimeout(updateDownloadStatuses, 5000)
+    } else {
+
+        // Faster update loop
+        updateDownloadStatusesTimeout = setTimeout(updateDownloadStatuses, 1000)
+    }
 
     return fetch('map-download-status', {
         method: 'GET'
     })
     .then(e => e.json())
     .then(fullStatus => {
+        const inProgress = fullStatus['in-progress']
+
+        // If another user/share started the download and we see it here, or
+        // the downloading user reloaded the window mid-download, set it in the
+        // "loaded" field so that this grain does the faster update loop
+        // and sees the download progress bar faster. It may take a second to
+        // kick into the faster loop but it's okay. It's less important since
+        // this user/share didn't start the download.
+        for (tileId in inProgress) {
+            if (!((tileId + '.pmtiles') in loaded)) {
+                loaded[tileId + '.pmtiles'] = "downloading"
+            }
+        }
+
         fullStatus.done.forEach(tileId => {
             loadArea(tileId)
         })
@@ -623,7 +659,6 @@ function updateDownloadStatuses() {
             return
         }
 
-        const inProgress = fullStatus['in-progress']
         tryMakeDownloadRects(fullStatus['available-areas'])
         Object.keys(downloadRects).forEach(tileId => {
             if (map.getZoom() > 6) {
@@ -682,10 +717,13 @@ function updateDownloadStatuses() {
 
 function loadArea(tileId) {
     const tilesName = tileId + ".pmtiles"
-    if (tilesName in loaded) {
+    if (loaded[tilesName] === "started" || loaded[tilesName] === "done") {
         return
     }
 
+    // TODO - wait, "started" doesn't even take effect anywhere, this isn't
+    // threaded. right? we set it to "done" right below, not after a callback
+    // or anything.
     loaded[tilesName] = "started"
     console.log('adding', tilesName)
 
