@@ -1,3 +1,14 @@
+# 2023/06/02 - appVersion 18
+
+* Better fix for stubborn search bug where tooltip was showing previous search (#5)
+* Give notice that map is read-only for bookmark popups (#27)
+* Various other style and wording changes (improvements? you decide.) to bookmark popup menu.
+* Cut down polling considerably (#25). I won't spend time optimizing this further until I'm ready to switch to websockets.
+
+Data change (for next data export, which won't be for a little while. Not inherent to this app version):
+
+* Add locations with "office" tag.
+
 # 2023/05/28 - appVersion 17
 
 * Small UI wording tweaks
