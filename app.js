@@ -237,7 +237,7 @@ const bookmarkPopup = L.popup()
           <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
           <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
           <div style="margin-top: 7px" class="for-editor">
-              <button id="bookmark-edit-save-button" class="bookmark-edit-button">Save</button>
+              <button id="bookmark-edit-save-button" class="bookmark-edit-button">Save Bookmark</button>
               <button id="bookmark-edit-delete-button" class="bookmark-edit-button" style="display:none;">Delete</button>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
@@ -296,11 +296,19 @@ const bookmarkPopup = L.popup()
 
         if (popupMarkerBookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
-            document.getElementById('bookmark-header').textContent = "Bookmark"
             document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently edit bookmarks)"
         } else {
-            document.getElementById('bookmark-header').textContent = "Search Result"
             document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently save bookmarks)"
+        }
+
+        if (bookmarkPopup.options.bookmarkEditType === "existing") {
+            document.getElementById('bookmark-header').textContent = "Bookmark"
+        } else if (bookmarkPopup.options.bookmarkEditType === "arbitrary") {
+            document.getElementById('bookmark-header').textContent = "Location"
+            // Just because the blank space is awkward for read-only otherwise
+            document.getElementById('bookmark-edit-name-readonly').style.display = 'none'
+        } else if (bookmarkPopup.options.bookmarkEditType === "search") {
+            document.getElementById('bookmark-header').textContent = "Search Result"
         }
 
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
@@ -322,6 +330,7 @@ const searchMarker = L.marker([0, 0], {
     })
     .on('click', () => {
         popupMarkerBookmark = searchResultBookmark
+        bookmarkPopup.options.bookmarkEditType = "search"
         bookmarkPopup
             .setLatLng(L.latLng(searchResultBookmark.latlng))
             .openOn(map)
@@ -552,6 +561,7 @@ var bookmarkMarkerFeatureGroup = L.featureGroup()
     .on('click', e => {
         popupMarkerBookmark = data.bookmarks[e.layer.options.bookmarkId]
         if (popupMarkerBookmark) { // timing issues?
+            bookmarkPopup.options.bookmarkEditType = "existing"
             bookmarkPopup
                 .setLatLng(L.latLng(popupMarkerBookmark.latlng))
                 .openOn(map)
@@ -908,9 +918,6 @@ map.on('moveend', setLoc)
 map.on('zoomend', setGeoJsonOpacityAndBackground)
 
 map.on('contextmenu', function (event) {
-    if (permissions.indexOf("bookmarks") === -1) {
-        return
-    }
     popupMarkerBookmark = {
         latlng: event.latlng,
         name: ''
@@ -922,6 +929,7 @@ map.on('contextmenu', function (event) {
     // TODO - investigate this phenomenon more, perhaps
     bookmarkPopup.close()
 
+    bookmarkPopup.options.bookmarkEditType = "arbitrary"
     bookmarkPopup
         .setLatLng(L.latLng(popupMarkerBookmark.latlng))
         .openOn(map)
