@@ -231,27 +231,30 @@ if (permissions.indexOf("bookmarks") === -1) {
 const bookmarkPopup = L.popup()
     .setContent(
         `
-      <h1>Bookmark</h1>
+      <h1 id="bookmark-header"></h1>
       <div id="search-marker-submit" class="${bookmarkEditClass}">
-          <input id="bookmark-edit-name" class="for-editor">
-          <input id="bookmark-edit-name-readonly" class="for-read-only" readonly>
+          <input id="bookmark-edit-name" class="for-editor bookmark-edit-name">
+          <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
           <br>
+          <div style="margin-top: 7px" class="for-read-only" id="bookmark-readonly-notice"></div>
           <div style="margin-top: 7px" class="for-editor">
-              <button id="bookmark-edit-save-button">Save</button>
-              <button id="bookmark-edit-delete-button" style="display:none;">Delete</button>
+              <button id="bookmark-edit-save-button" class="bookmark-edit-button">Save</button>
+              <button id="bookmark-edit-delete-button" class="bookmark-edit-button" style="display:none;">Delete</button>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <hr>
-          <div style="margin-top: 7px">
-              <button id="bookmark-edit-geo-button" style="">
-                  <center>
-                      <span class="emoji">&#x23CF;&#xFE0F;</span>
-                  </center>
-                  Open location in external app
+          <div style="background-color: #eee; padding: .5em; margin-top: 7px">
+              <h2>Open location in external app</h2>
+              <center>(Depends on your setup)</center>
+              <br>
+              <button id="bookmark-edit-geo-button" class="bookmark-edit-button">
+                  <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
+              </button>
+              <button id="bookmark-edit-geo-button-learn-more-button" class="bookmark-edit-button">
+                  <span class="emoji">&#x2139;</span>&nbsp Learn More
               </button>
               <br>
               <br>
-              <center>(Depends on your setup. <a id="bookmark-edit-geo-button-learn-more-button" href="#">Learn More.</a>)</center>
               <div id="bookmark-edit-geo-button-learn-more">
               <div>
                   This will work on limited systems. It's known to work for:
@@ -294,6 +297,11 @@ const bookmarkPopup = L.popup()
 
         if (popupMarkerBookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
+            document.getElementById('bookmark-header').textContent = "Bookmark"
+            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently edit bookmarks on this map)"
+        } else {
+            document.getElementById('bookmark-header').textContent = "Search Result"
+            document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently save bookmarks on this map)"
         }
 
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
