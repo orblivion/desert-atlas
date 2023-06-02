@@ -312,13 +312,6 @@ const searchMarker = L.marker([0, 0], {
         // popup and keep the same open state. which may not leave it with the values we want
         bookmarkPopup
             .remove()
-
-        // TODO - search tooltip is getting stuck on a previous search result sometimes. try searching for a couple different items to trigger this.
-        setTimeout(() => { // setTimeout, my solution for everything
-            searchMarker
-                .bindTooltip(() => searchResultBookmark.name)
-                .openTooltip()
-        }, 100)
     })
     .on('click', () => {
         popupMarkerBookmark = searchResultBookmark
@@ -828,6 +821,9 @@ searchControl.on('search:locationfound', function(event) {
         latlng: event.latlng,
         name: event.text
     }
+    searchMarker
+        .bindTooltip(searchResultBookmark.name)
+        .openTooltip()
 });
 
 map.addControl(searchControl);
