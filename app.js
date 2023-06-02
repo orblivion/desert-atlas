@@ -244,8 +244,8 @@ const bookmarkPopup = L.popup()
           </div>
           <hr>
           <div style="background-color: #eee; padding: .5em; margin-top: 7px">
-              <h2>Open location in external app</h2>
-              <center>(Depends on your setup)</center>
+              <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
+              <center style="margin:0px; padding:0px;">(Depends on your setup)</center>
               <br>
               <button id="bookmark-edit-geo-button" class="bookmark-edit-button">
                   <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
@@ -307,7 +307,7 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
     })
 
-L.Util.setOptions(bookmarkPopup, {autoPanPadding: [0, 150]})
+L.Util.setOptions(bookmarkPopup, {autoPanPadding: [0, 180]})
 
 const searchMarker = L.marker([0, 0], {
         icon: new L.Icon({
