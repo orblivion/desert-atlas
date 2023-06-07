@@ -305,6 +305,7 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x001.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x002.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x003.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x004.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x005.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x006.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x009.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x00e.cpython-39.pyc
@@ -319,6 +320,7 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x022.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x024.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x025.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x026.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x027.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x030.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x04e.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x04f.cpython-39.pyc
@@ -339,7 +341,9 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x05f.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x060.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x062.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x065.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x066.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x067.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x068.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x069.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x06a.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x06b.cpython-39.pyc
@@ -358,7 +362,10 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x07a.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x07b.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x07c.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x07d.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x07f.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x080.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x081.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x082.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x083.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x085.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x086.cpython-39.pyc
@@ -381,10 +388,15 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x09e.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0ac.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0ad.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0af.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0b0.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0b4.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0b8.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0b9.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0ba.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0bb.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0bd.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c0.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0c1.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c2.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c6.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0c7.cpython-39.pyc
@@ -393,6 +405,7 @@ usr/lib/python3/dist-packages/unidecode/__pycache__/x0cd.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0ce.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d0.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d2.cpython-39.pyc
+usr/lib/python3/dist-packages/unidecode/__pycache__/x0d4.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d5.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0d6.cpython-39.pyc
 usr/lib/python3/dist-packages/unidecode/__pycache__/x0fb.cpython-39.pyc
