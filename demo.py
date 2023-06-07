@@ -61,11 +61,6 @@ BASEMAP_TILE = "base-map"
 def import_basemap_search():
     tile_id = BASEMAP_TILE
 
-    # Setting this as a hack so that import_search() doesn't complain.
-    # "base-map" should complete before javascript loads anyway.
-    # Maybe we can change import_search to not need this later.
-    map_update_status[tile_id] = {}
-
     if os.path.exists(search_imported_marker_path(tile_id)):
         # TODO Obviously in the future we'll have updates and stuff. This is for the first release.
         print_err ("Already have " + tile_id)
@@ -80,7 +75,7 @@ def import_basemap_search():
             open(file_path, 'wb').write(places_file.read())
             print_err("Extracted")
 
-            import_search(tile_id, file_path)
+            import_search(tile_id, file_path, False)
 
             # For the "already downloaded" check above. We may want a better plan later.
             with open(search_imported_marker_path(tile_id), "w"):
@@ -100,7 +95,7 @@ def import_basemap_search():
 # * Stop the connection that the search uses
 # * Copy the altered db over the working one
 # * Restart the connection that the search uses
-def import_search(tile_id, search_import_fname):
+def import_search(tile_id, search_import_fname, update_status):
     con = sqlite3.connect(search_db_path)
     cur = con.cursor()
     cur.execute("""
@@ -114,13 +109,15 @@ def import_search(tile_id, search_import_fname):
     # TODO - make a transaction so that on error we roll back the delete and can fall back to previous data
     cur.execute('DELETE from locations where tile_id=?', (tile_id,))
     with open(search_import_fname, 'r') as f:
-        map_update_status[tile_id]['searchImportTotal'] = sum(1 for _ in csv.DictReader(f, fieldnames=csv_format.fieldnames))
-        map_update_status[tile_id]['searchImportDone'] = 0
+        if update_status:
+            map_update_status[tile_id]['searchImportTotal'] = sum(1 for _ in csv.DictReader(f, fieldnames=csv_format.fieldnames))
+            map_update_status[tile_id]['searchImportDone'] = 0
 
         f.seek(0)
         reader = csv.DictReader(f, fieldnames=csv_format.fieldnames)
         for idx, row in enumerate(reader):
-            map_update_status[tile_id]['searchImportDone'] = idx + 1
+            if update_status:
+                map_update_status[tile_id]['searchImportDone'] = idx + 1
 
             cur.execute(
                 'INSERT INTO locations VALUES (?, ?, ?, ?, ?)',
@@ -530,7 +527,7 @@ def download_map(tile_id):
 
             # TODO - Reflect progress on this in the download status somehow.
             #   Right now it takes a couple seconds with no UI feedback.
-            import_search(tile_id, os.path.join(tmp_extract_path, 'pkg', 'search.csv'))
+            import_search(tile_id, os.path.join(tmp_extract_path, 'pkg', 'search.csv'), True)
 
             # Do this second, so that it doesn't show up on the map until search is imported.
             #   (especially important in case of error)

@@ -37,6 +37,10 @@ function initBounds() {
     initBoundsLoop()
 }
 
+const DOWNLOAD_RECT_MAX_ZOOM = 6
+const POI_FRIENDLY_ZOOM = 17
+const CITY_FRIENDLY_ZOOM = 13
+
 var initialBounds = null
 function initBoundsLoop() {
     if (!isGrainSelected()) {
@@ -56,7 +60,7 @@ function initBoundsLoop() {
         Math.abs(bounds.getEast() - bounds.getWest()) < MIN_DISTANCE
     ) {
         // Probably just one marker
-        map.setView(L.latLng(bounds.getNorthWest()), 17)
+        map.setView(L.latLng(bounds.getNorthWest()), POI_FRIENDLY_ZOOM)
     } else if (padding) {
         map.fitBounds(bounds, {padding})
     } else {
@@ -607,7 +611,7 @@ function updateBookmarkMarkers() {
 const selectBookmarkMarker = (bookmarkId, doZoom) => {
     let bookmark = data.bookmarks[bookmarkId]
     if (doZoom) {
-        map.setView(L.latLng(bookmark.latlng), 17)
+        map.setView(L.latLng(bookmark.latlng), POI_FRIENDLY_ZOOM)
     } else {
         map.setView(L.latLng(bookmark.latlng))
     }
@@ -671,15 +675,7 @@ function updateDownloadStatuses() {
 
         tryMakeDownloadRects(fullStatus['available-areas'])
         Object.keys(downloadRects).forEach(tileId => {
-
-            // This is here as a hack so that import_search() in demo.py doesn't complain.
-            // "base-map" should complete before javascript loads anyway.
-            // Maybe we can change import_search to not need this later.
-            if (tileId === "base-map") {
-                return
-            }
-
-            if (map.getZoom() > 6) {
+            if (map.getZoom() > DOWNLOAD_RECT_MAX_ZOOM) {
                 downloadRects[tileId].remove()
             } else {
                 downloadRects[tileId].addTo(map)
@@ -842,13 +838,27 @@ const searchControl = new L.Control.Search({
         PUNCTUATION_SPACE = '\u2008'
         BASEMAP_MARKER = PUNCTUATION_SPACE + PUNCTUATION_SPACE
         // Super hack. See "BASEMAP_MARKER" in server code.
-        if (title.includes(BASEMAP_MARKER)) {
+        if (title.slice(-2) == BASEMAP_MARKER) {
             // If we're looking at a "place" (state, country, city) loaded from
-            // the basemap, don't zoom in so much. At this point we want to
-            // facilitate finding the right tile to download.
-            map.setView(latlng, 6);
+            // the basemap, we want to be zoomed out enough to be able to
+            // download the regions.
+            //
+            // On the other hand, if it's in an already downloaded region, it's
+            // gonna be kind of annoying to be zoomed out when you just want to
+            // go to a city. So in that case don't zoom out quite so much, but
+            // more so than if you're looking at a POI.
+            for (key in loaded) {
+                // key is in format <tileId>.pmtiles
+                let [tileId] = key.split('.')
+                let bounds = L.latLngBounds(areaBoundses[tileId])
+                if (bounds.contains(latlng)) {
+                    map.setView(latlng, CITY_FRIENDLY_ZOOM);
+                    return
+                }
+            }
+            map.setView(latlng, DOWNLOAD_RECT_MAX_ZOOM);
         } else {
-            map.setView(latlng, 17);
+            map.setView(latlng, POI_FRIENDLY_ZOOM);
         }
     },
 })
