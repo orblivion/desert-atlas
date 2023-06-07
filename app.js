@@ -125,8 +125,6 @@ var searchResultBookmark = null
 // Probably best to bind the bookmarkId to the popup as we render it. I think that'd keep it in sync? More in sync at least?
 var popupMarkerBookmark = null
 
-// TODO allow show all bookmarks
-
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
         // Mobile doesn't have that much real estate. But on desktop it might
