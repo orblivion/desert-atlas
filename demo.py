@@ -475,8 +475,7 @@ def download_bounds_map():
 def download_map(tile_id):
     tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
 
-    # TODO - why bother checking for tiles_out_path, that should be implicit
-    if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path(tile_id)):
+    if os.path.exists(search_imported_marker_path(tile_id)):
         # TODO Obviously in the future we'll have updates and stuff. This is for the first release.
         print_err ("Already have " + tile_id)
         return
