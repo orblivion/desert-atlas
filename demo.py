@@ -270,9 +270,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 #
                 # But I didn't spend a lot of time. Maybe there's a smarter way. And maybe people
                 # will see problems in quality here.
-                #
-                # TODO - fix search proximity at the minimum/maximum of lat/lng, where it wraps
-                # from -180 to 180 or whatever. Probably need some basic modulo math
                 q_results = cur.execute(
                     """
                     SELECT name, lat, lng, tile_id
@@ -426,8 +423,9 @@ def kml():
         lat = entry['latlng']['lat']
         lng = entry['latlng']['lng']
 
-        # TODO - user defined description
-        description = escape_element_data("Description Goes Here")
+        # TODO - user defined description when we add that field
+        # description = escape_element_data(entry['description'])
+        description = ""
 
         return """
   <Placemark>
@@ -461,7 +459,6 @@ def update_filemaps():
 
 DL_URL_DIR = 'https://danielkrol.com/assets/tiles-demo/3/'
 
-# TODO - map + search "index" in one file
 def download_bounds_map():
     global bounds_map
 
@@ -525,8 +522,6 @@ def download_map(tile_id):
                 tar_f.extractall(tmp_extract_path)
             print_err("Extracted")
 
-            # TODO - Reflect progress on this in the download status somehow.
-            #   Right now it takes a couple seconds with no UI feedback.
             import_search(tile_id, os.path.join(tmp_extract_path, 'pkg', 'search.csv'), True)
 
             # Do this second, so that it doesn't show up on the map until search is imported.

@@ -70,8 +70,6 @@ function initBoundsLoop() {
     initialBounds = bounds
 }
 
-// TODO websockets
-
 var renderTimeout = null
 
 const renderLoop = () => {
