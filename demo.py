@@ -100,7 +100,7 @@ def import_search(tile_id, search_import_fname, update_status):
     cur = con.cursor()
     cur.execute("""
         CREATE VIRTUAL TABLE IF NOT EXISTS locations USING fts5(
-            name, normalized_name, tile_id UNINDEXED, lat UNINDEXED, lng UNINDEXED
+            name UNINDEXED, normalized_name, tile_id UNINDEXED, lat UNINDEXED, lng UNINDEXED
         )
     """)
 
