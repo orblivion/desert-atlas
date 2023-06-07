@@ -505,7 +505,10 @@ def download_map(tile_id):
             print_err("Downloading part:", r.status_code)
             if r.status_code != 200:
                 print_err("error downloading. trying again")
-                time.sleep(1) # TODO exponential decay yada yada
+                time.sleep(1) # TODO exponential decay yada yada - also fix the continue below
+
+                # TODO wait this isn't right at all. this would just skip a segment of the file
+                # on failure
                 continue
 
             # write as append
