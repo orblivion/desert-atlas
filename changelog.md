@@ -1,3 +1,14 @@
+# 2023/06/07 - appVersion 19
+
+* Base map search: Search for countries, US states, and medium to large cities before downloading any regions. Hopefully it makes it easier to jump to the part of the world you want to download.
+    * If you search for a city that isn't in a downloaded region, zoom is set to far out so that you can click to download right away
+    * If you search for a city that is in a downloaded region, zoom is set to medium, something city-level
+    * If you search for a POI, zoom is set to close up, as before
+* Gzip geojson data for basemap. Hopefully shrinks app size slightly.
+* Trivial things
+    * Don't index "name" field for search; we search based on normalized_name
+    * Don't have a description of "Description Goes Here" for each bookmark for export-to-app
+
 # 2023/06/02 - appVersion 18
 
 * Better fix for stubborn search bug where tooltip was showing previous search (#5)
