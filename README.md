@@ -83,12 +83,17 @@ For generating map tile and search data, [see here](generate-data).
 
 # License/Credit
 
-## GeoJSON
+## Base map
 
-### Base map (the "wireframe" look)
+### GeoJSON (the "wireframe" look)
 
 * US States https://datahub.io/core/geo-admin1-us
 * World https://datahub.io/core/geo-countries
+
+### Geonames (search data for countries, states, and cities)
+
+* https://creativecommons.org/licenses/by/4.0/
+* http://download.geonames.org/export/dump/
 
 # Map Data
 
@@ -117,6 +122,10 @@ https://commons.wikimedia.org/wiki/File:Openstreetmap_logo.svg
 Possibly edited, original from https://github.com/Leaflet/Leaflet/blob/main/src/images/marker.svg
 
 # Software Licenses
+
+The original code in this repo: MIT
+
+## Dependencies
 
 These things aren't vendored in this repo, but they will be bundled in the resulting app, so I am noting the licenses here.
 

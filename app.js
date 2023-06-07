@@ -671,6 +671,14 @@ function updateDownloadStatuses() {
 
         tryMakeDownloadRects(fullStatus['available-areas'])
         Object.keys(downloadRects).forEach(tileId => {
+
+            // This is here as a hack so that import_search() in demo.py doesn't complain.
+            // "base-map" should complete before javascript loads anyway.
+            // Maybe we can change import_search to not need this later.
+            if (tileId === "base-map") {
+                return
+            }
+
             if (map.getZoom() > 6) {
                 downloadRects[tileId].remove()
             } else {
@@ -811,7 +819,7 @@ geoJsons = {}
 // It will look better. Also geoJson seems to want to always be on top of tiles so
 // it'll always show up at least a little bit.
 getGeoJson("countries")
-getGeoJson("states")
+getGeoJson("usa-states")
 
 updateDownloadStatuses()
 
@@ -830,7 +838,19 @@ const searchControl = new L.Control.Search({
     textPlaceholder: 'Nearby cafes, streets, parks...',
     position: 'topright',
     marker: searchMarker,
-    zoom: 17, // TODO - redundant at some point given the explicit on('add' stuff?
+    moveToLocation: (latlng, title) => {
+        PUNCTUATION_SPACE = '\u2008'
+        BASEMAP_MARKER = PUNCTUATION_SPACE + PUNCTUATION_SPACE
+        // Super hack. See "BASEMAP_MARKER" in server code.
+        if (title.includes(BASEMAP_MARKER)) {
+            // If we're looking at a "place" (state, country, city) loaded from
+            // the basemap, don't zoom in so much. At this point we want to
+            // facilitate finding the right tile to download.
+            map.setView(latlng, 6);
+        } else {
+            map.setView(latlng, 17);
+        }
+    },
 })
 
 searchControl.on('search:locationfound', function(event) {

@@ -1,0 +1,1 @@
+fieldnames = ["name", "lat", "lng"]

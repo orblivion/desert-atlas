@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile
+import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile, gzip
+import csv_format
 
 import query
 
@@ -35,6 +36,8 @@ big_tmp_dir = os.path.join(basedir, 'big_tmp') # since /tmp/ runs out of space. 
 tile_dir = os.path.join(basedir, 'tiles')
 
 search_imported_marker_dir = os.path.join(basedir, 'search_imported')
+def search_imported_marker_path(tile_id):
+    return os.path.join(search_imported_marker_dir, tile_id)
 
 # TODO - eventually it'll organized as map-data/<data-id>/tiles and map-data/<data-id>/search,
 # so it's all bundled per map data segment (at least that was the old plan. with a db that may
@@ -52,6 +55,36 @@ bookmarks_path = os.path.join(user_data_dir, bookmarks_fname)
 if not os.path.exists(bookmarks_path):
     with open(bookmarks_path, 'w') as f:
         f.write("{}")
+
+BASEMAP_TILE = "base-map"
+
+def import_basemap_search():
+    tile_id = BASEMAP_TILE
+
+    # Setting this as a hack so that import_search() doesn't complain.
+    # "base-map" should complete before javascript loads anyway.
+    # Maybe we can change import_search to not need this later.
+    map_update_status[tile_id] = {}
+
+    if os.path.exists(search_imported_marker_path(tile_id)):
+        # TODO Obviously in the future we'll have updates and stuff. This is for the first release.
+        print_err ("Already have " + tile_id)
+        return
+
+    print_err("Import basemap places")
+    with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_extract_path:
+        with gzip.open(os.path.join("base-map", "places.gz"), 'r') as places_file:
+            file_path = os.path.join(tmp_extract_path, 'places.csv')
+
+            # TODO - just pass file object in directly. need to refactor import_search to accept it
+            open(file_path, 'wb').write(places_file.read())
+            print_err("Extracted")
+
+            import_search(tile_id, file_path)
+
+            # For the "already downloaded" check above. We may want a better plan later.
+            with open(search_imported_marker_path(tile_id), "w"):
+                pass
 
 # TODO - Try to import with sqlite's csv import feature? However:
 # * If csv import *allows for appending* to a table, we'd delete where tile_id=xyz
@@ -81,12 +114,11 @@ def import_search(tile_id, search_import_fname):
     # TODO - make a transaction so that on error we roll back the delete and can fall back to previous data
     cur.execute('DELETE from locations where tile_id=?', (tile_id,))
     with open(search_import_fname, 'r') as f:
-        fieldnames = ["name", "lat", "lng"]
-        map_update_status[tile_id]['searchImportTotal'] = sum(1 for _ in csv.DictReader(f, fieldnames=fieldnames))
+        map_update_status[tile_id]['searchImportTotal'] = sum(1 for _ in csv.DictReader(f, fieldnames=csv_format.fieldnames))
         map_update_status[tile_id]['searchImportDone'] = 0
 
         f.seek(0)
-        reader = csv.DictReader(f, fieldnames=fieldnames)
+        reader = csv.DictReader(f, fieldnames=csv_format.fieldnames)
         for idx, row in enumerate(reader):
             map_update_status[tile_id]['searchImportDone'] = idx + 1
 
@@ -246,7 +278,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 # from -180 to 180 or whatever. Probably need some basic modulo math
                 q_results = cur.execute(
                     """
-                    SELECT name, lat, lng
+                    SELECT name, lat, lng, tile_id
                     FROM locations
                     WHERE locations MATCH ?
 
@@ -257,10 +289,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     """,
                     (search_query, lat_mid, lat_mid, lng_mid, lng_mid),
                 )
-                for name, lat, lng in q_results:
+                PUNCTUATION_SPACE = '\u2008'
+                BASEMAP_MARKER = PUNCTUATION_SPACE + PUNCTUATION_SPACE
+                for name, lat, lng, tile_id in q_results:
+                    if tile_id == BASEMAP_TILE:
+                        # Super hack. An invisible marker indicating that this
+                        # is a base map location. The front end will treat it a
+                        # little differently. Eventually we should figure out
+                        # how to pass arbitrary fields. We'll need it for
+                        # passing address information etc.
+                        name += BASEMAP_MARKER
                     # Ex: [{"loc":[41.57573,13.002411],"title":"Some establishment name"}]
                     results.append({
-                        "title": name, "loc": [lat, lng],
+                        "title": name, "loc": [lat, lng], "tile_id": tile_id,
                     })
 
                 # Temporary solution: dedupe on the server side, so we always
@@ -339,8 +380,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             qs = urllib.parse.parse_qs(url.query)
             self.send_response(HTTPStatus.PARTIAL_CONTENT)
             self.send_header('Content-Type','application/json')
-            self.end_headers()
-            self.wfile.write(open(os.path.join("base-map", fname), 'rb').read())
+
+            # TODO If I just set Content-Encoding to gzip instead of
+            # decompressing, it works on Firefox. However I don't know if
+            # the standard javascript "fetch API" accepts gzip encoding by
+            # default on all browsers. Need to investigate.
+            with gzip.open(os.path.join("base-map", fname) + '.gz', 'rb') as geojson_file:
+                self.end_headers()
+                self.wfile.write(geojson_file.read())
             return
 
         f = self.send_head()
@@ -433,10 +480,10 @@ def download_bounds_map():
 
 def download_map(tile_id):
     tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
-    search_imported_marker_path = os.path.join(search_imported_marker_dir, tile_id)
 
-    if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path):
-        # TODO Obviously in the future we'll have updates and stuff. This is for the demo.
+    # TODO - why bother checking for tiles_out_path, that should be implicit
+    if os.path.exists(tiles_out_path) and os.path.exists(search_imported_marker_path(tile_id)):
+        # TODO Obviously in the future we'll have updates and stuff. This is for the first release.
         print_err ("Already have " + tile_id)
         return
 
@@ -491,7 +538,7 @@ def download_map(tile_id):
             shutil.move(os.path.join(tmp_extract_path, 'pkg', 'tiles.pmtiles'), tiles_out_path)
 
             # For the "already downloaded" check above. We may want a better plan later.
-            with open(search_imported_marker_path, "w"):
+            with open(search_imported_marker_path(tile_id), "w"):
                 pass
 
     update_filemaps()
@@ -533,6 +580,7 @@ if __name__ == "__main__":
     files = {} # in case of error on the first line of the try block!
     try:
         update_filemaps()
+        import_basemap_search()
         httpd.serve_forever()
     except:
         raise
