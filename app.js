@@ -764,6 +764,7 @@ function getGeoJson(name) {
                     '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
                     '<a href="https://github.com/lexman">Lexman</a>, ' +
                     '<a href="https://okfn.org/">Open Knowledge Foundation</a>'
+                    '<a href="https://geonames.org/">GeoNames</a>'
                 ),
                 style:
                 {
