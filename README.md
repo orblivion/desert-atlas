@@ -65,6 +65,14 @@ Also install golang for the powerbox-http-proxy.
 
 Yeah this is a TODO, feel free to fill this in with useful info.
 
+# Code
+
+Please do not take what you see as being up to my standards. I hacked this out to the point where I could have a minimum viable product. Once released I'd like to clean it up.
+
+Right now the back end is Python and the frontend is JavaScript, Leaflet, some JQuery thrown in. I'd like to rewrite the backend in Go. Maybe the frontend as well (WebAssembly with TinyGo).
+
+The data generation scripts are mostly bash and python. I'd be happy with moving everything to Python.
+
 # Running
 
 ## Normal
