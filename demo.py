@@ -209,6 +209,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.Forbidden)
                 self.end_headers()
+                return
+
             # TODO - validate this input! When I move to Go.
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
 
@@ -251,6 +253,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if 'download' not in permissions:
                 self.send_response(HTTPStatus.Forbidden)
                 self.end_headers()
+                return
+
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
