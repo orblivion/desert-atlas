@@ -30,7 +30,7 @@ const pkgdef :Spk.PackageDefinition = (
 
     actions = [
       # Define your "new document" handlers here.
-      ( nounPhrase = (defaultText = "instance"),
+      ( nounPhrase = (defaultText = "map"),
         command = .myCommand # TOOD - make an init script to create stuff. Don't have to run it a second time.
         # The command to run when starting for the first time. (".myCommand"
         # is just a constant defined at the bottom of the file.)
@@ -197,11 +197,11 @@ const pkgdef :Spk.PackageDefinition = (
   #        # Name of the permission, used as an identifier for the permission in cases where string
   #        # names are preferred.  Used in sandstorm-http-bridge's X-Sandstorm-Permissions HTTP header.
   #
-          title = (defaultText = "download areas"),
+          title = (defaultText = "download regions"),
   #        # Display name of the permission, e.g. to display in a checklist of permissions
   #        # that may be assigned when sharing.
   #
-          description = (defaultText = "grants ability to download areas"),
+          description = (defaultText = "grants ability to download regions"),
   #        # Prose describing what this role means, suitable for a tool tip or similar help text.
         ),
         (
@@ -222,7 +222,7 @@ const pkgdef :Spk.PackageDefinition = (
   #        # It should be the same length as the permissions array in
   #        # viewInfo, and the order of the lists must match.
   #
-          verbPhrase = (defaultText = "can download areas and edit bookmarks"),
+          verbPhrase = (defaultText = "can download regions and edit bookmarks"),
   #        # Brief explanatory text to show in the sharing UI indicating
   #        # what a user assigned this role will be able to do with the grain.
   #
