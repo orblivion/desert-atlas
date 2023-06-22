@@ -497,6 +497,7 @@ const addBookmark = (() => {
                 updateBookmarkMarkers()
 
                 selectBookmarkMarker(bookmarkId, false)
+                // flash the menu button
                 if (!bookmarksList.expanded) {
                     $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
                 }
