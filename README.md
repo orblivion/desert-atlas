@@ -1,4 +1,4 @@
-Share-A-Map is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. All map data is stored on your own server. You choose the regions you want. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+Share-A-Map is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. All map data is stored on your own server; you choose the regions you want. The goal is to provide the basic functionality of Google Maps while respecting privacy.
 
 You can check out a live demo [here](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
 
