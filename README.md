@@ -4,7 +4,7 @@ You can check out a live demo [here](https://apps.sandstorm.io/app/m3ctajcm6nnpc
 
 ![Screenshot](market/screenshots/screenshot-1.png)
 
-Share-A-Map allows you to plan trip destinations with friends, store important locations, etc, and have access to the result on a convenient phone application like OrganicMaps. Use with a phone application currently requires manual export/import of a bookmarks file, but perhaps some day (with some work on the phone app side) there could be a sync option. If there are other bits of standard functionality you would like to see, please let me know!
+Share-A-Map allows you to plan trip destinations with friends, store important locations, etc, and export the result to a convenient phone application like OrganicMaps for navigation. Perhaps some day (with some work on the phone app side) there could be a more automatic sync option. If there are other bits of standard functionality you would like to see, please let me know!
 
 Some self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With this app, all of the map data is fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map. The map data needs to come from somewhere of course, so you need to download it, but you only need to download it once per grain. Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
 
