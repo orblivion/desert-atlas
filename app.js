@@ -166,7 +166,7 @@ L.Control.BookmarksList = L.Control.extend({
             <div style="background-color: #f4aa88;">  <!-- For the flashing animation -->
                 <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
             </div>
-            <a class='bookmark-list-hide' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
+            <a class='bookmark-list-hide sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
             <div id='bookmark-list' style='${expandedDisplayStyle}'>
                 ${listItems}
             </div>
@@ -237,8 +237,8 @@ const bookmarkPopup = L.popup()
           <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
           <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
           <div style="margin-top: 7px" class="for-editor">
-              <button id="bookmark-edit-save-button" class="bookmark-edit-button">Save Bookmark</button>
-              <button id="bookmark-edit-delete-button" class="bookmark-edit-button" style="display:none;">Delete</button>
+              <button id="bookmark-edit-save-button" class="sam-button">Save Bookmark</button>
+              <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;">Delete</button>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <hr>
@@ -246,10 +246,10 @@ const bookmarkPopup = L.popup()
               <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
               <center style="margin:0px; padding:0px;">(Depends on your setup)</center>
               <br>
-              <button id="bookmark-edit-geo-button" class="bookmark-edit-button">
+              <button id="bookmark-edit-geo-button" class="sam-button">
                   <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
               </button>
-              <button id="bookmark-edit-geo-button-learn-more-button" class="bookmark-edit-button">
+              <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button">
                   <span class="emoji">&#x2139;</span>&nbsp Learn More
               </button>
               <br>
@@ -624,15 +624,26 @@ let loaded = {}
 
 let updateDownloadStatusesTimeout = null
 function updateDownloadStatuses() {
-    loadedStatuses = new Set(Object.values(loaded))
+    uniqueLoadedStatuses = new Set(Object.values(loaded))
 
     clearTimeout(updateDownloadStatusesTimeout)
-    if (loadedStatuses.size === 0 || (loadedStatuses.size === 1 && loadedStatuses.has("done"))) {
+    if (
+        // We're a non-downloader or we don't have the manifest yet
+        (!!Object.keys(areaBoundses).length || permissions.indexOf("download") === -1) &&
+
+        // Status, if any, is "done"
+        (uniqueLoadedStatuses.size === 0 || (uniqueLoadedStatuses.size === 1 && uniqueLoadedStatuses.has("done")))
+    ){
         // If every `loaded` status is "done", we can wait another 5 seconds to
         // check on map download status. There should only be any new downloads after those 5
         // seconds if another user/share started a download, or the downloading user refreshed
         // the page mid-download. In these cases we don't care that much if it got a delayed
         // start. After it starts, it'll soon kick into a faster update loop.
+        //
+        // The exception is if we're a downloader and we don't even have our manifest
+        // loaded. Thus if "areaBoundses" is empty and we're a downloader, we still
+        // want to load every second so we get it faster. This is particularly useful
+        // to make the tutorial snappy.
 
         // Slower update loop
         updateDownloadStatusesTimeout = setTimeout(updateDownloadStatuses, 5000)
@@ -664,6 +675,14 @@ function updateDownloadStatuses() {
         fullStatus.done.forEach(tileId => {
             loadArea(tileId)
         })
+
+        // Update the tutorial based on the status
+        tutorial.setFromMapStatus(fullStatus)
+
+        // If we have POIS to search for, update the search placeholder text accordingly
+        if(fullStatus.done.length) {
+            setPlaceholderText(POIS_SEARCH_TEXT_PLACEHOLDER)
+        }
 
         // Don't care about the rest for anyone who can't download regions
         if (permissions.indexOf("download") === -1) {
@@ -818,6 +837,9 @@ getGeoJson("usa-states")
 
 updateDownloadStatuses()
 
+const PLACES_SEARCH_TEXT_PLACEHOLDER = "Cities, States, or Countries"
+const POIS_SEARCH_TEXT_PLACEHOLDER = "Nearby cafes, streets, parks..."
+
 const searchControl = new L.Control.Search({
     url: () => {
         const lat = (
@@ -830,7 +852,7 @@ const searchControl = new L.Control.Search({
         ) / 2
         return 'search?q={s}&lat=' + lat + '&lng=' + lng
     },
-    textPlaceholder: 'Nearby cafes, streets, parks...',
+    textPlaceholder: PLACES_SEARCH_TEXT_PLACEHOLDER,
     position: 'topright',
     marker: searchMarker,
     moveToLocation: (latlng, title) => {
@@ -862,6 +884,16 @@ const searchControl = new L.Control.Search({
     },
 })
 
+function setPlaceholderText(newText) {
+    if (searchControl.options.textPlaceholder !== newText) {
+        // May be glitchy, but this is the only way I know of to change
+        // the text placeholder for now. Hopefully we do this rarely.
+        searchControl.options.textPlaceholder = newText
+        searchControl.remove()
+        map.addControl(searchControl);
+    }
+}
+
 searchControl.on('search:locationfound', function(event) {
     searchResultBookmark = {
         latlng: event.latlng,
@@ -873,6 +905,9 @@ searchControl.on('search:locationfound', function(event) {
 });
 
 map.addControl(searchControl);
+
+// Defined in tutorial.js
+tutorial.addTo(map)
 
 // TODO - this doesn't work in sandstorm! because of how urls are handled. figure something out...
 function getBoundsFromHash() {

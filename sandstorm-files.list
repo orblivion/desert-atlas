@@ -52,6 +52,7 @@ sandstorm-manifest
 sbin
 service-config/mime.types
 service-config/nginx.conf
+tutorial.js
 usr/bin/bash
 usr/bin/curl
 usr/bin/env

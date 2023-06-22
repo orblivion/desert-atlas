@@ -8,9 +8,6 @@ import query
 import urllib3
 urllib3.disable_warnings()
 
-# /var hack. I guess becaues it needs to be writable???
-bookmarks_fname = "bookmarks.json"
-
 is_local = len(sys.argv) >= 2 and sys.argv[1] == 'local' # TODO - could check sandstorm env
 
 # Seems Sandstorm console only shows stderr
@@ -24,6 +21,24 @@ def get_permissions(headers):
         return ['bookmarks', 'download']
     else:
         return headers['X-Sandstorm-Permissions'].split(',')
+
+# The purpose of this is to reset the user's tutorial mode to intro if the
+# permissions change, since there's a different set of instructions
+def get_tutorial_type(headers):
+    permissions = get_permissions(headers)
+    if 'download' in permissions:
+        return TUTORIAL_TYPE_DOWNLOADER
+    elif 'bookmarks' in permissions:
+        return TUTORIAL_TYPE_BOOKMARKER
+    else:
+        return TUTORIAL_TYPE_VIEWER
+
+def get_unique_id(headers):
+    if is_local or not 'X-Sandstorm-User-Id' in headers:
+        # Anon can't persist identity even through a page load, so we're giving up on saving tutorial modes.
+        return None
+
+    return headers['X-Sandstorm-User-Id']
 
 if is_local:
     # Can't mess with var if not in sandstorm
@@ -50,11 +65,23 @@ for data_dir in [big_tmp_dir, tile_dir, search_imported_marker_dir, user_data_di
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-bookmarks_path = os.path.join(user_data_dir, bookmarks_fname)
-
+bookmarks_path = os.path.join(user_data_dir, "bookmarks.json")
 if not os.path.exists(bookmarks_path):
     with open(bookmarks_path, 'w') as f:
         f.write("{}")
+
+tutorial_mode_path = os.path.join(user_data_dir, "tutorial.json")
+if not os.path.exists(tutorial_mode_path):
+    with open(tutorial_mode_path, 'w') as f:
+        f.write("{}")
+
+TUTORIAL_INTRO = "TUTORIAL_INTRO"
+TUTORIAL_STARTED = "TUTORIAL_STARTED"
+TUTORIAL_DONE = "TUTORIAL_DONE"
+
+TUTORIAL_TYPE_DOWNLOADER = "TUTORIAL_TYPE_DOWNLOADER"
+TUTORIAL_TYPE_BOOKMARKER = "TUTORIAL_TYPE_BOOKMARKER"
+TUTORIAL_TYPE_VIEWER = "TUTORIAL_TYPE_VIEWER"
 
 BASEMAP_TILE = "base-map"
 
@@ -156,6 +183,7 @@ from http import HTTPStatus
 
 filemaps = None
 bounds_map = None # {area-key: area_bounds}.
+bounds_map_error = False
 map_update_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
 
 def byterange(s):
@@ -228,6 +256,36 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
             tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
             download_queue[tile_id] = DOWNLOAD_TRIES
+
+        if url.path == '/download-manifest':
+            if 'download' not in permissions:
+                self.send_response(HTTPStatus.Forbidden)
+                self.end_headers()
+                return
+
+            self.send_response(HTTPStatus.OK)
+            self.end_headers()
+
+            download_manifest['go'] = DOWNLOAD_TRIES
+
+
+        if url.path == '/tutorial-mode':
+            unique_id = get_unique_id(self.headers)
+            if unique_id is not None:
+                with open(tutorial_mode_path) as f:
+                    tutorial_modes = json.load(f)
+
+                new_tutorial_mode = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tutorial-mode']
+                tutorial_modes[unique_id] = {
+                    'mode': new_tutorial_mode,
+                    'type': get_tutorial_type(self.headers),
+                }
+
+                with open(tutorial_mode_path, "w") as f:
+                    json.dump(tutorial_modes, f)
+
+            self.send_response(HTTPStatus.OK)
+            self.end_headers()
 
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
@@ -324,13 +382,40 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if url.path.endswith('map-download-status'):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
+
+            unique_id = get_unique_id(self.headers)
+            if unique_id is not None:
+                # We could even delete this on app version upgrade to enforce
+                # showing any important updates.
+                with open(tutorial_mode_path) as f:
+                    tutorial_modes = json.load(f)
+                    tutorial_mode_info = tutorial_modes.get(get_unique_id(self.headers))
+
+                    # If permissions changed, restart the tutorial
+                    if tutorial_mode_info is not None and tutorial_mode_info['type'] == get_tutorial_type(self.headers):
+                        tutorial_mode = tutorial_mode_info['mode']
+                    else:
+                        tutorial_mode = TUTORIAL_INTRO
+            else:
+                # Anon users always start on intro
+                tutorial_mode = TUTORIAL_INTRO
+
+            available_areas_status = ""
+            if bounds_map_error:
+                available_areas_status = "error"
+            elif 'go' in download_manifest:
+                available_areas_status = "started"
+
             full_status = {
                 # This tells the UI that the areas defined in the bounds are available for download
                 "available-areas": bounds_map,
+                "available-areas-status": available_areas_status,
 
                 "in-progress": map_update_status,
                 "queued": list(download_queue),
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
+
+                "tutorial-mode": tutorial_mode,
             }
             self.wfile.write(bytes(json.dumps(full_status), "utf-8"))
             return
@@ -456,6 +541,11 @@ def update_filemaps():
         for (fname, f)
         in files.items()
     }
+    if filemaps:
+        # Get the manifest if we got some sort of file already. The user might
+        # have restarted the grain after getting a map. At this point we have
+        # powerbox permissions already.
+        download_manifest['go'] = DOWNLOAD_TRIES
 
 DL_URL_DIR = 'https://danielkrol.com/assets/tiles-demo/3/'
 
@@ -544,29 +634,41 @@ def download_map(tile_id):
 #        but the intention to download the given region should be saved so that
 #        the user can decide to try it again.
 download_queue = {}
+download_manifest = {}
 DOWNLOAD_TRIES = 7
 def downloader():
-    download_bounds_map()
+    global bounds_map_error
 
     while True:
-        while not download_queue:
+        while not download_queue and not download_manifest:
             time.sleep(0.1)
-        tile_id = list(download_queue.keys())[0]
-        tries_left = download_queue.pop(tile_id)
-        if tries_left > 0:
-            try:
-                download_map(tile_id)
-            except Exception as e:
-                # Probably could do this smarter
-                print_err("\n\nDownloader Exception", repr(e), '\n\n')
-                download_queue[tile_id] = tries_left - 1
-                time.sleep(1)
+
+        if 'go' in download_manifest:
+            tries_left = download_manifest.pop('go')
+            if tries_left > 0:
+                try:
+                    download_bounds_map()
+                except Exception as e:
+                    # Probably could do this smarter
+                    print_err("\n\nDownloader Exception (for manifest)", repr(e), '\n\n')
+                    download_manifest['go'] = tries_left - 1
+                    time.sleep(1)
+            else:
+                bounds_map_error = True
         else:
-            if tile_id in map_update_status:
-                del map_update_status[tile_id]
-
-
-threading.Thread(target=downloader).start()
+            tile_id = list(download_queue.keys())[0]
+            tries_left = download_queue.pop(tile_id)
+            if tries_left > 0:
+                try:
+                    download_map(tile_id)
+                except Exception as e:
+                    # Probably could do this smarter
+                    print_err("\n\nDownloader Exception", repr(e), '\n\n')
+                    download_queue[tile_id] = tries_left - 1
+                    time.sleep(1)
+            else:
+                if tile_id in map_update_status:
+                    del map_update_status[tile_id]
 
 if __name__ == "__main__":
     print_err("Serving files at http://localhost:3857/ - for development use only")
@@ -574,6 +676,7 @@ if __name__ == "__main__":
     files = {} # in case of error on the first line of the try block!
     try:
         update_filemaps()
+        threading.Thread(target=downloader).start()
         import_basemap_search()
         httpd.serve_forever()
     except:

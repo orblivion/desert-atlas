@@ -29,6 +29,33 @@
                 height: calc(100vh - 15px);
             }
 
+            .sam-button .emoji{
+                font-size: 1em;
+            }
+            .sam-button {
+                font-size: 1em;
+                padding: 5px;
+                background-color: white;
+                color: black;
+                border: 2px solid #DDD;
+            }
+            .sam-button:hover {
+                background-color: #EEE;
+                cursor: pointer;
+            }
+
+            #tutorial {
+                background-color: #f4f4f4;
+            }
+
+            #tutorial .tutorial-content {
+                margin: 1em;
+            }
+
+            #tutorial .tutorial-page {
+                display: none;
+            }
+
             #bookmark-list-container {
                 background-color: #f4f4f4;
                 overflow-y: auto;
@@ -43,12 +70,10 @@
                 border-color: #BBC;
                 cursor: pointer;
             }
-            .bookmark-list-show, .bookmark-list-hide {
-                font-size: 1.3em;
-            }
-            .bookmark-list-hide {
+            .sam-control-header {
                 padding-left: 10px;
                 padding-right: 10px;
+                font-size: 1.3em;
             }
             #bookmarks-export {
                 font-size: 1.3em;
@@ -60,22 +85,6 @@
                 border-left: 0px;
                 border-right: 0px;
                 text-align: center;
-                cursor: pointer;
-            }
-            .bookmark-edit-button {
-                font-size: 1.2em;
-            }
-            .bookmark-edit-button .emoji{
-                font-size: 1.5em;
-            }
-            .bookmark-edit-button {
-                padding: 5px;
-                background-color: white;
-                color: black;
-                border: 2px solid #DDD;
-            }
-            .bookmark-edit-button:hover {
-                background-color: #EEE;
                 cursor: pointer;
             }
             #bookmark-edit-geo-button-learn-more {
@@ -101,6 +110,7 @@
     </head>
     <body>
         <div id="map"></div>
+        <script type="text/javascript" src="tutorial.js"></script>
         <script type="text/javascript" src="app.js"></script>
     </body>
 </html>
