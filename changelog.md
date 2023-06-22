@@ -1,3 +1,10 @@
+# 2023/06/07 - appVersion 20
+
+* Interactive Tutorial
+* Wording tweaks for pkgdef
+* Fix permissions bugs
+* Add one more attribution, and a warning about map quality in the attribution list
+
 # 2023/06/07 - appVersion 19
 
 * Base map search: Search for countries, US states, and medium to large cities before downloading any regions. Hopefully it makes it easier to jump to the part of the world you want to download.
