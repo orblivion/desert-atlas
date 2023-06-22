@@ -764,8 +764,9 @@ function getGeoJson(name) {
                 attribution: (
                     '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
                     '<a href="https://github.com/lexman">Lexman</a>, ' +
-                    '<a href="https://okfn.org/">Open Knowledge Foundation</a>'
-                    '<a href="https://geonames.org/">GeoNames</a>'
+                    '<a href="https://okfn.org/">Open Knowledge Foundation</a>, ' +
+                    '<a href="https://geonames.org/">GeoNames</a>. ' +
+                    'Map rendering is a work-in-progress. Double-check for anything super important'
                 ),
                 style:
                 {
