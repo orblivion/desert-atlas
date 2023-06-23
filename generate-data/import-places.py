@@ -47,6 +47,7 @@ class CitiesRow(Row):
 class Admin1Row(Row):
     in_format = ["code", "name", "name_ascii", "geonameid"]
 
+# Note that geonames is not OSM data. This may be an alternative if we ever care: https://wiki.openstreetmap.org/wiki/OSMNames
 admin1_csv_f = StringIO(requests.get("http://download.geonames.org/export/dump/admin1CodesASCII.txt").content.decode('utf-8'))
 admin1_reader = csv.reader(admin1_csv_f, delimiter='\t')
 

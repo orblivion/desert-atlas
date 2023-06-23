@@ -100,6 +100,8 @@ For generating map tile and search data, [see here](generate-data).
 
 ### Geonames (search data for countries, states, and cities)
 
+Note that this is a separate data source than OpenStreetMap (granted, so are the geojsons). The license makes it incompatible as a source for importing to OSM's database, but I think it's fine to use side by side as we do here.
+
 * https://creativecommons.org/licenses/by/4.0/
 * http://download.geonames.org/export/dump/
 
