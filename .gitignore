@@ -8,3 +8,4 @@ generate-data/pbf/*.pbf
 generate-data/output/*.*/*.tar.gz.*
 generate-data/output/*.*/manifest.json
 generate-data/splitter/
+generate-data/build_name

@@ -86,9 +86,16 @@ def make_manifest(continents, output_dir):
         json.dump(manifest, f, indent=2)
 
 def make_the_world():
+    # Get the build name from a file so we can re-run the same build after errors.
+    # We don't generate it here because we want to be deliberate about when we start a new build. set_build_name.py is for that.
+    try:
+        timestamp = open("build_name").read()
+    except FileNotFoundError:
+        raise Exception("Need a build_name. Run set_build_name.py.")
+
     # Create this once (remember time.time() will change every run), pass into
     # functions that need it
-    output_dir = os.path.join("output", str(time.time()))
+    output_dir = os.path.join("output", timestamp)
     os.makedirs(output_dir)
 
     continents = [
