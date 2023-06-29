@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import subprocess, os, json, time
+import subprocess, os, json
 from glob import glob
 
 import parse_areas
@@ -85,7 +85,22 @@ def make_manifest(continents, output_dir):
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
 
+def s3_sync(output_dir, s3_bucket_name, timestamp):
+    result = subprocess.run(['s3cmd', 'sync', '--delete-removed', output_dir + '/', f's3://{s3_bucket_name}/{timestamp}/', '-P'])
+    if result.returncode != 0:
+        raise Exception("Error with s3cmd sync")
+
+# Mainly to test that the credentials and bucket name are set up correctly
+def s3_ls(s3_bucket_name):
+    result = subprocess.run(['s3cmd', 'ls', f's3://{s3_bucket_name}/'])
+    if result.returncode != 0:
+        raise Exception("Error with s3cmd ls. Did you set up ~/.s3cmd ?")
+
 def make_the_world():
+    # fail this right away if we don't have our credentials setup
+    s3_bucket_name = os.environ['S3BUCKET']
+    s3_ls(s3_bucket_name)
+
     # Get the build name from a file so we can re-run the same build after errors.
     # We don't generate it here because we want to be deliberate about when we start a new build. set_build_name.py is for that.
     try:
@@ -112,5 +127,7 @@ def make_the_world():
     for continent in continents:
         make_continent(continent, output_dir)
     make_manifest(continents, output_dir)
+
+    s3_sync(output_dir, s3_bucket_name, timestamp)
 
 make_the_world()
