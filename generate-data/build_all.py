@@ -45,7 +45,7 @@ def make_continent(continent, output_dir):
         if result.returncode != 0:
             raise Exception("Error building for:", region)
 
-    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent))
+    result = subprocess.run(['bash', 'cleanup_continent.sh'], env=dict(CONTINENT=continent, OUTPUT_DIR=output_dir))
     if result.returncode != 0:
         raise Exception("Error with cleanup_continent.sh")
 
@@ -111,7 +111,8 @@ def make_the_world():
     # Create this once (remember time.time() will change every run), pass into
     # functions that need it
     output_dir = os.path.join("output", timestamp)
-    os.makedirs(output_dir)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     continents = [
         "africa",

@@ -30,4 +30,6 @@ cd splitter
 #  * It *seems* to run faster in the browser for the Sandstorm app
 java -Xmx2000m -jar splitter.jar --max-nodes=$MAX_NODES --mapid=0 --output-dir=$PBF_OUTPUT_DIR $CONTINENT_FILE
 
+cd ..
+
 mv $PBF_OUTPUT_DIR/areas.list $AREAS_LIST_PATH

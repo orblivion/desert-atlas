@@ -2,6 +2,8 @@
 
 set -exuo pipefail
 
+CONTINENT_DIR=$(readlink -f pbf/$CONTINENT)
+
 # NOTE - This needs to match with the same path in build_all.py
 CONTINENT_DONE_PATH=$OUTPUT_DIR/$CONTINENT.done
 
