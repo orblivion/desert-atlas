@@ -551,7 +551,8 @@ def update_filemaps():
         # powerbox permissions already.
         download_manifest['go'] = DOWNLOAD_TRIES
 
-DL_URL_DIR = 'https://danielkrol.com/assets/tiles-demo/3/'
+DL_VERSION = "old"
+DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
 
 def download_bounds_map():
     global bounds_map
