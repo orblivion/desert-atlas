@@ -2,7 +2,7 @@
 
 # Instructions
 
-## Get `tilemaker` and `go-pmtiles`
+## Get `tilemaker`, `go-pmtiles`, and mkgmap `splitter`
 
 ### Build-from-source option: Build them in the respective submodules inside this directory.
 
@@ -55,7 +55,13 @@ Get the release that corresponds to the tag currently checked out in the submodu
 
 ## Install `pyosmium`
 
-(TODO - confirm this works). Available via pip, though you can get it on Debian as `python3-pyosmium`.
+Available via pip, though you can get it on Debian as `python3-pyosmium`.
+
+## Install `s3cmd`
+
+Necessary to upload the result to an s3 bucket (Amazon, Linode, etc)
+
+Available via pip, though you can get it on Debian as `s3cmd`.
 
 ## Build the world
 
