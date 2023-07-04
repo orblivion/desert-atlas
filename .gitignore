@@ -4,8 +4,14 @@ protomaps.js/protomaps.js.orig
 jquery/jquery.min.js
 leaflet/leaflet.js
 leaflet/leaflet.css
-generate-data/pbf/*.pbf
+generate-data/pbf/planet.done
+generate-data/pbf/planet.osm.pbf
+generate-data/pbf/regions
+generate-data/pbf/super_regions
 generate-data/output/*.*/*.tar.gz.*
 generate-data/output/*.*/manifest.json
+generate-data/output/*.*/*.done
+generate-data/output/*.*/areas.*.list
+generate-data/output/build_name
 generate-data/splitter/
 generate-data/build_name

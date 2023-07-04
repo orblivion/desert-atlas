@@ -9,7 +9,6 @@ BUILD_DIR=$(mktemp -d)
 PKG_DIR=$BUILD_DIR/pkg
 
 mkdir $PKG_DIR
-PBF_FILE=pbf/$CONTINENT/regions/$REGION.osm.pbf
 
 MBT_FILE=$BUILD_DIR/tiles.mbtiles
 PMT_FILE=$PKG_DIR/tiles.pmtiles
@@ -17,14 +16,14 @@ SEARCH_FILE=$PKG_DIR/search.csv
 
 # Note the . at the end. The package will be split into mulitple files
 # and they will be numbered, starting with this prefix.
-PKG_PREFIX=$CONTINENT---$REGION.tar.gz.
+PKG_PREFIX=$SUPER_REGION-$REGION-$SUB_REGION.tar.gz.
 
-python3 extract_search.py $PBF_FILE $SEARCH_FILE
+python3 extract_search.py $SUB_REGION_PBF_FILE $SEARCH_FILE
 
 ./tilemaker/tilemaker \
     --config config-protomaps.json \
     --process process-protomaps.lua \
-    --input $PBF_FILE \
+    --input $SUB_REGION_PBF_FILE \
     --output $MBT_FILE
 
 ./go-pmtiles/go-pmtiles convert $MBT_FILE $PMT_FILE

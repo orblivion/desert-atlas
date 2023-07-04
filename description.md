@@ -1,7 +1,32 @@
-Share-A-Map is a general purpose, fully self-hosted map app for Sandstorm, based on OpenStreetMap. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+Share-A-Map is a general purpose fully self-hosted map app for Sandstorm based on OpenStreetMap. The goal is to provide the basic functionality of sites like Google Maps while respecting privacy. You can plan trips with friends, store important locations, and export your destinations to a convenient phone application like OrganicMaps for navigation.
 
-Share-A-Map allows you to plan trip destinations with friends, store important locations, etc, and have access to the result on a convenient phone application like OrganicMaps. Use with a phone application currently requires manual export/import of a bookmarks file, but perhaps some day (with some work on the phone app side) there could be a sync option. If there are other bits of standard functionality you would like to see, please let me know!
+Some self-hosted map apps will get underlying map data from external sources on-demand. This is a tradeoff: it offloads a lot of development work, and the maps are high quality, but it will leak a small amount of usage patterns to the providers of those maps, and will make you dependent on their services. With Share-A-Map, all of the map data is *fully self-hosted* in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map on your phone. The map data needs to come from somewhere of course, so you need to download it, but you only need to download a given region once per grain (until you want to update that map data).
 
-Some self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With this app, all of the map data is fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map. The map data needs to come from somewhere of course, so you need to download it, but you only need to download it once per grain. Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
+# Warnings and Limitations
 
-This is a work in progress. As of this writing, only a couple areas are supported. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
+## Disk space
+
+With this app, you download areas of the map to the grain. Because of the tools currently used to prepare this data, the size of the data on your grain can get quite large. Areas might range from 10s of megs to almost 250 megs. The size on disk will not neatly correlate with the area downloaded.
+
+## Searching non-latin
+
+As far as I can tell, searching in non-latin characters is not yet supported.
+
+# Thanks
+
+How is all this pulled off? In short, it uses the "simplest version of everything". Many thanks to creators of the many tools that are strung together to make this happen:
+
+* [Protomaps](https://protomaps.com) (vector based rendering in browser, converting mbtiles to pmtiles)
+* [Sqlite FTS5](https://www.sqlite.org/fts5.html) (full text search)
+* [Osmium / PyOsmium](https://osmcode.org/pyosmium/) (Extracting search data from raw OSM data)
+* [Tilemaker](https://github.com/systemed/tilemaker/) (Converting raw OSM data to mbtiles)
+* [Leaflet](https://leafletjs.com/) (UI framework)
+* [MKGMap](https://www.mkgmap.org.uk/download/splitter.html) (Splitting the planet into sizeable chunks)
+* [Geofabrik](https://shortbread.geofabrik.de/schema/) (Legally permissive schema that I modify to work with Protomaps)
+* Whoever is invloved in generating the raw OSM data, I don't even know where to begin with all of that.
+
+I may have even missed one or two, apologies if so!
+
+# Feedback
+
+This is still a very basic version of what the app could become. There's a lot of ways this could be made more useful. Try it out and feel free to chime in with what doesn't work well for you, or what feature you might like to see. You can post on the Sandstorm groups, my email address, or file a feature request or bug report on Github. The more feedback I get (positive or negative) the more I know it's worth spending time on this!

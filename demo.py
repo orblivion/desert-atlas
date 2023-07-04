@@ -8,7 +8,10 @@ import query
 import urllib3
 urllib3.disable_warnings()
 
-is_local = len(sys.argv) >= 2 and sys.argv[1] == 'local' # TODO - could check sandstorm env
+# Run without Sandstorm. (This might not work so well over time, since I don't
+# check that it still works as I make changes).
+# TODO - could check sandstorm env instead of using this param
+is_local = len(sys.argv) >= 2 and sys.argv[1] == '--local'
 
 # Seems Sandstorm console only shows stderr
 def print_err(*lines):
@@ -551,20 +554,44 @@ def update_filemaps():
         # powerbox permissions already.
         download_manifest['go'] = DOWNLOAD_TRIES
 
-DL_VERSION = "old"
+# Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
+# This is only useful if you want to check the data you just generated with the much much smaller test planet
+# data included in this repo. And you'd only do that to test changes to the build pipeline.
+LOCAL_DATA = False
+
+# This refers to the version of the generated map data we will be downloading.
+# This number is a timestamp for when the build process began.
+DL_VERSION = "1689703887.9730816"
+
 DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
+
+def download_file(fname):
+    if LOCAL_DATA:
+        class DummyResponse:
+            def __init__(self):
+                path = os.path.join(os.path.dirname(__file__), 'generate-data/output/', DL_VERSION, fname)
+                print_err("Fake downloading: ", path)
+                with open(path, "rb") as f:
+                    self.content = f.read()
+                    self.status_code = 200
+
+            def json(self):
+                return json.loads(self.content)
+        return DummyResponse()
+    else:
+        params = {}
+        if not is_local:
+            params = {"verify": '/var/powerbox-http-proxy.pem'}
+
+        return requests.get(DL_URL_DIR + fname, **params)
 
 def download_bounds_map():
     global bounds_map
 
-    params = {}
-    if not is_local:
-        params = {"verify": '/var/powerbox-http-proxy.pem'}
-
     bounds_map = {
         tile_id: item['bounds']
         for (tile_id, item)
-        in requests.get(DL_URL_DIR + 'manifest.json', **params).json().items()
+        in download_file('manifest.json').json().items()
     }
 
 def download_map(tile_id):
@@ -577,14 +604,11 @@ def download_map(tile_id):
 
     print_err("downloading", tile_id)
 
-    params = {}
-    if not is_local:
-        params = {"verify": '/var/powerbox-http-proxy.pem'}
-
     # TODO - get range headers working. how does ttrss do it? But for now we split the files and that's pretty convenient. Gives us easy progress updates too.
     # TODO - manifest eventually gets title and coordinates as well, and we put it on the map based on that
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
-    files = requests.get(DL_URL_DIR + 'manifest.json', **params).json()[tile_id]['files']
+    # TODO - wait I already have the manifest, do I need to get it again here?
+    files = download_file('manifest.json').json()[tile_id]['files']
 
     map_update_status[tile_id] = {
         "downloadDone": 0,
@@ -594,8 +618,7 @@ def download_map(tile_id):
     with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_dl_dir:
         tmp_dl_path = os.path.join(tmp_dl_dir, tile_id + '.tar.gz')
         for num_got, f in enumerate(files, 1):
-            dl_url = DL_URL_DIR + f
-            r = requests.get(dl_url, **params)
+            r = download_file(f)
             print_err("Downloading part:", r.status_code)
             if r.status_code != 200:
                 print_err("error downloading. trying again")

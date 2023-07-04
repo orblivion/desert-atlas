@@ -109,9 +109,7 @@ Note that this is a separate data source than OpenStreetMap (granted, so are the
 
 OpenStreetMap® is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
 
-As of this writing, I get large regions (US states, etc) data from https://download.geofabrik.de (who derives it from OpenStreetMap).
-
-I'm not sure if this is a requirement for attribution but I do not mind shouting them out!
+As of this writing, I get the planet data from planet.osm.org, and I include a much reduced planet-test.osm.pbf in this repository.
 
 ## Search Data (derived from Map Data)
 

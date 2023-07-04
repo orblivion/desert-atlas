@@ -1,4 +1,4 @@
-(TODO - finish this stuff. It's WIP.)
+(TODO - finish this stuff. It's WIP, a bit out of order, things changed along the way, etc.)
 
 # Instructions
 
@@ -65,9 +65,13 @@ Available via pip, though you can get it on Debian as `s3cmd`.
 
 ## Build the world
 
-(TODO - make build-all.sh, make output/ directory)
+(TODO - s3 credentials on real version)
 
-Run `./build-all.sh` and it will build the world for you. You'll find the results in the `output/` directory.
+(TODO - explain planet-test.osm.pbf. It's for testing the build process with a very very small planet file. It won't deal with data issues or resource limitations but it'll see if you're probably running the correct commands. Created (hopefully) with `osmium tags-filter planet.osm.pbf n/place=city -o planet-test.osm.pbf` and then with pyosmium filtering out lower population cities to make it even smaller. EDIT: akshually we want the bigger one probably so that we have at least 2 regions per super region.)
+
+Real version: Run `./build_all.py` and it will build the world for you using the latest weekly `planet.osm.pbf`. The results will be in the `output/` directory, and will also be uploaded to S3. As of this writing this will take about 2 and a half days on a shared Linode VPS with 16 GB of memory.
+
+Test version: Run `./build_all.py` and it will build a super reduced set of the world for you using `planet-test.osm.pbf`. The results will be in the `output/` directory, and will also be uploaded to S3. This will probably take just a few minutes. This is useful for testing changes to the build pipeline. It will skip upload to S3.
 
 # What this will do
 
@@ -75,9 +79,9 @@ For each region, it builds tiles, builds a search index, and packages them in a 
 
 ## Building tiles
 
-In short: It downloads raw OSM data (`.pbf`), converts it to `.mbtiles` with `tilemaker` in a Protomaps-friend schema, and uses `go-pmtiles` to convert that to `.pmtiles` so that Protomaps can render it.
+In short: It downloads raw OSM data (`planet.osm.pbf`), splits it (twice) into smaller segments (`*.pbf`), converts them to `*.mbtiles` with `tilemaker` in a Protomaps-friendly schema, and uses `go-pmtiles` to convert them to `.pmtiles` so that Protomaps can render it.
 
-So first, this will first download the region as a `.pbf` file from Geofabrik. Note that we have to be respectful of their rate limits.
+So first, this will first download the planet using bittorrent (and seed for a half hour to be nice).
 
 Then it will first use `tilemaker` to convert the raw OSM data into the `.mbtiles` format. One interesting part of this that may not be obvious is that the `.mbtiles` format is open ended and requires you to choose a _schema_. The schema produced by `tilemaker` in this script is defined by `config-protomaps.json` and `process-protomaps.lua`. If you want to learn more about how these files work, [see here](https://github.com/systemed/tilemaker/blob/master/docs/CONFIGURATION.md).
 

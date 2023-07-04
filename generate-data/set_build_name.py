@@ -1,4 +1,4 @@
 #!/bin/python3
-import time
+import os, time
 
-open("build_name", "w").write(str(time.time()))
+open(os.path.join("output", "build_name"), "w").write(str(time.time()))
