@@ -1,3 +1,13 @@
+# 2023/07/21 - appVersion 21
+
+* The entire planet is now available
+  * Point app to this updated data
+  * Updated map generation process in the repository
+  * Regions can range from 10s of MB to 250 MB - not ideal but it's not straightforward to improve
+* Files now serving from S3
+  * Powerbox asks for `share-a-map.us-east-1.linodeobjects.com` instead of `danielkrol.com`
+  * build process includes uploading to S3
+
 # 2023/06/07 - appVersion 20
 
 * Interactive Tutorial
