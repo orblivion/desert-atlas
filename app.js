@@ -339,6 +339,8 @@ const searchMarker = L.marker([0, 0], {
 let areaBoundses = {}
 downloadRects = {}
 
+// TODO - Non-downloaders should get this, but only see the green areas.
+// TODO - And/or we should zoom in around the green areas on page load if we have no bookmarks. Or zoom in on *something*. Unless you're a downloader?
 function tryMakeDownloadRects(newAreaBoundses) {
     const boundsAvailable = !!newAreaBoundses
     const boundsAlreadySet = !!Object.keys(areaBoundses).length
