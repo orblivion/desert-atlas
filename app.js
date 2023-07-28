@@ -745,6 +745,14 @@ function updateDownloadStatuses() {
     })
 }
 
+const baseAttribution = (
+    '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
+    '<a href="https://github.com/lexman">Lexman</a>, ' +
+    '<a href="https://okfn.org/">Open Knowledge Foundation</a>, ' +
+    '<a href="https://geonames.org/">GeoNames</a>. ' +
+    'Map rendering is a work-in-progress. Double-check for anything super important'
+)
+
 function loadArea(tileId) {
     const tilesName = tileId + ".pmtiles"
     if (loaded[tilesName] === "started" || loaded[tilesName] === "done") {
@@ -758,7 +766,11 @@ function loadArea(tileId) {
     console.log('adding', tilesName)
 
     areaLayer = protomaps.leafletLayer({
-        attribution: '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: (
+            '<a href="https://protomaps.com">Protomaps</a> © ' +
+            '<a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
+        ),
+
         url: tilesName,
     })
     areaLayer.addTo(map)
@@ -780,13 +792,7 @@ function getGeoJson(name) {
             geoJson.features = geoJson.features.filter(f => f.properties.ADMIN !== "United States of America")
             const geoJsonLayer = L.geoJson(geoJson, {
                 // Public domain but they said they'd appreciate attribution
-                attribution: (
-                    '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
-                    '<a href="https://github.com/lexman">Lexman</a>, ' +
-                    '<a href="https://okfn.org/">Open Knowledge Foundation</a>, ' +
-                    '<a href="https://geonames.org/">GeoNames</a>. ' +
-                    'Map rendering is a work-in-progress. Double-check for anything super important'
-                ),
+                attribution: baseAttribution,
                 style:
                 {
                     ...uiStyle.borders,
