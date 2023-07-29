@@ -454,7 +454,7 @@ const showGeoButtonLearnMore = (() => {
 
 const openBookmarkInApp = (() => {
     const {lat, lng} = popupMarkerBookmark.latlng
-    window.open(`geo://${lat},${lng}`, "_blank")
+    window.open(`geo:${lat},${lng}`, "_blank")
 })
 
 const bookmarkKeydown = (e => {
