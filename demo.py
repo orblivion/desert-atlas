@@ -185,8 +185,8 @@ from socketserver import ThreadingMixIn
 from http import HTTPStatus
 
 filemaps = None
-bounds_map = None # {area-key: area_bounds}.
-bounds_map_error = False
+manifest = None
+manifest_error = False
 map_update_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
 
 def byterange(s):
@@ -273,7 +273,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
-            download_manifest['go'] = DOWNLOAD_TRIES
+            should_download_manifest['go'] = DOWNLOAD_TRIES
 
 
         if url.path == '/tutorial-mode':
@@ -408,14 +408,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 tutorial_mode = TUTORIAL_INTRO
 
             available_areas_status = ""
-            if bounds_map_error:
+            if manifest_error:
                 available_areas_status = "error"
-            elif 'go' in download_manifest:
+            elif 'go' in should_download_manifest:
                 available_areas_status = "started"
 
             full_status = {
                 # This tells the UI that the areas defined in the bounds are available for download
-                "available-areas": bounds_map,
+                "available-areas": get_bounds_map(),
                 "available-areas-status": available_areas_status,
 
                 "in-progress": map_update_status,
@@ -552,7 +552,7 @@ def update_filemaps():
         # Get the manifest if we got some sort of file already. The user might
         # have restarted the grain after getting a map. At this point we have
         # powerbox permissions already.
-        download_manifest['go'] = DOWNLOAD_TRIES
+        should_download_manifest['go'] = DOWNLOAD_TRIES
 
 # Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
 # This is only useful if you want to check the data you just generated with the much much smaller test planet
@@ -585,13 +585,18 @@ def download_file(fname):
 
         return requests.get(DL_URL_DIR + fname, **params)
 
-def download_bounds_map():
-    global bounds_map
+def download_manifest():
+    global manifest
+    manifest = download_file('manifest.json').json()
 
-    bounds_map = {
+def get_bounds_map(): # {area-key: area_bounds}.
+    if manifest is None:
+        return None
+
+    return {
         tile_id: item['bounds']
         for (tile_id, item)
-        in download_file('manifest.json').json().items()
+        in manifest.items()
     }
 
 def download_map(tile_id):
@@ -607,8 +612,7 @@ def download_map(tile_id):
     # TODO - get range headers working. how does ttrss do it? But for now we split the files and that's pretty convenient. Gives us easy progress updates too.
     # TODO - manifest eventually gets title and coordinates as well, and we put it on the map based on that
     # TODO - make tile_id the thing that's passed around instead of fname (already getting there...)
-    # TODO - wait I already have the manifest, do I need to get it again here?
-    files = download_file('manifest.json').json()[tile_id]['files']
+    files = manifest[tile_id]['files']
 
     map_update_status[tile_id] = {
         "downloadDone": 0,
@@ -662,27 +666,27 @@ def download_map(tile_id):
 #        but the intention to download the given region should be saved so that
 #        the user can decide to try it again.
 download_queue = {}
-download_manifest = {}
+should_download_manifest = {}
 DOWNLOAD_TRIES = 7
 def downloader():
-    global bounds_map_error
+    global manifest_error
 
     while True:
-        while not download_queue and not download_manifest:
+        while not download_queue and not should_download_manifest:
             time.sleep(0.1)
 
-        if 'go' in download_manifest:
-            tries_left = download_manifest.pop('go')
+        if 'go' in should_download_manifest:
+            tries_left = should_download_manifest.pop('go')
             if tries_left > 0:
                 try:
-                    download_bounds_map()
+                    download_manifest()
                 except Exception as e:
                     # Probably could do this smarter
                     print_err("\n\nDownloader Exception (for manifest)", repr(e), '\n\n')
-                    download_manifest['go'] = tries_left - 1
+                    should_download_manifest['go'] = tries_left - 1
                     time.sleep(1)
             else:
-                bounds_map_error = True
+                manifest_error = True
         else:
             tile_id = list(download_queue.keys())[0]
             tries_left = download_queue.pop(tile_id)
