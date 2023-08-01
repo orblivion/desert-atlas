@@ -994,6 +994,7 @@ map.on('zoomend', setLoc)
 map.on('moveend', setLoc)
 map.on('zoomend', setGeoJsonOpacityAndBackground)
 
+// Right-click to add a marker at an arbitrary location
 map.on('contextmenu', function (event) {
     popupMarkerBookmark = {
         latlng: event.latlng,
