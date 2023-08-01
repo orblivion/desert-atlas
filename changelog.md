@@ -1,3 +1,11 @@
+# 2023/07/21 - appVersion 22
+
+Boring stuff
+
+* Exponential backoff (#35) for all requests
+* Update attribution with a warning (this could be really ugly on mobile, this is a bit of a test)
+* Correct use of `geo:` links. This seems to improve interop with some apps. At least it worked for me on StreetComplete, whereas the old one didn't work there.
+
 # 2023/07/21 - appVersion 21
 
 * The entire planet is now available
