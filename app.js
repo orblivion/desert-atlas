@@ -244,7 +244,8 @@ const bookmarkPopup = L.popup()
           <hr>
           <div style="background-color: #eee; padding: .5em; margin-top: 7px">
               <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
-              <center style="margin:0px; padding:0px;">(Depends on your setup)</center>
+              <p style="margin:2px; padding:2px;"><b>NOTE</b>: Depends on your setup. Click "Learn More" for details.</p>
+              <p style="margin:2px; padding:2px;"><b><font color="red">WARNING</font></b>: If you don't have an external map app installed, this might (by some accounts) cause your browser to do a web search of this location, which would compromise privacy.</p>
               <br>
               <button id="bookmark-edit-geo-button" class="sam-button">
                   <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
@@ -449,7 +450,7 @@ function downloadMap(tileId) {
 }
 
 const showGeoButtonLearnMore = (() => {
-    $('#bookmark-edit-geo-button-learn-more').slideDown()
+    $('#bookmark-edit-geo-button-learn-more').slideToggle()
 })
 
 const openBookmarkInApp = (() => {
