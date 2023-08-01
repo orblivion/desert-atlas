@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile, gzip
+import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile, gzip, random
 import csv_format
 
 import query
@@ -262,7 +262,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
-            download_queue[tile_id] = DOWNLOAD_TRIES
+            download_queue.add(tile_id)
 
         if url.path == '/download-manifest':
             if 'download' not in permissions:
@@ -273,8 +273,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
-            should_download_manifest['go'] = DOWNLOAD_TRIES
-
+            if manifest is None:
+                download_queue.add(MANIFEST)
 
         if url.path == '/tutorial-mode':
             unique_id = get_unique_id(self.headers)
@@ -410,7 +410,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             available_areas_status = ""
             if manifest_error:
                 available_areas_status = "error"
-            elif 'go' in should_download_manifest:
+            elif MANIFEST in download_queue:
                 available_areas_status = "started"
 
             full_status = {
@@ -419,7 +419,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "available-areas-status": available_areas_status,
 
                 "in-progress": map_update_status,
-                "queued": list(download_queue),
+                "queued": [dl for dl in download_queue if dl != MANIFEST],
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
 
                 "tutorial-mode": tutorial_mode,
@@ -551,8 +551,9 @@ def update_filemaps():
     if filemaps:
         # Get the manifest if we got some sort of file already. The user might
         # have restarted the grain after getting a map. At this point we have
-        # powerbox permissions already.
-        should_download_manifest['go'] = DOWNLOAD_TRIES
+        # powerbox permissions already so we don't need to wait for them to
+        # push the appropriate button in the tutorial.
+        download_queue.add(MANIFEST)
 
 # Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
 # This is only useful if you want to check the data you just generated with the much much smaller test planet
@@ -564,6 +565,9 @@ LOCAL_DATA = False
 DL_VERSION = "1689703887.9730816"
 
 DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
+
+class DownloadError(Exception):
+    pass
 
 def download_file(fname):
     if LOCAL_DATA:
@@ -583,7 +587,23 @@ def download_file(fname):
         if not is_local:
             params = {"verify": '/var/powerbox-http-proxy.pem'}
 
-        return requests.get(DL_URL_DIR + fname, **params)
+        MAX_TRIES = 7
+
+        for try_num in range(MAX_TRIES):
+            response = requests.get(DL_URL_DIR + fname, **params)
+
+            if response.status_code == 200:
+                return response
+
+            print_err(f"error downloading {fname}, got {response.status_code}. trying again")
+            sleep_time = (
+                2 ** try_num *           # Retry less and less often
+                random.randint(20, 30) * # Good practice to randomize backoff so clients don't all come crashing in at once
+                0.005                    # Scale it back overall. This makes it ~8 seconds for the longest wait.
+            )
+            time.sleep(sleep_time)
+
+        raise DownloadError(f"Failed {MAX_TRIES} times", response)
 
 def download_manifest():
     global manifest
@@ -617,26 +637,24 @@ def download_map(tile_id):
     map_update_status[tile_id] = {
         "downloadDone": 0,
         "downloadTotal": len(files),
+        "downloadError": False,
     }
 
     with tempfile.TemporaryDirectory(prefix=big_tmp_dir + "/") as tmp_dl_dir:
         tmp_dl_path = os.path.join(tmp_dl_dir, tile_id + '.tar.gz')
         for num_got, f in enumerate(files, 1):
-            r = download_file(f)
-            print_err("Downloading part:", r.status_code)
-            if r.status_code != 200:
-                print_err("error downloading. trying again")
-                time.sleep(1) # TODO exponential decay yada yada - also fix the continue below
-
-                # TODO wait this isn't right at all. this would just skip a segment of the file
-                # on failure
-                continue
+            try:
+                r = download_file(f)
+            except DownloadError as de:
+                print_err("\n\nDownloader exception for map file part", repr(de), '\n\n')
+                raise
 
             # write as append
             with open(tmp_dl_path, "ab") as f:
                 f.write(r.content)
 
             map_update_status[tile_id]['downloadDone'] = num_got
+            print_err("Downloaded map file part", tile_id, num_got)
 
         # TODO - Put a md5sum in there somewhere for integrity since I'm getting parts. Something could get screwed up.
         print_err("Downloaded", tile_id, "! Now extracting...")
@@ -665,42 +683,29 @@ def download_map(tile_id):
 #        the queue forever. It doesn't need to be retrying forever by default,
 #        but the intention to download the given region should be saved so that
 #        the user can decide to try it again.
-download_queue = {}
-should_download_manifest = {}
+MANIFEST = 'MANIFEST'
+download_queue = set()
 DOWNLOAD_TRIES = 7
 def downloader():
     global manifest_error
 
     while True:
-        while not download_queue and not should_download_manifest:
+        while not download_queue:
             time.sleep(0.1)
 
-        if 'go' in should_download_manifest:
-            tries_left = should_download_manifest.pop('go')
-            if tries_left > 0:
-                try:
-                    download_manifest()
-                except Exception as e:
-                    # Probably could do this smarter
-                    print_err("\n\nDownloader Exception (for manifest)", repr(e), '\n\n')
-                    should_download_manifest['go'] = tries_left - 1
-                    time.sleep(1)
-            else:
+        download_item = download_queue.pop()
+        if download_item == MANIFEST:
+            try:
+                download_manifest()
+            except DownloadError as de:
+                print_err("\n\nDownloader Exception for manifest", repr(de), '\n\n')
                 manifest_error = True
         else:
-            tile_id = list(download_queue.keys())[0]
-            tries_left = download_queue.pop(tile_id)
-            if tries_left > 0:
-                try:
-                    download_map(tile_id)
-                except Exception as e:
-                    # Probably could do this smarter
-                    print_err("\n\nDownloader Exception", repr(e), '\n\n')
-                    download_queue[tile_id] = tries_left - 1
-                    time.sleep(1)
-            else:
-                if tile_id in map_update_status:
-                    del map_update_status[tile_id]
+            tile_id = download_item
+            try:
+                download_map(tile_id)
+            except DownloadError as de:
+                map_update_status[tile_id]['downloadError'] = True
 
 if __name__ == "__main__":
     print_err("Serving files at http://localhost:3857/ - for development use only")

@@ -414,7 +414,7 @@ function downloadRect(tileId) {
                 </div>`)
                 .setLatLng(L.latLng(center))
                 .addTo(map)
-            } else {
+            } else if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
                 // If it's downloaded and you click on it, it zooms and pans
                 // you to the area, unless you're already zoomed in as far as
                 // or further than it would take you to.
@@ -424,19 +424,19 @@ function downloadRect(tileId) {
             }
         })
         .on('mouseover', e => {
-            if (loaded[tileId + '.pmtiles'] !== "done") {
+            if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
                 e.target.setStyle(uiStyle.downloadRect.highlighted)
             }
         })
         .on('mouseout', e => {
-            if (loaded[tileId + '.pmtiles'] !== "done") {
+            if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
                 e.target.setStyle(uiStyle.downloadRect.normal)
             }
         })
 }
 
 function downloadMap(tileId) {
-    loaded[tileId + '.pmtiles'] = "downloading"
+    loaded[tileId + '.pmtiles'] = LOADED_DOWNLOADING
     // force it to start the faster update loop right away, since this user initiated the
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
     updateDownloadStatuses()
@@ -622,6 +622,9 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
 }
 
 // TODO - key this by `tileId` instead of `tileId + '.pmtiles'`
+LOADED_DONE = "done"
+LOADED_STARTED = "started"
+LOADED_DOWNLOADING = "downloading"
 let loaded = {}
 
 let updateDownloadStatusesTimeout = null
@@ -670,7 +673,7 @@ function updateDownloadStatuses() {
         // this user/share didn't start the download.
         for (tileId in inProgress) {
             if (!((tileId + '.pmtiles') in loaded)) {
-                loaded[tileId + '.pmtiles'] = "downloading"
+                loaded[tileId + '.pmtiles'] = LOADED_DOWNLOADING
             }
         }
 
@@ -701,13 +704,17 @@ function updateDownloadStatuses() {
 
             tooltipContent = null
 
-            if (loaded[tileId + '.pmtiles'] === "done") {
+            if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
                 // Greenish means downloaded
                 downloadRects[tileId].setStyle(uiStyle.downloadRect.downloaded)
-            } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === "started") {
+            } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === LOADED_STARTED) {
                 tooltipContent = "Downloaded. Loading on screen..."
             } else if (tileId in inProgress) {
-                if (inProgress[tileId].downloadDone !== inProgress[tileId].downloadTotal) {
+                if (inProgress[tileId].downloadError) {
+                    tooltipContent = (
+                        'Error downloading this area. Try restarting the grain and downloading again?'
+                    )
+                } else if (inProgress[tileId].downloadDone !== inProgress[tileId].downloadTotal) {
                     downloadPercentage = Math.round(100 * (inProgress[tileId].downloadDone / inProgress[tileId].downloadTotal))
                     tooltipContent = (
                         'Downloading this area' +
@@ -757,14 +764,14 @@ const baseAttribution = (
 
 function loadArea(tileId) {
     const tilesName = tileId + ".pmtiles"
-    if (loaded[tilesName] === "started" || loaded[tilesName] === "done") {
+    if (loaded[tilesName] === LOADED_STARTED || loaded[tilesName] === LOADED_DONE) {
         return
     }
 
     // TODO - wait, "started" doesn't even take effect anywhere, this isn't
     // threaded. right? we set it to "done" right below, not after a callback
     // or anything.
-    loaded[tilesName] = "started"
+    loaded[tilesName] = LOADED_STARTED
     console.log('adding', tilesName)
 
     areaLayer = protomaps.leafletLayer({
@@ -778,7 +785,7 @@ function loadArea(tileId) {
     areaLayer.addTo(map)
 
     console.log('added', tilesName)
-    loaded[tilesName] = "done"
+    loaded[tilesName] = LOADED_DONE
 }
 
 function getGeoJson(name) {
