@@ -704,7 +704,7 @@ def downloader():
             tile_id = download_item
             try:
                 download_map(tile_id)
-            except DownloadError as de:
+            except DownloadError:
                 map_update_status[tile_id]['downloadError'] = True
 
 if __name__ == "__main__":
