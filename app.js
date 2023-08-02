@@ -119,12 +119,6 @@ permissions = PERMISSIONS_REPLACE_ME
 
 const map = L.map('map')
 
-var searchResultBookmark = null
-
-// TODO - don't really do this, it's precarious. only for demo. We could fail to set this and save the wrong bookmark or whatever.
-// Probably best to bind the bookmarkId to the popup as we render it. I think that'd keep it in sync? More in sync at least?
-var popupMarkerBookmark = null
-
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
         // Mobile doesn't have that much real estate. But on desktop it might
@@ -276,8 +270,8 @@ const bookmarkPopup = L.popup()
       `
     )
     .on('add', e => {
-        document.getElementById("bookmark-edit-name-readonly").value = popupMarkerBookmark.name
-        document.getElementById("bookmark-edit-name").value = popupMarkerBookmark.name
+        document.getElementById("bookmark-edit-name-readonly").value = bookmarkPopup.options.bookmark.name
+        document.getElementById("bookmark-edit-name").value = bookmarkPopup.options.bookmark.name
 
         if (!L.Browser.mobile) { // Annoying on mobile to bring up the keyboard right away
             document.getElementById("bookmark-edit-name").focus()
@@ -295,7 +289,7 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-delete-button').addEventListener("click", deleteBookmark)
         document.getElementById('bookmark-edit-geo-button').addEventListener("click", openBookmarkInApp)
 
-        if (popupMarkerBookmark.id) {
+        if (bookmarkPopup.options.bookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
             document.getElementById('bookmark-readonly-notice').textContent = "(You cannot currently edit bookmarks)"
         } else {
@@ -315,6 +309,22 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
     })
 
+// could make it a method on bookmarkPopup but I'm lazy
+function setBookmarkPopup(bookmark, editType) {
+        bookmarkPopup.options.bookmarkEditType = editType
+
+	// safe copy
+        bookmarkPopup.options.bookmark = {
+          name: bookmark.name,
+          id: bookmark.id,
+          latlng: L.latLng(bookmark.latlng)
+        }
+
+        bookmarkPopup
+          .setLatLng(L.latLng(bookmark.latlng))
+          .openOn(map)
+}
+
 L.Util.setOptions(bookmarkPopup, {autoPanPadding: [0, 180]})
 
 const searchMarker = L.marker([0, 0], {
@@ -330,11 +340,7 @@ const searchMarker = L.marker([0, 0], {
             .remove()
     })
     .on('click', () => {
-        popupMarkerBookmark = searchResultBookmark
-        bookmarkPopup.options.bookmarkEditType = "search"
-        bookmarkPopup
-            .setLatLng(L.latLng(searchResultBookmark.latlng))
-            .openOn(map)
+        setBookmarkPopup(searchMarker.options.bookmark, "search")
     })
 
 let areaBoundses = {}
@@ -454,7 +460,7 @@ const showGeoButtonLearnMore = (() => {
 })
 
 const openBookmarkInApp = (() => {
-    const {lat, lng} = popupMarkerBookmark.latlng
+    const {lat, lng} = bookmarkPopup.options.bookmark.latlng
     window.open(`geo:${lat},${lng}`, "_blank")
 })
 
@@ -475,8 +481,8 @@ const addBookmark = (() => {
             method: 'POST',
             body: JSON.stringify({
                 name: document.getElementById("bookmark-edit-name").value,
-                latlng: popupMarkerBookmark.latlng,
-                id: popupMarkerBookmark.id, // Undefined for search results
+                latlng: bookmarkPopup.options.bookmark.latlng,
+                id: bookmarkPopup.options.bookmark.id, // Undefined for search results
             })
         })
         .then(e => e.json())
@@ -519,7 +525,7 @@ const deleteBookmark = (() => {
     fetch('bookmark-delete', {
             method: 'POST', // should be DELETE on the same path as POST, but I don't want to figure this out now
             body: JSON.stringify({
-                id: popupMarkerBookmark.id,
+                id: bookmarkPopup.options.bookmark.id,
             })
         })
         .then(() => {
@@ -563,12 +569,9 @@ var bookmarkMarkers = {} // just for lookup by id.
 var bookmarkMarkerFeatureGroup = L.featureGroup()
     .addTo(map)
     .on('click', e => {
-        popupMarkerBookmark = data.bookmarks[e.layer.options.bookmarkId]
-        if (popupMarkerBookmark) { // timing issues?
-            bookmarkPopup.options.bookmarkEditType = "existing"
-            bookmarkPopup
-                .setLatLng(L.latLng(popupMarkerBookmark.latlng))
-                .openOn(map)
+        let bookmark = data.bookmarks[e.layer.options.bookmarkId]
+        if (bookmark) { // timing issues?
+            setBookmarkPopup(bookmark, "existing")
         }
     })
 
@@ -908,12 +911,12 @@ function setPlaceholderText(newText) {
 }
 
 searchControl.on('search:locationfound', function(event) {
-    searchResultBookmark = {
+    searchMarker.options.bookmark = {
         latlng: event.latlng,
         name: event.text
     }
     searchMarker
-        .bindTooltip(searchResultBookmark.name)
+        .bindTooltip(searchMarker.options.bookmark.name)
         .openTooltip()
 });
 
@@ -996,19 +999,15 @@ map.on('zoomend', setGeoJsonOpacityAndBackground)
 
 // Right-click to add a marker at an arbitrary location
 map.on('contextmenu', function (event) {
-    popupMarkerBookmark = {
-        latlng: event.latlng,
-        name: ''
-    }
-
     // Close the popup before opening it again, to trigger the "on add" event.
     // For some reason, closing is not necessary when clicking between multiple
     // existing markers.
     // TODO - investigate this phenomenon more, perhaps
     bookmarkPopup.close()
 
-    bookmarkPopup.options.bookmarkEditType = "arbitrary"
-    bookmarkPopup
-        .setLatLng(L.latLng(popupMarkerBookmark.latlng))
-        .openOn(map)
+    bookmark = {
+        latlng: event.latlng,
+        name: ''
+    }
+    setBookmarkPopup(bookmark, "arbitrary")
 })
