@@ -502,6 +502,7 @@ const addBookmark = (() => {
                 // here and now and updating the visual elements is faster and perhaps less prone to the
                 // error of missing the new ID (I think that happened to me once)
                 data.bookmarks[bookmarkId] = bookmark
+                data.bookmarks[bookmarkId].id = bookmarkId
                 bookmarksList.render()
                 updateBookmarkMarkers()
 

@@ -217,6 +217,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # TODO - validate this input! When I move to Go.
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
 
+            # Extract id (if included) from what was posted. Tear it off
+            # because we don't want to save it in the file since we already use
+            # it as the key there, and it would be redundant.
             bookmarkId = bookmark.get('id', str(uuid.uuid1()))
             if 'id' in bookmark:
                 del bookmark['id']
