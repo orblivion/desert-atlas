@@ -87,8 +87,8 @@ const renderLoop = () => {
     fetch('bookmarks', {
         method: 'GET'
     })
-    .then(e => {
-        e.json().then(updatedBookmarks => {
+    .then(res => {
+        res.json().then(updatedBookmarks => {
             // Set the ids before the comparison, since what it'll be
             // comparing against will have the ids
             for (bookmarkId in updatedBookmarks) {
@@ -666,7 +666,7 @@ function updateDownloadStatuses() {
     return fetch('map-download-status', {
         method: 'GET'
     })
-    .then(e => e.json())
+    .then(res => res.json())
     .then(fullStatus => {
         const inProgress = fullStatus['in-progress']
 
@@ -790,8 +790,8 @@ function getGeoJson(name) {
     return fetch(path, {
         method: 'GET'
     })
-    .then(e => {
-        return e.json().then(geoJson => {
+    .then(res => {
+        return res.json().then(geoJson => {
             // Remove the US since we already have the states. This will avoid the annoying
             // inconsistent double-borders. Still have that problem on the northern and
             // southern borders though.
