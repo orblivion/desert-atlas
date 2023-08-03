@@ -2,6 +2,8 @@
 import csv, os, sys, glob, urllib.parse, tempfile, json, uuid, requests, tarfile, time, threading, shutil, sqlite3, zipfile, gzip, random
 import csv_format
 
+from pprint import pformat
+
 import query
 
 # TODO - actually fix the ssl warnings from the proxy's cert. For now this makes the console unreadable.
@@ -15,7 +17,7 @@ is_local = len(sys.argv) >= 2 and sys.argv[1] == '--local'
 
 # Seems Sandstorm console only shows stderr
 def print_err(*lines):
-    sys.stderr.write(" ".join(str(line) for line in lines) + "\n")
+    sys.stderr.write(" ".join(pformat(line) for line in lines) + "\n")
     sys.stderr.flush()
 
 def get_permissions(headers):
