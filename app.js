@@ -912,9 +912,18 @@ function setPlaceholderText(newText) {
 }
 
 searchControl.on('search:locationfound', function(event) {
+    // BASEMAP_MARKER is a super hack. It's there to treat basemap city search
+    // results differently. But we don't want it to actually show up in the
+    // marker text, and especially not if we save it as a bookmark.
+    if (event.text.slice(-2) == BASEMAP_MARKER) {
+        name = event.text.slice(0, -2)
+    } else {
+        name = event.text
+    }
+
     searchMarker.options.bookmark = {
+        name,
         latlng: event.latlng,
-        name: event.text
     }
     searchMarker
         .bindTooltip(searchMarker.options.bookmark.name)
