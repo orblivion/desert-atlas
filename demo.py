@@ -212,7 +212,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         permissions = get_permissions(self.headers)
         if url.path == '/bookmark':
             if 'bookmarks' not in permissions:
-                self.send_response(HTTPStatus.Forbidden)
+                self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
                 return
 
@@ -241,7 +241,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # TODO - should be a DELETE request but I didn't want to figure it out
         if url.path == '/bookmark-delete':
             if 'bookmarks' not in permissions:
-                self.send_response(HTTPStatus.Forbidden)
+                self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
             bookmarkId = bookmark.get('id', str(uuid.uuid1()))
@@ -259,7 +259,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if url.path == '/download-map':
             if 'download' not in permissions:
-                self.send_response(HTTPStatus.Forbidden)
+                self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
                 return
 
@@ -271,7 +271,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if url.path == '/download-manifest':
             if 'download' not in permissions:
-                self.send_response(HTTPStatus.Forbidden)
+                self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
                 return
 
