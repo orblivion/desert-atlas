@@ -226,7 +226,7 @@ const bookmarkPopup = L.popup()
     .setContent(
         `
       <h1 id="bookmark-header"></h1>
-      <div id="search-marker-submit" class="${bookmarkEditClass}">
+      <div id="bookmark-edit-section-edit" class="${bookmarkEditClass}">
           <input id="bookmark-edit-name" class="for-editor bookmark-edit-name">
           <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
           <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
@@ -507,16 +507,16 @@ const addBookmark = (() => {
         .then(res => {
             // Conflict gets a special error message
             if (res.status === 409) {
-                document.getElementById("search-marker-submit").style.display = 'none';
-                document.getElementById("search-marker-save-conflict").style.display = 'block';
+                $('#bookmark-edit-section-edit').slideUp()
+                $('#search-marker-save-conflict').slideDown()
                 return
             }
 
             // Any other errors will show up as a generic message below
             return res.json()
             .then(([bookmarkId, bookmark]) => {
-                document.getElementById("search-marker-submit").style.display = 'none';
-                document.getElementById("search-marker-save-success").style.display = 'block';
+                $('#bookmark-edit-section-edit').slideUp()
+                $('#search-marker-save-success').slideDown()
                 setTimeout(() => {
                     bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
 
@@ -542,8 +542,8 @@ const addBookmark = (() => {
                 }, 500)
             })
             .catch(e => {
-                document.getElementById("search-marker-submit").style.display = 'none';
-                document.getElementById("search-marker-save-error").style.display = 'block';
+                $('#bookmark-edit-section-edit').slideUp()
+                $('#search-marker-save-error').slideDown()
 
                 console.error(e)
             })
@@ -565,13 +565,13 @@ const deleteBookmark = (() => {
         })
         .then(res => {
             if (res.status >= 400) {
-                document.getElementById("search-marker-submit").style.display = 'none';
-                document.getElementById("search-marker-delete-error").style.display = 'block';
+                $('#bookmark-edit-section-edit').slideUp()
+                $('#search-marker-delete-error').slideDown()
                 return
             }
 
-            document.getElementById("search-marker-submit").style.display = 'none';
-            document.getElementById("search-marker-delete-success").style.display = 'block';
+            $('#bookmark-edit-section-edit').slideUp()
+            $('#search-marker-delete-success').slideDown()
             setTimeout(() => {
                 // Whether to use renderLoop or updateBookmarkMarkers/bookmarksList.render is debatable.
                 // renderLoop is safer since only one place changes data.bookmarks; changing data.bookmarks
