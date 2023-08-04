@@ -1,3 +1,21 @@
+# 2023/08/04 - appVersion 23
+
+* Bugfix: Searching for basemap cities as a non-downloader was broken
+* Split Bookmark popup:
+  * Add Lat/Lng info in case the user wants it.
+    * Very basic part of #24. Will add address later; a lot more useful but a lot more work.
+  * Add a warning about geo: links. I heard something on Mastodon about it triggering web searches, and I got nervous about privacy.
+  * Split into collapsable sections to make room for all of this stuff, especially for small mobile.
+  * Error messages for saving and deleting.
+* Bookmarks now in sqlite3 databases
+  * Stop editing conflicts with a new "version" field. If two people edit the same bookmark, give an error for the second editor telling them to reload first.
+  * Generally good for clobber-prevention inherent to just using a file.
+  * Legacy bookmarks are auto-migrated, and the old json file kept around just in case.
+* Bugfix #21: Fast subsequent edits on new bookmarks were creating more new bookmarks
+* Code cleanup #37 - Wanted to remove a global variable but I think I just hid it. Still, code is in a better state.
+* Add annoying caveat about data quality to the attribution section.
+  * Please let me know if this is unbearable on mobile.
+
 # 2023/07/21 - appVersion 22
 
 Boring stuff
