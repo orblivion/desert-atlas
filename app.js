@@ -235,6 +235,7 @@ const bookmarkPopup = L.popup()
               <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;">Delete</button>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
+          <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
           <hr>
           <div style="background-color: #eee; padding: .5em; margin-top: 7px">
               <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
@@ -281,6 +282,9 @@ const bookmarkPopup = L.popup()
     .on('add', e => {
         document.getElementById("bookmark-edit-name-readonly").value = bookmarkPopup.options.bookmark.name
         document.getElementById("bookmark-edit-name").value = bookmarkPopup.options.bookmark.name
+        document.getElementById("bookmark-latlng").innerHTML = (
+            bookmarkPopup.options.bookmark.latlng.lat + ',' + bookmarkPopup.options.bookmark.latlng.lng
+        )
 
         if (!L.Browser.mobile) { // Annoying on mobile to bring up the keyboard right away
             document.getElementById("bookmark-edit-name").focus()
