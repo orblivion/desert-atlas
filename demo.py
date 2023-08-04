@@ -70,10 +70,157 @@ for data_dir in [big_tmp_dir, tile_dir, search_imported_marker_dir, user_data_di
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-bookmarks_path = os.path.join(user_data_dir, "bookmarks.json")
-if not os.path.exists(bookmarks_path):
-    with open(bookmarks_path, 'w') as f:
-        f.write("{}")
+# Separate db file from search data, to make it easier to manage. In case of
+# issue, map data (including search) could be blown away and re-downloaded.
+bookmarks_db_path = os.path.join(user_data_dir, "bookmarks.db")
+
+def create_bookmarks_table():
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS
+        bookmarks (
+            id VARCHAR PRIMARY KEY,
+            version INT,
+            name VARCHAR,
+            lat VARCHAR, -- TODO - make into a number? for now it's a faithful reproduction of a decimal.
+            lng VARCHAR -- TODO - make into a number? for now it's a faithful reproduction of a decimal.
+        )
+    """)
+
+# Avoid issues
+def copy_bookmark(orig_bookmark):
+    bookmark = {
+        "name": orig_bookmark["name"],
+        "latlng": {
+            "lat": orig_bookmark["latlng"]["lat"],
+            "lng": orig_bookmark["latlng"]["lng"],
+        },
+    }
+
+    if "id" in orig_bookmark:
+        bookmark["id"] = orig_bookmark["id"]
+    if "version" in orig_bookmark:
+        bookmark["version"] = orig_bookmark["version"]
+
+    return bookmark
+
+# TODO - Delete this after app release. This is only relevant to pre-release test users.
+def insert_legacy_bookmark(bookmark):
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+
+    # Only insert if it's not already in the db. If for whatever reason this
+    # fails midway on the first try, we don't want to overwrite in case there
+    # have been changes.
+    if cur.execute("SELECT id FROM bookmarks WHERE id=?", (bookmark['id'],)).fetchone() is None:
+        _insert_bookmark_base(bookmark["id"], bookmark)
+
+def insert_bookmark(bookmark):
+    bookmark_id = str(uuid.uuid1())
+    return _insert_bookmark_base(bookmark_id, bookmark)
+
+def _insert_bookmark_base(bookmark_id, bookmark):
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+    cur.execute(
+        'INSERT INTO bookmarks VALUES (?, ?, ?, ?, ?)',
+        (
+            bookmark_id,
+            0, # version
+            bookmark['name'],
+            bookmark["latlng"]["lat"],
+            bookmark["latlng"]["lng"],
+        ),
+    )
+    con.commit()
+
+    new_bookmark = copy_bookmark(bookmark)
+    new_bookmark["id"] = bookmark_id
+    new_bookmark["version"] = 0
+
+    return new_bookmark
+
+def update_bookmark(bookmark):
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+
+    new_version = bookmark["version"] + 1
+
+    # Use the version field to prevent race conditions. Make sure users are
+    # editing based on the latest version so they don't clobber another
+    # person's edit.
+    q_results = cur.execute(
+        "UPDATE bookmarks SET name=?, version=?, lat=?, lng=? WHERE id=? AND version=?",
+        (
+            # UPDATE
+
+            bookmark['name'],
+            # incremented version to the db to indicate the change was made
+            new_version,
+            bookmark["latlng"]["lat"],
+            bookmark["latlng"]["lng"],
+
+            # WHERE
+
+            bookmark["id"],
+            # the version that the person was looking at *before* their change;
+            # make sure nobody else changed it first
+            bookmark["version"],
+        ),
+    )
+    con.commit()
+
+    # Return only if it succeeded in making the update
+    if q_results.rowcount == 1:
+        new_bookmark = copy_bookmark(bookmark)
+        new_bookmark["version"] = new_version
+
+        return new_bookmark
+
+def delete_bookmark(bookmark_id):
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+
+    cur.execute(
+        'DELETE FROM bookmarks WHERE id=?', (bookmark_id,)
+    )
+
+    con.commit()
+
+def get_all_bookmarks():
+    con = sqlite3.connect(bookmarks_db_path)
+    cur = con.cursor()
+
+    q_results = cur.execute(
+        "SELECT id, version, name, lat, lng FROM bookmarks",
+    )
+    return {
+        bookmark_id: {
+            "version": version,
+            "name": name,
+            "latlng": {
+                "lat": lat,
+                "lng": lng,
+            },
+        }
+        for bookmark_id, version, name, lat, lng in q_results
+    }
+
+create_bookmarks_table()
+
+# TODO - Delete this after app release. This is only relevant to pre-release test users.
+def migrate_legacy_bookmarks():
+    old_bookmarks_path = os.path.join(user_data_dir, "bookmarks.json")
+    if os.path.exists(old_bookmarks_path):
+        with open(old_bookmarks_path, 'r') as f:
+            for bookmark_id, bookmark in json.load(f).items():
+                bookmark['id'] = bookmark_id
+                insert_legacy_bookmark(dict(bookmark))
+
+        shutil.move(old_bookmarks_path, old_bookmarks_path + '.old')
+
+migrate_legacy_bookmarks()
 
 tutorial_mode_path = os.path.join(user_data_dir, "tutorial.json")
 if not os.path.exists(tutorial_mode_path):
@@ -219,40 +366,36 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # TODO - validate this input! When I move to Go.
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
 
-            # Extract id (if included) from what was posted. Tear it off
-            # because we don't want to save it in the file since we already use
-            # it as the key there, and it would be redundant.
-            bookmarkId = bookmark.get('id', str(uuid.uuid1()))
             if 'id' in bookmark:
-                del bookmark['id']
+                new_bookmark = update_bookmark(bookmark)
+                if new_bookmark is None:
+                    # Someone else made an edit at the same time. Let em know
+                    self.send_response(HTTPStatus.CONFLICT)
+                    self.end_headers()
+                    return
+            else:
+                new_bookmark = insert_bookmark(bookmark)
 
-            with open(bookmarks_path) as f:
-                bookmarks = json.load(f)
-
-            bookmarks[bookmarkId] = bookmark
-
-            with open(bookmarks_path, 'w') as f:
-                json.dump(bookmarks, f)
+            bookmark_id = new_bookmark.pop('id')
 
             self.send_response(HTTPStatus.OK)
             self.end_headers()
-            self.wfile.write(bytes(json.dumps([bookmarkId, bookmark]), "utf-8"))
+            self.wfile.write(bytes(json.dumps([bookmark_id, new_bookmark]), "utf-8"))
 
         # TODO - should be a DELETE request but I didn't want to figure it out
         if url.path == '/bookmark-delete':
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
+
             bookmark = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-            bookmarkId = bookmark.get('id', str(uuid.uuid1()))
+            bookmark_id = bookmark.get('id')
+            if bookmark_id is None:
+                self.send_response(HTTPStatus.NOT_FOUND)
+                self.end_headers()
+                return
 
-            with open(bookmarks_path) as f:
-                bookmarks = json.load(f)
-
-            del bookmarks[bookmarkId]
-
-            with open(bookmarks_path, 'w') as f:
-                json.dump(bookmarks, f)
+            delete_bookmark(bookmark_id)
 
             self.send_response(HTTPStatus.OK)
             self.end_headers()
@@ -317,8 +460,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if url.path.endswith('bookmarks'):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
-            with open(bookmarks_path) as f:
-                self.wfile.write(bytes(f.read(), "utf-8"))
+            self.wfile.write(bytes(json.dumps(get_all_bookmarks()), "utf-8"))
             return
 
         if url.path == '/search':
@@ -533,8 +675,11 @@ def kml():
     </Point>
   </Placemark>""".format(name=name, lat=lat, lng=lng, description=description)
 
-    with open(bookmarks_path, 'r') as f:
-        bookmarks = json.load(f).values()
+    bookmarks = [
+        dict(bookmark, id=bookmark_id)
+        for bookmark_id, bookmark
+        in get_all_bookmarks().items()
+    ]
 
     return beginning + "".join(map(make_placemark, bookmarks)) + "\n" + end
 

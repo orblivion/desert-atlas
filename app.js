@@ -267,6 +267,15 @@ const bookmarkPopup = L.popup()
       <div id="search-marker-delete-success" style="display:none;">
           <h2><center>Deleted</center></h2>
       </div>
+      <div id="search-marker-save-conflict" style="display:none;">
+          <h2><center>Error saving your bookmark: Someone else must be editing this bookmark at the same time. Reopen it to see their edit and try again.</center></h2>
+      </div>
+      <div id="search-marker-save-error" style="display:none;">
+          <h2><center>Error saving your bookmark: Something unexpected happened.</center></h2>
+      </div>
+      <div id="search-marker-delete-error" style="display:none;">
+          <h2><center>Error deleting your bookmark: Something unexpected happened.</center></h2>
+      </div>
       `
     )
     .on('add', e => {
@@ -313,11 +322,14 @@ const bookmarkPopup = L.popup()
 function setBookmarkPopup(bookmark, editType) {
         bookmarkPopup.options.bookmarkEditType = editType
 
-	// safe copy
+        // safe copy
         bookmarkPopup.options.bookmark = {
           name: bookmark.name,
+          latlng: L.latLng(bookmark.latlng),
+
+          // Undefined for new bookmarks
           id: bookmark.id,
-          latlng: L.latLng(bookmark.latlng)
+          version: bookmark.version,
         }
 
         bookmarkPopup
@@ -482,38 +494,56 @@ const addBookmark = (() => {
             body: JSON.stringify({
                 name: document.getElementById("bookmark-edit-name").value,
                 latlng: bookmarkPopup.options.bookmark.latlng,
-                id: bookmarkPopup.options.bookmark.id, // Undefined for search results
+
+                // Undefined for new bookmarks
+                id: bookmarkPopup.options.bookmark.id,
+                version: bookmarkPopup.options.bookmark.version,
             })
         })
-        .then(e => e.json())
-        .then(([bookmarkId, bookmark]) => {
-            document.getElementById("search-marker-submit").style.display = 'none';
-            document.getElementById("search-marker-save-success").style.display = 'block';
-            setTimeout(() => {
-                bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
+        .then(res => {
+            // Conflict gets a special error message
+            if (res.status === 409) {
+                document.getElementById("search-marker-submit").style.display = 'none';
+                document.getElementById("search-marker-save-conflict").style.display = 'block';
+                return
+            }
 
-                // Hide the search marker, replace it with the new saved
-                // bookmark marker (which has a different style, so it
-                // indicates to the user that it's now saved)
-                searchMarker.remove()
+            // Any other errors will show up as a generic message below
+            return res.json()
+            .then(([bookmarkId, bookmark]) => {
+                document.getElementById("search-marker-submit").style.display = 'none';
+                document.getElementById("search-marker-save-success").style.display = 'block';
+                setTimeout(() => {
+                    bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
 
-                // Whether to use renderLoop or updateBookmarkMarkers/bookmarksList.render is debatable.
-                // renderLoop is safer since only one place changes data.bookmarks; changing data.bookmarks
-                // here and now and updating the visual elements is faster and perhaps less prone to the
-                // error of missing the new ID (I think that happened to me once)
-                data.bookmarks[bookmarkId] = bookmark
-                data.bookmarks[bookmarkId].id = bookmarkId
-                bookmarksList.render()
-                updateBookmarkMarkers()
+                    // Hide the search marker, replace it with the new saved
+                    // bookmark marker (which has a different style, so it
+                    // indicates to the user that it's now saved)
+                    searchMarker.remove()
 
-                selectBookmarkMarker(bookmarkId, false)
-                // flash the menu button
-                if (!bookmarksList.expanded) {
-                    $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
-                }
-            }, 500)
+                    // Whether to use renderLoop or updateBookmarkMarkers/bookmarksList.render is debatable.
+                    // renderLoop is safer since only one place changes data.bookmarks; changing data.bookmarks
+                    // here and now and updating the visual elements is faster and perhaps less prone to the
+                    // error of missing the new ID (I think that happened to me once)
+                    data.bookmarks[bookmarkId] = bookmark
+                    data.bookmarks[bookmarkId].id = bookmarkId
+                    bookmarksList.render()
+                    updateBookmarkMarkers()
+
+                    selectBookmarkMarker(bookmarkId, false)
+                    // flash the menu button
+                    if (!bookmarksList.expanded) {
+                        $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
+                    }
+                }, 500)
+            })
+            .catch(e => {
+                document.getElementById("search-marker-submit").style.display = 'none';
+                document.getElementById("search-marker-save-error").style.display = 'block';
+
+                console.error(e)
+            })
         })
-        .catch(console.log)
 })
 
 const deleteBookmark = (() => {
@@ -529,7 +559,13 @@ const deleteBookmark = (() => {
                 id: bookmarkPopup.options.bookmark.id,
             })
         })
-        .then(() => {
+        .then(res => {
+            if (res.status >= 400) {
+                document.getElementById("search-marker-submit").style.display = 'none';
+                document.getElementById("search-marker-delete-error").style.display = 'block';
+                return
+            }
+
             document.getElementById("search-marker-submit").style.display = 'none';
             document.getElementById("search-marker-delete-success").style.display = 'block';
             setTimeout(() => {
@@ -541,7 +577,7 @@ const deleteBookmark = (() => {
                 bookmarkPopup.remove() // Don't know why close() doesn't work, don't care.
             }, 500)
         })
-        .catch(console.log)
+        .catch(console.error)
 })
 
 const clickBookmarksExport = e => {
