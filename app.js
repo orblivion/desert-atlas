@@ -374,9 +374,7 @@ const searchMarker = L.marker([0, 0], {
 let areaBoundses = {}
 downloadRects = {}
 
-// TODO - Non-downloaders should get this, but only see the green areas.
-// TODO - And/or we should zoom in around the green areas on page load if we have no bookmarks. Or zoom in on *something*. Unless you're a downloader?
-function tryMakeDownloadRects(newAreaBoundses) {
+function updateAreaBoundses(newAreaBoundses) {
     const boundsAvailable = !!newAreaBoundses
     const boundsAlreadySet = !!Object.keys(areaBoundses).length
 
@@ -385,6 +383,11 @@ function tryMakeDownloadRects(newAreaBoundses) {
     }
 
     areaBoundses = newAreaBoundses
+}
+
+// TODO - Non-downloaders should get this, but only see the green areas.
+// TODO - And/or we should zoom in around the green areas on page load if we have no bookmarks. Or zoom in on *something*. Unless you're a downloader?
+function tryMakeDownloadRects() {
     for (key in areaBoundses) {
         // Later, if/when we have administrative regions again, we'll again
         // have set a useful name to label the region with.
@@ -754,12 +757,15 @@ function updateDownloadStatuses() {
             setPlaceholderText(POIS_SEARCH_TEXT_PLACEHOLDER)
         }
 
+        // even non-downloaders want areaBoundses for some things
+        updateAreaBoundses(fullStatus['available-areas'])
+
         // Don't care about the rest for anyone who can't download regions
         if (permissions.indexOf("download") === -1) {
             return
         }
 
-        tryMakeDownloadRects(fullStatus['available-areas'])
+        tryMakeDownloadRects()
         Object.keys(downloadRects).forEach(tileId => {
             if (map.getZoom() > DOWNLOAD_RECT_MAX_ZOOM) {
                 downloadRects[tileId].remove()
