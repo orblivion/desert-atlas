@@ -236,21 +236,29 @@ const bookmarkPopup = L.popup()
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
-          <hr>
-          <div style="background-color: #eee; padding: .5em; margin-top: 7px">
-              <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
+          <button id="bookmark-edit-show-geo-section-button" class="sam-button">
+              <span class="emoji">&darr;</span>&nbsp Open In External App
+          </button>
+      </div>
+      <div id="bookmark-edit-section-geo" style="display:none; background-color: #eee; padding: .5em; margin-top: 7px">
+          <h2 style="margin:0px; padding:0px;">Open location in external app</h2>
+          <div id="bookmark-edit-geo-button-main">
               <p style="margin:2px; padding:2px;"><b>NOTE</b>: Depends on your setup. Click "Learn More" for details.</p>
               <p style="margin:2px; padding:2px;"><b><font color="red">WARNING</font></b>: If you don't have an external map app installed, this might (by some accounts) cause your browser to do a web search of this location, which would compromise privacy.</p>
               <br>
-              <button id="bookmark-edit-geo-button" class="sam-button">
-                  <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
-              </button>
-              <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button">
-                  <span class="emoji">&#x2139;</span>&nbsp Learn More
-              </button>
-              <br>
-              <br>
-              <div id="bookmark-edit-geo-button-learn-more">
+          </div>
+          <button id="bookmark-edit-geo-button" class="sam-button">
+              <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
+          </button>
+          <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button">
+              <span class="emoji">&#x2139;</span>&nbsp Learn More
+          </button>
+          <button id="bookmark-edit-show-edit-section-button" class="sam-button">
+              <span class="emoji">&uarr;</span>&nbsp Edit
+          </button>
+          <br>
+          <br>
+          <div id="bookmark-edit-geo-button-learn-more">
               <div>
                   This will work on limited systems. It's known to work for:
                   <ul>
@@ -258,7 +266,6 @@ const bookmarkPopup = L.popup()
                       <li>OsmAnd on Android</li>
                       <li>Gnome Maps on Linux Desktop</li>
                   </ul>
-              </div>
               </div>
           </div>
       </div>
@@ -295,7 +302,10 @@ const bookmarkPopup = L.popup()
         document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmark)
         document.getElementById('bookmark-edit-name').removeEventListener("keydown", bookmarkKeydown)
         document.getElementById('bookmark-edit-geo-button').removeEventListener("click", openBookmarkInApp)
-        document.getElementById('bookmark-edit-geo-button-learn-more-button').removeEventListener("click", showGeoButtonLearnMore)
+        document.getElementById('bookmark-edit-geo-button-learn-more-button').removeEventListener("click", toggleGeoButtonLearnMore)
+
+        document.getElementById('bookmark-edit-show-geo-section-button').removeEventListener("click", toggleBookmarkPopupSections)
+        document.getElementById('bookmark-edit-show-edit-section-button').removeEventListener("click", toggleBookmarkPopupSections)
 
         document.getElementById('bookmark-edit-save-button').addEventListener("click", addBookmark)
         document.getElementById('bookmark-edit-name').addEventListener("keydown", bookmarkKeydown)
@@ -319,7 +329,9 @@ const bookmarkPopup = L.popup()
             document.getElementById('bookmark-header').textContent = "Search Result"
         }
 
-        document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", showGeoButtonLearnMore)
+        document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", toggleGeoButtonLearnMore)
+        document.getElementById('bookmark-edit-show-geo-section-button').addEventListener("click", toggleBookmarkPopupSections)
+        document.getElementById('bookmark-edit-show-edit-section-button').addEventListener("click", toggleBookmarkPopupSections)
     })
 
 // could make it a method on bookmarkPopup but I'm lazy
@@ -471,8 +483,16 @@ function downloadMap(tileId) {
     .catch(console.log)
 }
 
-const showGeoButtonLearnMore = (() => {
+const toggleGeoButtonLearnMore = (() => {
+    // Slide in opposite directions. Surprisingly looks good!
     $('#bookmark-edit-geo-button-learn-more').slideToggle()
+    $('#bookmark-edit-geo-button-main').slideToggle()
+})
+
+const toggleBookmarkPopupSections = (() => {
+    // Slide in opposite directions. Surprisingly looks good!
+    $('#bookmark-edit-section-geo').slideToggle()
+    $('#bookmark-edit-section-edit').slideToggle()
 })
 
 const openBookmarkInApp = (() => {
