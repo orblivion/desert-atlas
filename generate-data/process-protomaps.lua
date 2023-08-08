@@ -662,7 +662,7 @@ function process_streets(way)
 	local bridgeBool = toBridgeBool(way:Find("bridge"))
 	local name = way:Find("name")
 	local rail = false
-    -- Red Herring. Unused.
+	-- Red Herring. Unused.
 	-- if name == "" then
 	-- 	name = way:Find("ref")
 	-- end
@@ -683,17 +683,48 @@ function process_streets(way)
 			mz = 10
 			kind = "minor_road" -- "tertiary"
 		elseif highway == "unclassified" or highway == "residential" or highway == "bus_guideway" or highway == "busway" then
+			-- unclassified - A type of country road
+			-- residential - Roads which serve as an access to housing
+			-- bus_guideway - Obviously not for pedestrians
+			-- busway - Obviously not for pedestrians
 			mz = 12
 			kind = "minor_road" -- (previously passed through `highway`)
-		elseif highway == "living_street" or highway == "pedestrian" or highway == "track" then
+		elseif highway == "living_street" then
+			-- living_street - pedestrians have priority but driving is allowed
 			mz = 13
 			kind = "minor_road" -- (previously passed through `highway`)
 		elseif highway == "service" then
+			-- service - within business parks, industrial estates, etc etc. seems like car
+
 			mz = 14
-			kind = "minor_road" -- (previously passed through `highway`)
-		elseif highway == "footway" or highway == "steps" or highway == "path" or highway == "cycleway" then
+			-- (previously passed through `highway`)
+			kind = "minor_road"
+
+        -- I'm inventing and grafting "non_driving_road" onto protomaps.js since
+        -- it didn't have anything for paths.
+        --
+        -- The two clauses are my best guess at differentiating "urban" paths
+        -- from "rural" paths, but I don't think I'm doing it quite right,
+        -- given how other maps render these. I probably have to look at other
+        -- tags. So for now I'm just going to render them the same way. It's
+        -- okay, they both look fine as the same dotted lines.
+		elseif highway == "pedestrian" or highway == "steps" then
+			-- pedestrian - mainly/exclusively for walkers, residential/shopping areas.
+            --   I guess driving may sometimes be allowed but clearly it should be marked for walkers.
+			-- steps - Obviously for walkers
+
 			mz = 13
-			kind = "minor_road" -- (previously passed through `highway`)
+			kind = "non_driving_road" -- (previously passed through `highway`)
+		elseif highway == "footway" or highway == "path" or highway == "cycleway" or highway == "track" or highway == "bridleway" then
+			-- path - non-specific path
+			-- footway - path for walkers (not shopping or residential areas)
+			-- cycleway - path for bicyclists
+			-- bridleway - path for horses
+			-- track - path for farming uses. Based on pics on OSM's wiki it could maybe
+            --   even be paved, but I don't want to risk making it look like a road on the map.
+
+			mz = 13
+			kind = "non_driving_road" -- (previously passed through `highway`, other than "bridleway")
 		end
 	elseif (railway == "rail" or railway == "narrow_gauge") and service == "" then
 		kind = railway
@@ -801,6 +832,7 @@ function process_street_polygons(way)
 	local kind = nil
 	local mz = inf_zoom
 	if highway == "pedestrian" or highway == "service" then
+		-- TODO - pedestrian areas? could be nice
 		mz = 14
 		kind = highway
 	elseif aeroway == "runway" then
