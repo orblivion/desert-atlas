@@ -994,6 +994,10 @@ searchControl.on('search:locationfound', function(event) {
     searchMarker
         .bindTooltip(searchMarker.options.bookmark.name)
         .openTooltip()
+
+    // This is particularly useful for mobile, because it will (hopefully) hide
+    // the input keyboard.
+    $('.search-input').blur()
 });
 
 map.addControl(searchControl);
