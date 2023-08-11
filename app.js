@@ -127,6 +127,7 @@ L.Control.BookmarksList = L.Control.extend({
         this.expanded = !L.Browser.mobile
 
         this.list = L.DomUtil.create('div');
+        this.curPage = 0
         this.render()
         return this.list;
     },
@@ -135,14 +136,43 @@ L.Control.BookmarksList = L.Control.extend({
         let listItems = `
             <div id='bookmarks-export'>Export To App</div>
         `
-        for (bookmarkId in data.bookmarks) {
-            divId = `bookmark-list-${bookmarkId}`
-            bookmarkData = JSON.stringify(data.bookmarks[bookmarkId])
-            listItems += `
-            <div id='${divId}' data-bookmark-id=${bookmarkId} class='bookmark-list-item'>
-                ${data.bookmarks[bookmarkId]['name']}
-            </div>
-            `
+
+        const PAGE_SIZE = 7;
+        bookmarkIds = Object.keys(data.bookmarks)
+
+        this.numPages = Math.max(
+            // Enough pages to cover the existing bookmarks. That means we want to round up.
+            Math.ceil(bookmarkIds.length / PAGE_SIZE),
+
+            // If there are no bookmarks, we still want one empty page
+            1,
+        )
+
+        // Let say there is more than one page, we are on the last page, it
+        // only has one bookmark, and it gets deleted. The number of pages goes
+        // down by one, and we'd be past the last page. In this case, make sure
+        // we're on the new last page instead.
+        this.curPage = Math.min(this.curPage, this.numPages - 1)
+
+        for (page=0; page<this.numPages; page++) {
+            // Hide all but the current page
+            if (this.curPage === page) {
+                listItems += `<div id='bookmark-list-page-${page}'>`
+            } else {
+                listItems += `<div id='bookmark-list-page-${page}' style="display:none;">`
+            }
+
+            let bookmarksForPage = bookmarkIds.slice(page*PAGE_SIZE, (page+1)*PAGE_SIZE)
+            for (bookmarkId of bookmarksForPage) {
+                divId = `bookmark-list-${bookmarkId}`
+                bookmarkData = JSON.stringify(data.bookmarks[bookmarkId])
+                listItems += `
+                <div id='${divId}' data-bookmark-id=${bookmarkId} class='bookmark-list-item'>
+                    ${data.bookmarks[bookmarkId]['name']}
+                </div>
+                `
+            }
+            listItems += `</div>`
         }
 
         const HIDE_BOOKMARK_MENU = '<span style="float:left;">\u{2B05}</span><center>Bookmarks</center>'
@@ -155,37 +185,53 @@ L.Control.BookmarksList = L.Control.extend({
             expandedDisplayStyle = 'display:none;'
             collapsedDisplayStyle = ''
         }
-        newHtml = `
-        <div id='bookmark-list-container' class="leaflet-interactive leaflet-bar">
-            <div style="background-color: #f4aa88;">  <!-- For the flashing animation -->
+
+        let prevButtonClass = nextButtonClass = '';
+
+        if (this.curPage <= 0) {
+            prevButtonClass = "disabled"
+        }
+        if (this.curPage >= this.numPages - 1) {
+            nextButtonClass = "disabled"
+        }
+
+
+        this.list.innerHTML = `
+        <div id='bookmark-list-container' class="leaflet-bar">
+            <div style="background-color: #f4aa88;" class="leaflet-interactive">  <!-- For the flashing animation -->
                 <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
             </div>
-            <a class='bookmark-list-hide sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
-            <div id='bookmark-list' style='${expandedDisplayStyle}'>
-                ${listItems}
+            <a class='bookmark-list-hide leaflet-interactive sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
+            <div id='bookmark-list-collapsable' style='${expandedDisplayStyle}'>
+                <div id='bookmark-list'>
+                    ${listItems}
+                </div>
+
+                <center>
+                    <span id='bookmarks-prev-page' style="float:left;" class="${prevButtonClass}">\u{2B05} Previous&nbsp</span>
+                    <span id='bookmarks-next-page' style="float:right;" class="${nextButtonClass}">&nbspNext \u{27A1}</span>
+                    <b id='bookmarks-page-number'>(${this.curPage + 1}/${this.numPages})</b>
+                </center>
             </div>
         </div>
         `
 
-        // TODO - This is a hack to keep the scroll the same. Eventually
-        // we want to not refresh it entirely on each change. Only
-        // refresh/add/remove items etc etc so user events don't get messed up.
-        let inner = document.getElementById('bookmark-list')
-        let scrollSave = null
-        if (inner !== null) scrollSave = inner.scrollTop
-        this.list.innerHTML = newHtml
-        inner = document.getElementById('bookmark-list') // it's a new one now
-        if (scrollSave !== null) inner.scrollTop = scrollSave
-
         setTimeout(() => { // setTimeout, my solution for everything. As written, it can't find bookmarks-export without this.
             $('#bookmarks-export').off("click")
             $('#bookmarks-export').on("click", clickBookmarksExport)
+
+
+            $('#bookmarks-next-page').off("click")
+            $('#bookmarks-next-page').on("click", clickBookmarksNextPage)
+            $('#bookmarks-prev-page').off("click")
+            $('#bookmarks-prev-page').on("click", clickBookmarksPrevPage)
+
             let thisControl = this
             $('.bookmark-list-show').off("click")
             $('.bookmark-list-hide').off("click")
             $('.bookmark-list-hide').on("click", () => {
                 thisControl.expanded = false
-                $('#bookmark-list').slideUp(400, () =>{
+                $('#bookmark-list-collapsable').slideUp(400, () =>{
                     // Change the button only after slide up completes. Looks nicer.
                     $('.bookmark-list-show').show()
                     $('.bookmark-list-hide').hide()
@@ -196,7 +242,7 @@ L.Control.BookmarksList = L.Control.extend({
                 // Change the button before the slidedown. Looks nice.
                 $('.bookmark-list-show').hide()
                 $('.bookmark-list-hide').show()
-                $('#bookmark-list').slideDown()
+                $('#bookmark-list-collapsable').slideDown()
             })
             for (id in data.bookmarks) {
                 divId = `bookmark-list-${id}`
@@ -610,6 +656,20 @@ const deleteBookmark = (() => {
 const clickBookmarksExport = e => {
     // TODO - wtf in local mode firefox keeps opening new tabs
     document.location = '/export.kmz'
+}
+
+const clickBookmarksNextPage = e => {
+    if (bookmarksList.curPage < bookmarksList.numPages - 1) {
+        bookmarksList.curPage++
+        bookmarksList.render()
+    }
+}
+
+const clickBookmarksPrevPage = e => {
+    if (bookmarksList.curPage > 0) {
+        bookmarksList.curPage--
+        bookmarksList.render()
+    }
 }
 
 const clickBookmarkListItem = e => {

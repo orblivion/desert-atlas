@@ -61,12 +61,14 @@
                 overflow-y: auto;
             }
             #bookmark-list {
-                height: 300px;
+                height: 200px;
             }
             .bookmark-list-item {
                 border-style: solid;
                 background-color: #CCD;
-                margin: 5px;
+                height: 15px;
+                padding: 1px;
+                margin: 2px;
                 border-color: #BBC;
                 cursor: pointer;
             }
@@ -75,17 +77,24 @@
                 padding-right: 10px;
                 font-size: 1.3em;
             }
-            #bookmarks-export {
+            #bookmarks-export, #bookmarks-prev-page, #bookmarks-next-page, #bookmarks-page-number {
                 font-size: 1.3em;
+                margin: 2px;
+                text-align: center;
+            }
+            #bookmarks-export, #bookmarks-prev-page, #bookmarks-next-page {
                 border-style: solid;
-                background-color: #EEC;
-                margin: 5px;
                 border-color: #BBB;
                 border-top: 0px;
                 border-left: 0px;
                 border-right: 0px;
-                text-align: center;
                 cursor: pointer;
+                background-color: #EEC;
+            }
+            #bookmarks-prev-page.disabled, #bookmarks-next-page.disabled {
+                background-color: #FFE;
+                color: #EEC;
+                cursor: default;
             }
             #bookmark-edit-geo-button-learn-more {
                 display: none;
