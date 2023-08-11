@@ -418,13 +418,13 @@ const searchMarker = L.marker([0, 0], {
     })
 
 let areaBoundses = {}
-downloadRects = {}
+let downloadRects = {}
 
 function updateAreaBoundses(newAreaBoundses) {
-    const boundsAvailable = !!newAreaBoundses
+    const newBoundsAvailable = !!newAreaBoundses
     const boundsAlreadySet = !!Object.keys(areaBoundses).length
 
-    if (!boundsAvailable || boundsAlreadySet) {
+    if (!newBoundsAvailable || boundsAlreadySet) {
         return
     }
 
@@ -434,6 +434,13 @@ function updateAreaBoundses(newAreaBoundses) {
 // TODO - Non-downloaders should get this, but only see the green areas.
 // TODO - And/or we should zoom in around the green areas on page load if we have no bookmarks. Or zoom in on *something*. Unless you're a downloader?
 function tryMakeDownloadRects() {
+    const boundsAvailable = !!areaBoundses
+    const rectsAlreadySet = !!Object.keys(downloadRects).length
+
+    if (!boundsAvailable || rectsAlreadySet) {
+        return
+    }
+
     for (key in areaBoundses) {
         // Later, if/when we have administrative regions again, we'll again
         // have set a useful name to label the region with.
