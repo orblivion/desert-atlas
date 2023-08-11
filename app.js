@@ -833,13 +833,9 @@ function updateDownloadStatuses() {
         }
 
         tryMakeDownloadRects()
-        Object.keys(downloadRects).forEach(tileId => {
-            if (map.getZoom() > DOWNLOAD_RECT_MAX_ZOOM) {
-                downloadRects[tileId].remove()
-            } else {
-                downloadRects[tileId].addTo(map)
-            }
+        setDownloadRectVisibility()
 
+        Object.keys(downloadRects).forEach(tileId => {
             tooltipContent = null
 
             if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
@@ -1143,6 +1139,19 @@ setLoc()
 map.on('zoomend', setLoc)
 map.on('moveend', setLoc)
 map.on('zoomend', setGeoJsonOpacityAndBackground)
+map.on('zoomend', setDownloadRectVisibility)
+
+function setDownloadRectVisibility() {
+    if (map.getZoom() > DOWNLOAD_RECT_MAX_ZOOM) {
+        Object.keys(downloadRects).forEach(tileId => {
+            downloadRects[tileId].remove()
+        })
+    } else {
+        Object.keys(downloadRects).forEach(tileId => {
+            downloadRects[tileId].addTo(map)
+        })
+    }
+}
 
 // Right-click to add a marker at an arbitrary location
 map.on('contextmenu', function (event) {
