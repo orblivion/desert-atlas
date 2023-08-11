@@ -482,41 +482,41 @@ const uiStyle = {
 const downloadPopup = L.popup()
 
 function downloadRect(tileId) {
-        let bounds = areaBoundses[tileId]
-        let center = [
-            (bounds[1][0] + bounds[0][0]) / 2,
-            (bounds[1][1] + bounds[0][1]) / 2,
-        ]
-        return L.rectangle(bounds, uiStyle.downloadRect.normal)
-        .on('click', () => {
-            if (!(tileId + '.pmtiles' in loaded)) {
-                downloadPopup
-                .setContent(`<div>
-                    Download this area to this grain?<br>
-                    <button onclick="downloadMap('${tileId}'); downloadPopup.remove()">Ok</button>
-                    <button onclick="downloadPopup.remove()">Cancel</button>
-                </div>`)
-                .setLatLng(L.latLng(center))
-                .addTo(map)
-            } else if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
-                // If it's downloaded and you click on it, it zooms and pans
-                // you to the area, unless you're already zoomed in as far as
-                // or further than it would take you to.
-                if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
-                    map.fitBounds(areaBoundses[tileId])
-                }
+    let bounds = areaBoundses[tileId]
+    let center = [
+        (bounds[1][0] + bounds[0][0]) / 2,
+        (bounds[1][1] + bounds[0][1]) / 2,
+    ]
+    return L.rectangle(bounds, uiStyle.downloadRect.normal)
+    .on('click', () => {
+        if (!(tileId + '.pmtiles' in loaded)) {
+            downloadPopup
+            .setContent(`<div>
+                Download this area to this grain?<br>
+                <button onclick="downloadMap('${tileId}'); downloadPopup.remove()">Ok</button>
+                <button onclick="downloadPopup.remove()">Cancel</button>
+            </div>`)
+            .setLatLng(L.latLng(center))
+            .addTo(map)
+        } else if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
+            // If it's downloaded and you click on it, it zooms and pans
+            // you to the area, unless you're already zoomed in as far as
+            // or further than it would take you to.
+            if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
+                map.fitBounds(areaBoundses[tileId])
             }
-        })
-        .on('mouseover', e => {
-            if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
-                e.target.setStyle(uiStyle.downloadRect.highlighted)
-            }
-        })
-        .on('mouseout', e => {
-            if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
-                e.target.setStyle(uiStyle.downloadRect.normal)
-            }
-        })
+        }
+    })
+    .on('mouseover', e => {
+        if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
+            e.target.setStyle(uiStyle.downloadRect.highlighted)
+        }
+    })
+    .on('mouseout', e => {
+        if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
+            e.target.setStyle(uiStyle.downloadRect.normal)
+        }
+    })
 }
 
 function downloadMap(tileId) {
