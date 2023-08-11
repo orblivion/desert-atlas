@@ -237,7 +237,7 @@ const bookmarkPopup = L.popup()
           </div>
           <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
           <button id="bookmark-edit-show-geo-section-button" class="sam-button">
-              <span class="emoji">&darr;</span>&nbsp Open In External App
+              <span class="emoji">\u{2B07}</span>&nbsp Open In External App
           </button>
       </div>
       <div id="bookmark-edit-section-geo" style="display:none; background-color: #eee; padding: .5em; margin-top: 7px">
@@ -254,7 +254,7 @@ const bookmarkPopup = L.popup()
               <span class="emoji">&#x2139;</span>&nbsp Learn More
           </button>
           <button id="bookmark-edit-show-edit-section-button" class="sam-button">
-              <span class="emoji">&uarr;</span>&nbsp Edit
+              <span class="emoji">\u{2B06}</span>&nbsp Edit
           </button>
           <br>
           <br>
