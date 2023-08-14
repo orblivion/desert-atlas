@@ -1,3 +1,20 @@
+# 2023/08/11 - appVersion 24
+
+* Handle all manner of non-driving paths (walking, cycling, agricultural) differently.
+  * Previously was treated as a "minor roads" and appeared driveable
+  * Added a new primitive to protomaps.js that shows up as dark red dotted lines
+  * Updated map as of Aug 11
+  * Addresses part of #19; enough to take it out of the Launch milestone
+* Mobile usability - Completing #29
+  * Make bookmarks paginated instead of scrolling
+    * It was impossible to scroll on mobile; mouse events for Leaflet Controls are hard
+  * Deselect search input when clicking on a search result
+    * Mobile keyboard was still out after clicking a search result, blocking what I just searched for
+* Downloadable region rectangles
+  * Fix a bug introduced in appVersion 23 that kept creating more and more rectangle elements
+    * Symptoms were 1) green rectangle not disappearing 2) download indicators were screwed up
+  * Hide the rectangles immediatly after zooming instead of waiting for the update request loop
+
 # 2023/08/04 - appVersion 23
 
 * Bugfix: Searching for basemap cities as a non-downloader was broken
