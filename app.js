@@ -277,8 +277,16 @@ const bookmarkPopup = L.popup()
           <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
           <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
           <div style="margin-top: 7px" class="for-editor">
-              <button id="bookmark-edit-save-button" class="sam-button">Save Bookmark</button>
-              <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;">Delete</button>
+              <center id="editor-buttons">
+                  <button id="bookmark-edit-save-button" class="sam-button" style="width:48%">Save Bookmark</button>
+                  <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;width:48%">Delete</button>
+              </center>
+              <center id="editor-delete-are-you-sure" style="display:none; background-color: #ecc; padding: 5px;">
+                  <b>Are you sure you want to delete this bookmark?</b>
+                  <br>
+                  <button id="bookmark-edit-delete-confirm-button" class="sam-button" style="width:48%">Confirm</button>
+                  <button id="bookmark-edit-delete-cancel-button" class="sam-button" style="width:48%"">Cancel</button>
+              </center>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
@@ -345,7 +353,11 @@ const bookmarkPopup = L.popup()
 
         // Remove it first in case it's already there from a previous popup *shrug* not sure the best way to handle this
         document.getElementById('bookmark-edit-save-button').removeEventListener("click", addBookmark)
-        document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmark)
+        document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmarkAreYouSure)
+        document.getElementById('bookmark-edit-delete-cancel-button').removeEventListener("click", deleteBookmarkCancel)
+        document.getElementById('bookmark-edit-delete-confirm-button').removeEventListener("click", deleteBookmark)
+
+
         document.getElementById('bookmark-edit-name').removeEventListener("keydown", bookmarkKeydown)
         document.getElementById('bookmark-edit-geo-button').removeEventListener("click", openBookmarkInApp)
         document.getElementById('bookmark-edit-geo-button-learn-more-button').removeEventListener("click", toggleGeoButtonLearnMore)
@@ -355,7 +367,9 @@ const bookmarkPopup = L.popup()
 
         document.getElementById('bookmark-edit-save-button').addEventListener("click", addBookmark)
         document.getElementById('bookmark-edit-name').addEventListener("keydown", bookmarkKeydown)
-        document.getElementById('bookmark-edit-delete-button').addEventListener("click", deleteBookmark)
+        document.getElementById('bookmark-edit-delete-button').addEventListener("click", deleteBookmarkAreYouSure)
+        document.getElementById('bookmark-edit-delete-cancel-button').addEventListener("click", deleteBookmarkCancel)
+        document.getElementById('bookmark-edit-delete-confirm-button').addEventListener("click", deleteBookmark)
         document.getElementById('bookmark-edit-geo-button').addEventListener("click", openBookmarkInApp)
 
         if (bookmarkPopup.options.bookmark.id) {
@@ -624,6 +638,16 @@ const addBookmark = (() => {
                 console.error(e)
             })
         })
+})
+
+const deleteBookmarkAreYouSure = (() => {
+    $('#editor-buttons').slideUp()
+    $('#editor-delete-are-you-sure').slideDown()
+})
+
+const deleteBookmarkCancel = (() => {
+    $('#editor-buttons').slideDown()
+    $('#editor-delete-are-you-sure').slideUp()
 })
 
 const deleteBookmark = (() => {
