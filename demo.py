@@ -52,7 +52,7 @@ if is_local:
 else:
     basedir = '/var'
 
-big_tmp_dir = os.path.join(basedir, 'big_tmp') # since /tmp/ runs out of space. TODO - empty on startup for bad failures that don't clean up
+big_tmp_dir = os.path.join(basedir, 'big_tmp') # since /tmp/ runs out of space.
 tile_dir = os.path.join(basedir, 'tiles')
 
 search_imported_marker_dir = os.path.join(basedir, 'search_imported')
@@ -69,6 +69,12 @@ user_data_dir = os.path.join(basedir, 'data')
 for data_dir in [big_tmp_dir, tile_dir, search_imported_marker_dir, user_data_dir]:
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
+
+# Clear out old data on startup for bad failures that don't clean up. I'm
+# afraid to use shutil.rmtree and I want this quick so for now I'll just delete
+# what I know are big files. TODO - delete everything.
+for fname_to_delete in glob.glob(os.path.join(big_tmp_dir, '*/*.tar.gz')):
+    os.remove(fname_to_delete)
 
 # Separate db file from search data, to make it easier to manage. In case of
 # issue, map data (including search) could be blown away and re-downloaded.
