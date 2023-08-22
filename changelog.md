@@ -1,3 +1,12 @@
+# 2023/08/22 - appVersion 25
+
+* Make it so that you can easily double-click zoom on the downloadable regions when they're in view without bringing up the popup.
+  * Delays the popup by .4 seconds to make sure you're not doubleclicking
+  * Take #16 out of Launch milestone
+* Deleting single area, or all areas. #38 done
+* "Are you sure you want to delete this bookmark?" #40 done
+* Delete old tmp data on startup. Surprised I forgot this. Save a lot of space!
+
 # 2023/08/11 - appVersion 24
 
 * Handle all manner of non-driving paths (walking, cycling, agricultural) differently.
