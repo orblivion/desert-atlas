@@ -119,15 +119,13 @@ permissions = PERMISSIONS_REPLACE_ME
 
 const map = L.map('map')
 
-// TODO - key this by `tileId` instead of `tileId + '.pmtiles'` - can I do this now?
 LOADED_DONE = "done"
 LOADED_STARTED = "started"
 LOADED_DOWNLOADING = "downloading"
 let loaded = {}
 
 function loadedStatus(tileId) {
-    const tilesName = tileId + ".pmtiles"
-    return loaded[tilesName] && loaded[tilesName].status
+    return loaded[tileId] && loaded[tileId].status
 }
 
 L.Control.AreasMenu = L.Control.extend({
@@ -271,13 +269,11 @@ const deleteArea = (tileId => {
             // "deleting" and then call updateDownloadStatuses to bring on
             // the fast update loop until everything is deleted.
             if (tileId === "all") {
-                for (key in loaded) {
-                    // key is in format <tileId>.pmtiles
-                    let [tileId] = key.split('.')
-                    loaded[key].deleting = true
+                for (tId in loaded) {
+                    loaded[tId].deleting = true
                 }
             } else {
-                loaded[tileId + ".pmtiles"].deleting = true
+                loaded[tileId].deleting = true
             }
 
             updateDownloadStatuses()
@@ -683,7 +679,7 @@ function downloadRect(tileId) {
     ]
     return L.rectangle(bounds, uiStyle.downloadRect.normal)
     .on('click', () => {
-        if (!(tileId + '.pmtiles' in loaded)) {
+        if (!(tileId in loaded)) {
             downloadPopup
             .setContent(`<div>
                 Download this area to this grain?<br>
@@ -714,7 +710,7 @@ function downloadRect(tileId) {
 }
 
 function downloadMap(tileId) {
-    loaded[tileId + '.pmtiles'] = {status: LOADED_DOWNLOADING}
+    loaded[tileId] = {status: LOADED_DOWNLOADING}
     // force it to start the faster update loop right away, since this user initiated the
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
     updateDownloadStatuses()
@@ -1025,8 +1021,8 @@ function updateDownloadStatuses() {
         // kick into the faster loop but it's okay. It's less important since
         // this user/share didn't start the download.
         for (tileId in inProgress) {
-            if (!((tileId + '.pmtiles') in loaded)) {
-                loaded[tileId + '.pmtiles'] = {status: LOADED_DOWNLOADING}
+            if (!(tileId in loaded)) {
+                loaded[tileId] = {status: LOADED_DOWNLOADING}
             }
         }
 
@@ -1045,8 +1041,7 @@ function updateDownloadStatuses() {
         }
 
         // Unload anything recently deleted
-        for (key in loaded) {
-            let [tileId] = key.split('.')
+        for (tileId in loaded) {
             if (!fullStatus.done.includes(tileId)) {
                 unloadArea(tileId)
 
@@ -1137,7 +1132,6 @@ function updateDownloadStatuses() {
 }
 
 function loadArea(tileId) {
-    const tilesName = tileId + ".pmtiles"
     if (loadedStatus(tileId) === LOADED_STARTED || loadedStatus(tileId) === LOADED_DONE) {
         return false
     }
@@ -1146,21 +1140,22 @@ function loadArea(tileId) {
     // threaded. right? we set it to LOADED_DONE right below, not after a callback
     // or anything. The "Loading on screen..." message does show up, but it's
     // based on another clause in the if statement. I think!
-    loaded[tilesName] = {status: LOADED_STARTED}
-    console.log('adding', tilesName)
+    loaded[tileId] = {status: LOADED_STARTED}
+    console.log('adding', tileId)
 
+    const tilesFname = tileId + ".pmtiles"
     areaLayer = protomaps.leafletLayer({
         attribution: (
             '<a href="https://protomaps.com">Protomaps</a> © ' +
             '<a href="https://openstreetmap.org/copyright">OpenStreetMap</a> ' +
             'Map data is a work-in-progress. Double-check for anything super important.'
         ),
-        url: tilesName,
+        url: tilesFname,
     })
     areaLayer.addTo(map)
 
-    console.log('added', tilesName)
-    loaded[tilesName] = {
+    console.log('added', tileId)
+    loaded[tileId] = {
         status: LOADED_DONE,
         layer: areaLayer,
     }
@@ -1169,19 +1164,17 @@ function loadArea(tileId) {
 }
 
 function unloadArea(tileId) {
-    const tilesName = tileId + ".pmtiles"
-
     if (loadedStatus(tileId) !== LOADED_DONE) {
         // Must be a mistake
         return false
     }
 
-    console.log('removing', tilesName)
+    console.log('removing', tileId)
 
-    loaded[tilesName].layer.remove()
+    loaded[tileId].layer.remove()
 
-    console.log('removed', tilesName)
-    delete loaded[tilesName]
+    console.log('removed', tileId)
+    delete loaded[tileId]
 
     return true
 }
@@ -1286,9 +1279,7 @@ const searchControl = new L.Control.Search({
             // gonna be kind of annoying to be zoomed out when you just want to
             // go to a city. So in that case don't zoom out quite so much, but
             // more so than if you're looking at a POI.
-            for (key in loaded) {
-                // key is in format <tileId>.pmtiles
-                let [tileId] = key.split('.')
+            for (tileId in loaded) {
                 let bounds = L.latLngBounds(areaBoundses[tileId])
                 if (bounds.contains(latlng)) {
                     map.setView(latlng, CITY_FRIENDLY_ZOOM);
