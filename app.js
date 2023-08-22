@@ -677,56 +677,83 @@ function downloadRect(tileId) {
         (bounds[1][0] + bounds[0][0]) / 2,
         (bounds[1][1] + bounds[0][1]) / 2,
     ]
+
+    let doubleClickTimeout = null
+
+    // To give the user some sort of feedback while they're waiting for the delayed popup
+    var feedbackTooltip = L.tooltip(L.latLng(center), {content: '<img src="assets/images/loader.gif">'})
+
     return L.rectangle(bounds, uiStyle.downloadRect.normal)
-    .on('click', () => {
-        if (!(tileId in loaded)) {
-            downloadPopup
-            .setContent(`<div>
-                <b>Download this area to this grain?</b>
-                <br>
-                <br>
-                <button onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
-                <button onclick="downloadPopup.remove()">Cancel</button>
-            </div>`)
-            .setLatLng(L.latLng(center))
-            .addTo(map)
-        } else if (loadedStatus(tileId) === LOADED_DONE) {
-            // If it's downloaded and you click on it, it zooms and pans
-            // you to the area, unless you're already zoomed in as far as
-            // or further than it would take you to.
+    .on('click', e => {
 
-            let zoomToArea = ``;
-            if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
-                zoomToArea = `
-                    <button onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
-                `
-            }
+        if (doubleClickTimeout !== null) {
+            // We probably double-clicked
 
-            content = `
-                <div>
-                    <div id='downloaded-area-main'>
-                        <b>Downloaded area</b>
-                        <br>
-                        <br>
-                        <button onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
-                        ${zoomToArea}
-                        <button onclick="downloadPopup.remove()">Cancel</button>
-                    </div>
-                    <div id='area-delete-are-you-sure' style='display:none;'>
-                        <b>Are you sure you want to delete this downloaded area from this grain?</b>
-                        <br>
-                        <br>
-                        <button onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
-                        <button onclick="downloadPopup.remove()">Cancel</button>
-                    </div>
-                </div>
-            `
+            // Cancel the single-click action
+            clearTimeout(doubleClickTimeout);
+            doubleClickTimeout = null;
+            feedbackTooltip.remove()
 
-            downloadPopup
-            .setContent(content)
-            .setLatLng(L.latLng(center))
-            .addTo(map)
+            return
         }
+
+        feedbackTooltip.addTo(map)
+        setTimeout(() => {
+            feedbackTooltip.remove()
+        }, 400)
+
+        doubleClickTimeout = setTimeout(() => {
+            doubleClickTimeout = null;
+
+            if (!(tileId in loaded)) {
+                downloadPopup
+                .setContent(`<div>
+                    <b>Download this area to this grain?</b>
+                    <br>
+                    <br>
+                    <button onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
+                    <button onclick="downloadPopup.remove()">Cancel</button>
+                </div>`)
+                .setLatLng(L.latLng(center))
+                .addTo(map)
+            } else if (loadedStatus(tileId) === LOADED_DONE) {
+                // If it's downloaded and you click on it, it zooms and pans
+                // you to the area, unless you're already zoomed in as far as
+                // or further than it would take you to.
+
+                let zoomToArea = ``;
+                if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
+                    zoomToArea = `
+                        <button onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
+                    `
+                }
+
+                content = `
+                    <div>
+                        <div id='downloaded-area-main'>
+                            <b>Downloaded area</b>
+                            <br>
+                            <br>
+                            <button onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
+                            ${zoomToArea}
+                            <button onclick="downloadPopup.remove()">Cancel</button>
+                        </div>
+                        <div id='area-delete-are-you-sure' style='display:none;'>
+                            <b>Are you sure you want to delete this downloaded area from this grain?</b>
+                            <br>
+                            <br>
+                            <button onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
+                            <button onclick="downloadPopup.remove()">Cancel</button>
+                        </div>
+                    </div>
+                `
+
+                downloadPopup
+                .setContent(content)
+                .setLatLng(L.latLng(center))
+                .addTo(map)
+            }
+        }, 400)
     })
     .on('mouseover', e => {
         if (loadedStatus(tileId) !== LOADED_DONE) {
