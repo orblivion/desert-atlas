@@ -175,7 +175,7 @@ L.Control.AreasMenu = L.Control.extend({
                             </center>
                         </div>
                         <div id="areas-menu-delete-confirm" style="display:none; background-color: #ecc; padding: 5px;">
-                            <b>Are you sure you want to delete all downloaded map data?</b>
+                            <b>Are you sure you want to delete all downloaded map data from this grain?</b>
                             <br>
                             <button id="areas-menu-delete-confirm-button" class="sam-button" style="width:48%">Confirm</button>
                             <button id="areas-menu-delete-cancel-button" class="sam-button" style="width:48%"">Cancel</button>
@@ -682,8 +682,10 @@ function downloadRect(tileId) {
         if (!(tileId in loaded)) {
             downloadPopup
             .setContent(`<div>
-                Download this area to this grain?<br>
-                <button onclick="downloadMap('${tileId}'); downloadPopup.remove()">Ok</button>
+                <b>Download this area to this grain?</b>
+                <br>
+                <br>
+                <button onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
                 <button onclick="downloadPopup.remove()">Cancel</button>
             </div>`)
             .setLatLng(L.latLng(center))
@@ -709,7 +711,7 @@ function downloadRect(tileId) {
     })
 }
 
-function downloadMap(tileId) {
+function downloadArea(tileId) {
     loaded[tileId] = {status: LOADED_DOWNLOADING}
     // force it to start the faster update loop right away, since this user initiated the
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
