@@ -330,6 +330,15 @@ def import_search(tile_id, search_import_fname, update_status):
 
     con.commit()
 
+def delete_search(tile_id):
+    con = sqlite3.connect(search_db_path)
+    cur = con.cursor()
+
+    print_err ("Deleting", tile_id, "from search db")
+
+    cur.execute('DELETE from locations where tile_id=?', (tile_id,))
+    con.commit()
+
 if sys.version_info.major < 3:
     print_err("demo.py requires python3 or later: python3 demo.py")
     exit(1)
@@ -406,6 +415,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
+        if url.path == '/map-delete':
+            if 'download' not in permissions:
+                self.send_response(HTTPStatus.FORBIDDEN)
+                self.end_headers()
+                return
+
+            self.send_response(HTTPStatus.OK)
+            self.end_headers()
+
+            tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
+
+            if tile_id == "all":
+                tile_ids = [fname.split('.pmtiles')[0] for fname in filemaps]
+            else:
+                tile_ids = [tile_id]
+
+            for tile_id in tile_ids:
+                download_queue.add((tile_id, DELETE))
+
         if url.path == '/download-map':
             if 'download' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
@@ -416,7 +444,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
-            download_queue.add(tile_id)
+            download_queue.add((tile_id, DOWNLOAD))
 
         if url.path == '/download-manifest':
             if 'download' not in permissions:
@@ -428,7 +456,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             if manifest is None:
-                download_queue.add(MANIFEST)
+                download_queue.add(DOWNLOAD_MANIFEST)
 
         if url.path == '/tutorial-mode':
             unique_id = get_unique_id(self.headers)
@@ -563,18 +591,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             available_areas_status = ""
             if manifest_error:
                 available_areas_status = "error"
-            elif MANIFEST in download_queue:
+            elif DOWNLOAD_MANIFEST in download_queue:
                 available_areas_status = "started"
 
             full_status = {
                 # This tells the UI that the areas defined in the bounds are available for download
                 "available-areas": get_bounds_map(),
                 "available-areas-status": available_areas_status,
-
                 "in-progress": map_update_status,
-                "queued": [dl for dl in download_queue if dl != MANIFEST],
+                "queued-for-download": [
+                    dl[0] for dl
+                    in download_queue
+                    if dl != DOWNLOAD_MANIFEST and dl[1] == DOWNLOAD
+                ],
+                "queued-for-deletion": [
+                    dl[0] for dl
+                    in download_queue
+                    if dl != DOWNLOAD_MANIFEST and dl[1] == DELETE
+                ],
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
-
                 "tutorial-mode": tutorial_mode,
             }
             self.wfile.write(bytes(json.dumps(full_status), "utf-8"))
@@ -709,7 +744,7 @@ def update_filemaps():
         # have restarted the grain after getting a map. At this point we have
         # powerbox permissions already so we don't need to wait for them to
         # push the appropriate button in the tutorial.
-        download_queue.add(MANIFEST)
+        download_queue.add(DOWNLOAD_MANIFEST)
 
 # Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
 # This is only useful if you want to check the data you just generated with the much much smaller test planet
@@ -834,12 +869,48 @@ def download_map(tile_id):
     update_filemaps()
     print_err("Downloaded and extracted", tile_id, "to", tiles_out_path, "and search imported to sqlite db")
 
+def delete_map(tile_id):
+    print_err("deleting", tile_id)
+
+    tiles_out_path = os.path.join(tile_dir, tile_id + '.pmtiles')
+
+    if not os.path.exists(search_imported_marker_path(tile_id)):
+        print_err ("Already deleted, or never had, " + tile_id)
+        return
+
+    # Inverse reasoning from downloads; delete the visible map first, so as to
+    # not leave the impression that it's there when it's partially deleted (in
+    # case of failure). Search results would still return, but we'll consider
+    # that less bad.
+    if os.path.exists(tiles_out_path):
+        os.remove(tiles_out_path)
+
+    delete_search(tile_id)
+
+    # Delete this last (and use it as the "done" marker above) because it stops
+    # us from downloading this same file if we're in the middle of deleting it.
+    if os.path.exists(search_imported_marker_path(tile_id)):
+        os.remove(search_imported_marker_path(tile_id))
+
+    if tile_id in map_update_status:
+        # No longer "queued for deletion", it's just gone
+        del map_update_status[tile_id]
+
+    update_filemaps()
+    print_err("Deleted", tile_id, "from", tiles_out_path, "and search deleted from sqlite db")
+
+# A single download and delete queue to avoid annoying race conditions. Even if
+# this comes at the cost of being a little slower in some ways. We'll do it
+# better in Go later.
+
 # TODO - save the queue to disk so we can continue after restart
 # TODO - handle errors in a nice enough way that we don't mind keeping them in
 #        the queue forever. It doesn't need to be retrying forever by default,
 #        but the intention to download the given region should be saved so that
 #        the user can decide to try it again.
-MANIFEST = 'MANIFEST'
+DOWNLOAD_MANIFEST = 'DOWNLOAD_MANIFEST'
+DELETE = 'DELETE'
+DOWNLOAD = 'DOWNLOAD'
 download_queue = set()
 DOWNLOAD_TRIES = 7
 def downloader():
@@ -850,18 +921,24 @@ def downloader():
             time.sleep(0.1)
 
         download_item = download_queue.pop()
-        if download_item == MANIFEST:
+        if download_item == DOWNLOAD_MANIFEST:
             try:
                 download_manifest()
             except DownloadError as de:
                 print_err("\n\nDownloader Exception for manifest", repr(de), '\n\n')
                 manifest_error = True
         else:
-            tile_id = download_item
-            try:
-                download_map(tile_id)
-            except DownloadError:
-                map_update_status[tile_id]['downloadError'] = True
+            tile_id, action = download_item
+            if action == DOWNLOAD:
+                try:
+                    download_map(tile_id)
+                except DownloadError:
+                    map_update_status[tile_id]['downloadError'] = True
+            elif action == DELETE:
+                # Not gonna bother with delete errors. Less common, extra complication.
+                delete_map(tile_id)
+            else:
+                raise Exception("Unexpected action: " + action)
 
 if __name__ == "__main__":
     print_err("Serving files at http://localhost:3857/ - for development use only")

@@ -119,6 +119,173 @@ permissions = PERMISSIONS_REPLACE_ME
 
 const map = L.map('map')
 
+// TODO - key this by `tileId` instead of `tileId + '.pmtiles'` - can I do this now?
+LOADED_DONE = "done"
+LOADED_STARTED = "started"
+LOADED_DOWNLOADING = "downloading"
+let loaded = {}
+
+function loadedStatus(tileId) {
+    const tilesName = tileId + ".pmtiles"
+    return loaded[tilesName] && loaded[tilesName].status
+}
+
+L.Control.AreasMenu = L.Control.extend({
+    onAdd: function(map) {
+        this.menu = L.DomUtil.create('div');
+        this.expanded = false
+        this.render()
+        return this.menu
+    },
+
+    render: function() {
+        const HIDE_AREAS_MENU = '<span style="float:left;">\u{2B05}</span><center>Downloaded Areas</center>'
+        const SHOW_AREAS_MENU = '\u{1F5FA}\u{FE0F}'
+
+        const numAreas = Object.keys(loaded).length
+
+        const pluralizedAreas = numAreas === 1 ? "area" : "areas"
+
+        if (numAreas === 0) {
+            // Hide the menu if there are no areas. It doesn't matter yet,
+            // don't distract the user.
+            this.menu.innerHTML = `
+            `
+        } else {
+            if (this.expanded) {
+                expandedDisplayStyle = ''
+                collapsedDisplayStyle = 'display:none;'
+            } else {
+                expandedDisplayStyle = 'display:none;'
+                collapsedDisplayStyle = ''
+            }
+            this.menu.innerHTML = `
+                <div id='areas-menu-container' class="leaflet-bar">
+                    <div style="background-color: #f4aa88;" class="leaflet-interactive">  <!-- For the flashing animation -->
+                        <a class='areas-menu-show' style='${collapsedDisplayStyle}'>${SHOW_AREAS_MENU}</a>
+                    </div>
+                    <a class='areas-menu-hide leaflet-interactive sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle};'>${HIDE_AREAS_MENU}</a>
+
+                    <div id='areas-menu-collapsable' style='${expandedDisplayStyle}'>
+                        <div id="areas-menu-delete" style="padding: 5px">
+                            You have downloaded ${numAreas} areas of the world map. Each area includes the how it looks as well as searchable places.
+                            <br>
+                            If you want to start over with an empty map, you can delete all downloaded map areas. (Note that this will <i>not</i> delete any of your bookmarks).
+                            <br>
+                            <center>
+                                <button id="areas-menu-delete-button" class="sam-button" style="width:98%">Delete All Downloaded Map Areas</button>
+                            </center>
+                        </div>
+                        <div id="areas-menu-delete-confirm" style="display:none; background-color: #ecc; padding: 5px;">
+                            <b>Are you sure you want to delete all downloaded map data?</b>
+                            <br>
+                            <button id="areas-menu-delete-confirm-button" class="sam-button" style="width:48%">Confirm</button>
+                            <button id="areas-menu-delete-cancel-button" class="sam-button" style="width:48%"">Cancel</button>
+                        </div>
+                        <div id="areas-menu-delete-done" style="display:none; padding: 5px;">
+                            All areas are queued up for deletion. You may need to wait for some downloads to finish first.
+                        </div>
+                    </div>
+                </div>
+            `
+        }
+
+        let thisControl = this
+        setTimeout(() => { // setTimeout, my solution for everything. I needed it for bookmarks menu, I'll just do the same here.
+            let thisControl = this
+            $('.areas-menu-show').off("click")
+            $('.areas-menu-hide').off("click")
+            $('.areas-menu-hide').on("click", () => {
+                thisControl.expanded = false
+                $('#areas-menu-collapsable').slideUp(400, () =>{
+                    // Change the button only after slide up completes. Looks nicer.
+                    $('.areas-menu-show').show()
+                    $('.areas-menu-hide').hide()
+
+                    // Reset the delete confirmation
+                    $('#areas-menu-delete-confirm').hide()
+                    $('#areas-menu-delete-done').hide()
+                    $('#areas-menu-delete').show()
+
+                    if (numAreas === 0) {
+                        // Hide the whole menu again
+                        thisControl.render()
+                    }
+                })
+            })
+            $('.areas-menu-show').on("click", () => {
+                // Change the button before the slidedown. Looks nice.
+                thisControl.expanded = true
+                $('.areas-menu-show').hide()
+                $('.areas-menu-hide').show()
+                $('#areas-menu-collapsable').slideDown()
+            })
+
+
+            $('#areas-menu-delete-button').off("click")
+            $('#areas-menu-delete-cancel-button').off("click")
+            $('#areas-menu-delete-confirm-button').off("click")
+            $('#areas-menu-delete-button').on("click", () => {
+                $('#areas-menu-delete').slideUp()
+                $('#areas-menu-delete-confirm').slideDown()
+            })
+            $('#areas-menu-delete-cancel-button').on("click", () => {
+                $('#areas-menu-delete-confirm').slideUp()
+                $('#areas-menu-delete').slideDown()
+            })
+            $('#areas-menu-delete-confirm-button').on("click", () => {
+                deleteArea('all')
+            })
+        }, 100)
+    },
+
+    flash: function() {
+        if (!this.expanded) {
+            $('.areas-menu-show').fadeOut(100).fadeIn(1000)
+        }
+    },
+});
+
+L.control.areasMenu = function() {
+    return new L.Control.AreasMenu({
+        position: 'topleft'
+    });
+}
+
+const areasMenu = L.control.areasMenu()
+areasMenu.addTo(map)
+
+// tileId === "all" to delete all areas
+const deleteArea = (tileId => {
+    fetch('map-delete', {
+            method: 'POST', // should be DELETE on the same path as POST, but I don't want to figure this out now
+            body: JSON.stringify({'tile-id': tileId}),
+    })
+    .then(res => {
+        if (res.status === 200) {
+            $('#areas-menu-delete-confirm').slideUp()
+            $('#areas-menu-delete-done').slideDown()
+
+            // It takes a while for the stuff to disappear otherwise, and a
+            // delete feels like it should be fast. So let's mark things as
+            // "deleting" and then call updateDownloadStatuses to bring on
+            // the fast update loop until everything is deleted.
+            if (tileId === "all") {
+                for (key in loaded) {
+                    // key is in format <tileId>.pmtiles
+                    let [tileId] = key.split('.')
+                    loaded[key].deleting = true
+                }
+            } else {
+                loaded[tileId + ".pmtiles"].deleting = true
+            }
+
+            updateDownloadStatuses()
+        }
+    })
+    .catch(console.error)
+})
+
 L.Control.BookmarksList = L.Control.extend({
     onAdd: function(map) {
         // Mobile doesn't have that much real estate. But on desktop it might
@@ -250,6 +417,12 @@ L.Control.BookmarksList = L.Control.extend({
                 $('#' + divId).on("click", clickBookmarkListItem)
             }
         }, 100)
+    },
+
+    flash: function() {
+        if (!this.expanded) {
+            $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
+        }
     },
 });
 
@@ -519,7 +692,7 @@ function downloadRect(tileId) {
             </div>`)
             .setLatLng(L.latLng(center))
             .addTo(map)
-        } else if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
+        } else if (loadedStatus(tileId) === LOADED_DONE) {
             // If it's downloaded and you click on it, it zooms and pans
             // you to the area, unless you're already zoomed in as far as
             // or further than it would take you to.
@@ -529,19 +702,19 @@ function downloadRect(tileId) {
         }
     })
     .on('mouseover', e => {
-        if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
+        if (loadedStatus(tileId) !== LOADED_DONE) {
             e.target.setStyle(uiStyle.downloadRect.highlighted)
         }
     })
     .on('mouseout', e => {
-        if (loaded[tileId + '.pmtiles'] !== LOADED_DONE) {
+        if (loadedStatus(tileId) !== LOADED_DONE) {
             e.target.setStyle(uiStyle.downloadRect.normal)
         }
     })
 }
 
 function downloadMap(tileId) {
-    loaded[tileId + '.pmtiles'] = LOADED_DOWNLOADING
+    loaded[tileId + '.pmtiles'] = {status: LOADED_DOWNLOADING}
     // force it to start the faster update loop right away, since this user initiated the
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
     updateDownloadStatuses()
@@ -626,9 +799,7 @@ const addBookmark = (() => {
 
                     selectBookmarkMarker(bookmarkId, false)
                     // flash the menu button
-                    if (!bookmarksList.expanded) {
-                        $('.bookmark-list-show').fadeOut(100).fadeIn(1000)
-                    }
+                    bookmarksList.flash()
                 }, 500)
             })
             .catch(e => {
@@ -780,34 +951,57 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
     }, 100)
 }
 
-// TODO - key this by `tileId` instead of `tileId + '.pmtiles'`
-LOADED_DONE = "done"
-LOADED_STARTED = "started"
-LOADED_DOWNLOADING = "downloading"
-let loaded = {}
-
 let updateDownloadStatusesTimeout = null
+let updateDownloadStatusesFirstRun = true
 function updateDownloadStatuses() {
-    uniqueLoadedStatuses = new Set(Object.values(loaded))
+    let uniqueLoadedStatuses = new Set(Object.values(loaded).map(({status: s}) => s))
 
+    // Kind of a hack. Somewhat redundant with queued-for-deletion except it's
+    // client side only, specifically on the client that triggered the
+    // deletions, for the sake of being "snappy" for the one doing the
+    // deleting. I guess we could make it "snappy" for other clients like we do
+    // for downloading, but I don't care that much about that now. And besides,
+    // once we have websockets, it'll be easily snappy for everyone: we can
+    // just use queued-for-deletion instead of this variable anyway.
+    let anyLocallyTriggeredDeletions = Object.values(loaded).filter(({deleting}) => deleting).length > 0
+
+    // In case this is called additional to the setTimeout
     clearTimeout(updateDownloadStatusesTimeout)
+
     if (
-        // We're a non-downloader or we don't have the manifest yet
+        // IF we already have the manifest OR we're a non-downloader (and thus
+        // don't care about the manifest)
         (!!Object.keys(areaBoundses).length || permissions.indexOf("download") === -1) &&
 
-        // Status, if any, is "done"
-        (uniqueLoadedStatuses.size === 0 || (uniqueLoadedStatuses.size === 1 && uniqueLoadedStatuses.has("done")))
+        // AND we don't have any active downloads (either no downloads at all,
+        // or LOADED_DONE is the only status for any area in `loaded`)
+        (
+            uniqueLoadedStatuses.size === 0 ||
+            (uniqueLoadedStatuses.size === 1 && uniqueLoadedStatuses.has(LOADED_DONE))
+        ) &&
+
+        // AND there are no (locally triggered) deletions coming up
+        !anyLocallyTriggeredDeletions
+
+        // ... THEN, we have nothing we care about updating fast. We can run
+        // the update loop slowly.
     ){
-        // If every `loaded` status is "done", we can wait another 5 seconds to
+        // (To expand on the above...)
+        //
+        // If every `loaded` status is LOADED_DONE, we can wait another 5 seconds to
         // check on map download status. There should only be any new downloads after those 5
         // seconds if another user/share started a download, or the downloading user refreshed
         // the page mid-download. In these cases we don't care that much if it got a delayed
         // start. After it starts, it'll soon kick into a faster update loop.
         //
-        // The exception is if we're a downloader and we don't even have our manifest
+        // The first exception is if we're a downloader and we don't even have our manifest
         // loaded. Thus if "areaBoundses" is empty and we're a downloader, we still
         // want to load every second so we get it faster. This is particularly useful
         // to make the tutorial snappy.
+        //
+        // The second exception is if we just asked to delete something. I want deletion to be
+        // "snappy". In this case, I don't really care if it's "snappy" for the other users,
+        // just for the one who ordered the deletion. So I'm only checking the local client.
 
         // Slower update loop
         updateDownloadStatusesTimeout = setTimeout(updateDownloadStatuses, 5000)
@@ -832,13 +1026,39 @@ function updateDownloadStatuses() {
         // this user/share didn't start the download.
         for (tileId in inProgress) {
             if (!((tileId + '.pmtiles') in loaded)) {
-                loaded[tileId + '.pmtiles'] = LOADED_DOWNLOADING
+                loaded[tileId + '.pmtiles'] = {status: LOADED_DOWNLOADING}
             }
         }
 
+        let newLoaded = false
         fullStatus.done.forEach(tileId => {
-            loadArea(tileId)
+            newLoaded = loadArea(tileId, updateDownloadStatusesFirstRun) || newLoaded
         })
+
+        if (newLoaded) {
+            areasMenu.render()
+            // Don't flash on the very initial loadAreases since that's
+            // probably not based on a recent download.
+            if (!updateDownloadStatusesFirstRun) {
+                areasMenu.flash()
+            }
+        }
+
+        // Unload anything recently deleted
+        for (key in loaded) {
+            let [tileId] = key.split('.')
+            if (!fullStatus.done.includes(tileId)) {
+                unloadArea(tileId)
+
+                if (downloadRects[tileId]) {
+                    // If the rectangles have been loaded (which they probably
+                    // have, but we have the if statement just in case), make
+                    // the new one "normal" color instead of "downloaded" color,
+                    // since it's no longer downloaded.
+                    downloadRects[tileId].setStyle(uiStyle.downloadRect.normal)
+                }
+            }
+        }
 
         // Update the tutorial based on the status
         tutorial.setFromMapStatus(fullStatus)
@@ -862,10 +1082,13 @@ function updateDownloadStatuses() {
         Object.keys(downloadRects).forEach(tileId => {
             tooltipContent = null
 
-            if (loaded[tileId + '.pmtiles'] === LOADED_DONE) {
+            if (loadedStatus(tileId) === LOADED_DONE) {
                 // Greenish means downloaded
                 downloadRects[tileId].setStyle(uiStyle.downloadRect.downloaded)
-            } else if (fullStatus.done.includes(tileId) || loaded[tileId + '.pmtiles'] === LOADED_STARTED) {
+                if (fullStatus['queued-for-deletion'].includes(tileId)) {
+                    tooltipContent = 'Queued for deletion'
+                }
+            } else if (fullStatus.done.includes(tileId) || loadedStatus(tileId) === LOADED_STARTED) {
                 tooltipContent = "Downloaded. Loading on screen..."
             } else if (tileId in inProgress) {
                 if (inProgress[tileId].downloadError) {
@@ -890,7 +1113,7 @@ function updateDownloadStatuses() {
                         </div>`
                     )
                 }
-            } else if (fullStatus.queued.includes(tileId)) {
+            } else if (fullStatus['queued-for-download'].includes(tileId)) {
                 tooltipContent = 'Queued for download'
             } else {
                 tooltipContent = null
@@ -909,19 +1132,21 @@ function updateDownloadStatuses() {
                 }
             }
         })
+        updateDownloadStatusesFirstRun = false
     })
 }
 
 function loadArea(tileId) {
     const tilesName = tileId + ".pmtiles"
-    if (loaded[tilesName] === LOADED_STARTED || loaded[tilesName] === LOADED_DONE) {
-        return
+    if (loadedStatus(tileId) === LOADED_STARTED || loadedStatus(tileId) === LOADED_DONE) {
+        return false
     }
 
-    // TODO - wait, "started" doesn't even take effect anywhere, this isn't
-    // threaded. right? we set it to "done" right below, not after a callback
-    // or anything.
-    loaded[tilesName] = LOADED_STARTED
+    // TODO - wait, LOADED_STARTED doesn't even take effect anywhere, this isn't
+    // threaded. right? we set it to LOADED_DONE right below, not after a callback
+    // or anything. The "Loading on screen..." message does show up, but it's
+    // based on another clause in the if statement. I think!
+    loaded[tilesName] = {status: LOADED_STARTED}
     console.log('adding', tilesName)
 
     areaLayer = protomaps.leafletLayer({
@@ -935,7 +1160,30 @@ function loadArea(tileId) {
     areaLayer.addTo(map)
 
     console.log('added', tilesName)
-    loaded[tilesName] = LOADED_DONE
+    loaded[tilesName] = {
+        status: LOADED_DONE,
+        layer: areaLayer,
+    }
+
+    return true
+}
+
+function unloadArea(tileId) {
+    const tilesName = tileId + ".pmtiles"
+
+    if (loadedStatus(tileId) !== LOADED_DONE) {
+        // Must be a mistake
+        return false
+    }
+
+    console.log('removing', tilesName)
+
+    loaded[tilesName].layer.remove()
+
+    console.log('removed', tilesName)
+    delete loaded[tilesName]
+
+    return true
 }
 
 function getGeoJson(name) {
