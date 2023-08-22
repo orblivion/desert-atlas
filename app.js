@@ -694,9 +694,38 @@ function downloadRect(tileId) {
             // If it's downloaded and you click on it, it zooms and pans
             // you to the area, unless you're already zoomed in as far as
             // or further than it would take you to.
+
+            let zoomToArea = ``;
             if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
-                map.fitBounds(areaBoundses[tileId])
+                zoomToArea = `
+                    <button onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
+                `
             }
+
+            content = `
+                <div>
+                    <div id='downloaded-area-main'>
+                        <b>Downloaded area</b>
+                        <br>
+                        <br>
+                        <button onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
+                        ${zoomToArea}
+                        <button onclick="downloadPopup.remove()">Cancel</button>
+                    </div>
+                    <div id='area-delete-are-you-sure' style='display:none;'>
+                        <b>Are you sure you want to delete this downloaded area from this grain?</b>
+                        <br>
+                        <br>
+                        <button onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
+                        <button onclick="downloadPopup.remove()">Cancel</button>
+                    </div>
+                </div>
+            `
+
+            downloadPopup
+            .setContent(content)
+            .setLatLng(L.latLng(center))
+            .addTo(map)
         }
     })
     .on('mouseover', e => {
