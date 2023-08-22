@@ -123,7 +123,7 @@ L.Control.Tutorial = L.Control.extend({
                 <h3>Welcome to Share-A-Map</h3>
 
                 <p>
-                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map rendering is a work-in-progress; doublecheck other sources for anything super important.)</i>
+                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
                 </p>
 
                 <ul>
@@ -207,7 +207,7 @@ L.Control.Tutorial = L.Control.extend({
                 <h3>Welcome to Share-A-Map</h3>
 
                 <p>
-                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map rendering is a work-in-progress; doublecheck other sources for anything super important.)</i>
+                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
                 </p>
 
                 <p>
@@ -239,7 +239,7 @@ L.Control.Tutorial = L.Control.extend({
                 <h3>Welcome to Share-A-Map</h3>
 
                 <p>
-                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map rendering is a work-in-progress; doublecheck other sources for anything super important.)</i>
+                    A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
                 </p>
 
                 <p>

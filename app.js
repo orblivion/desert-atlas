@@ -928,7 +928,7 @@ function loadArea(tileId) {
         attribution: (
             '<a href="https://protomaps.com">Protomaps</a> © ' +
             '<a href="https://openstreetmap.org/copyright">OpenStreetMap</a> ' +
-            'Map rendering is a work-in-progress. Double-check for anything super important.'
+            'Map data is a work-in-progress. Double-check for anything super important.'
         ),
         url: tilesName,
     })
