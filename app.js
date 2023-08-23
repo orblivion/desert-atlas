@@ -708,13 +708,18 @@ function downloadRect(tileId) {
 
             if (!(tileId in loaded)) {
                 downloadPopup
-                .setContent(`<div>
-                    <b>Download this area to this grain?</b>
-                    <br>
-                    <br>
-                    <button onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
-                    <button onclick="downloadPopup.remove()">Cancel</button>
-                </div>`)
+                .setContent(`
+                    <div>
+                        <h1 id="area-download-header">Downloadable Area</h1>
+                        <div>
+                            <b>Download this area to this grain?</b>
+                            <br>
+                            <br>
+                            <button class="sam-button" onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
+                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
+                        </div>
+                    </div>
+                `)
                 .setLatLng(L.latLng(center))
                 .addTo(map)
             } else if (loadedStatus(tileId) === LOADED_DONE) {
@@ -725,26 +730,24 @@ function downloadRect(tileId) {
                 let zoomToArea = ``;
                 if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
                     zoomToArea = `
-                        <button onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
+                        <button class="sam-button" onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
                     `
                 }
 
                 content = `
                     <div>
+                        <h1 id="area-download-header">Downloaded Area</h1>
                         <div id='downloaded-area-main'>
-                            <b>Downloaded area</b>
-                            <br>
-                            <br>
-                            <button onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
+                            <button class="sam-button" onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
                             ${zoomToArea}
-                            <button onclick="downloadPopup.remove()">Cancel</button>
+                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
-                        <div id='area-delete-are-you-sure' style='display:none;'>
+                        <div id='area-delete-are-you-sure' style='display:none; background-color: #ecc; padding: 5px;'>
                             <b>Are you sure you want to delete this downloaded area from this grain?</b>
                             <br>
                             <br>
-                            <button onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
-                            <button onclick="downloadPopup.remove()">Cancel</button>
+                            <button class="sam-button" onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
+                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
                     </div>
                 `
