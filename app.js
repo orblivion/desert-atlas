@@ -144,9 +144,10 @@ L.Control.AreasMenu = L.Control.extend({
 
         const pluralizedAreas = numAreas === 1 ? "area" : "areas"
 
-        if (numAreas === 0) {
+        if (numAreas === 0 || permissions.indexOf("download") === -1) {
             // Hide the menu if there are no areas. It doesn't matter yet,
-            // don't distract the user.
+            // don't distract the user. Or if the user can't download anyway,
+            // of course.
             this.menu.innerHTML = `
             `
         } else {
