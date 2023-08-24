@@ -6,7 +6,9 @@ Some self-hosted map apps will get underlying map data from external sources on-
 
 ## Disk space
 
-With this app, you download areas of the map to the grain. Because of the tools currently used to prepare this data, the size of the data on your grain can get quite large. Areas might range from 10s of megs to almost 250 megs. The size on disk will not neatly correlate with the area downloaded.
+With this app, you download areas of the map to the grain. Because of the tools currently used to prepare this data, the size of the data on your grain can get quite large. Areas might range from 10s of megs to almost 250 megs. In the future we will hopefully be able to divide the areas in a more reasonable way.
+
+The size on disk will not neatly correlate with the geographical size of the area downloaded. For instance, major cities tend to take up more space.
 
 ## Searching non-latin
 
