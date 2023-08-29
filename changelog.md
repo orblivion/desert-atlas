@@ -1,3 +1,10 @@
+# 2023/08/22 - appVersion 26
+
+* Update description for market
+* Update screenshots for market
+* Normalize UI between downloader and bookmark popups
+* Bugfix: hide maps menu from non-downloader users
+
 # 2023/08/22 - appVersion 25
 
 * Make it so that you can easily double-click zoom on the downloadable regions when they're in view without bringing up the popup.
