@@ -1,3 +1,9 @@
+# 2023/09/25 - appVersion 27
+
+* Line wrap for bookmark names
+* Extra step to get to editing bookmark names, since I don't want to figure out how to make a textarea to edit the bookmark name right now.
+* Button text and style in the "open in external app" section for bookmarks.
+
 # 2023/08/22 - appVersion 26
 
 * Update description for market
