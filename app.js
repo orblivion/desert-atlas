@@ -466,7 +466,7 @@ const bookmarkPopup = L.popup()
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
-          <button id="bookmark-edit-show-geo-section-button" class="sam-button">
+          <button id="bookmark-edit-show-geo-section-button" class="sam-button" style="width:100%">
               <span class="emoji">\u{2B07}</span>&nbsp Open In External App
           </button>
       </div>
@@ -477,15 +477,17 @@ const bookmarkPopup = L.popup()
               <p style="margin:2px; padding:2px;"><b><font color="red">WARNING</font></b>: If you don't have an external map app installed, this might (by some accounts) cause your browser to do a web search of this location, which would compromise privacy.</p>
               <br>
           </div>
-          <button id="bookmark-edit-geo-button" class="sam-button">
-              <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
-          </button>
-          <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button">
-              <span class="emoji">&#x2139;</span>&nbsp Learn More
-          </button>
-          <button id="bookmark-edit-show-edit-section-button" class="sam-button">
-              <span class="emoji">\u{2B06}</span>&nbsp Edit
-          </button>
+          <center>
+              <button id="bookmark-edit-geo-button" class="sam-button" style="width:25%">
+                  <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
+              </button>
+              <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button" style="width:40%">
+                  <span class="emoji">&#x2139;</span>&nbsp Learn More
+              </button>
+              <button id="bookmark-edit-show-edit-section-button" class="sam-button" style="width:25%">
+                  <span class="emoji">\u{2B06}</span>&nbsp Back
+              </button>
+          </center>
           <br>
           <br>
           <div id="bookmark-edit-geo-button-learn-more">
