@@ -443,13 +443,19 @@ const bookmarkPopup = L.popup()
         `
       <h1 id="bookmark-header"></h1>
       <div id="bookmark-edit-section-edit" class="${bookmarkEditClass}">
-          <input id="bookmark-edit-name" class="for-editor bookmark-edit-name">
-          <input id="bookmark-edit-name-readonly" class="for-read-only bookmark-edit-name" readonly>
+          <div id="bookmark-edit-name-display" class="bookmark-edit-name"></div>
           <center><span style="margin-top: 7px; text-align: center;" class="for-read-only" id="bookmark-readonly-notice"></span></center>
           <div style="margin-top: 7px" class="for-editor">
-              <center id="editor-buttons">
-                  <button id="bookmark-edit-save-button" class="sam-button" style="width:48%">Save Bookmark</button>
+              <center id="edit-and-delete-buttons">
+                  <!-- Text of the button is variable, see below -->
+                  <button id="bookmark-edit-begin-button" class="sam-button" style="width:48%"></button>
+
                   <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;width:48%">Delete</button>
+              </center>
+              <center id="edit-bookmark-title-form" style="display:none;">
+                  <input id="bookmark-edit-name" class="for-editor bookmark-edit-name" style="width:96%">
+                  <button id="bookmark-edit-save-button" class="sam-button" style="width:48%">Save Bookmark</button>
+                  <button id="bookmark-edit-cancel-button" class="sam-button" style="width:48%">Cancel</button>
               </center>
               <center id="editor-delete-are-you-sure" style="display:none; background-color: #ecc; padding: 5px;">
                   <b>Are you sure you want to delete this bookmark?</b>
@@ -511,36 +517,40 @@ const bookmarkPopup = L.popup()
       `
     )
     .on('add', e => {
-        document.getElementById("bookmark-edit-name-readonly").value = bookmarkPopup.options.bookmark.name
+        document.getElementById("bookmark-edit-name-display").innerText = bookmarkPopup.options.bookmark.name
         document.getElementById("bookmark-edit-name").value = bookmarkPopup.options.bookmark.name
         document.getElementById("bookmark-latlng").innerHTML = (
             bookmarkPopup.options.bookmark.latlng.lat + ',' + bookmarkPopup.options.bookmark.latlng.lng
         )
 
-        if (!L.Browser.mobile) { // Annoying on mobile to bring up the keyboard right away
-            document.getElementById("bookmark-edit-name").focus()
+        addAndRemoveClickHandler = (eId, func) => {
+            // Remove it first in case it's already there from a previous popup *shrug* not sure the best way to handle this
+            document.getElementById(eId).removeEventListener('click', func)
+
+            document.getElementById(eId).addEventListener('click', func)
         }
 
-        // Remove it first in case it's already there from a previous popup *shrug* not sure the best way to handle this
-        document.getElementById('bookmark-edit-save-button').removeEventListener("click", addBookmark)
-        document.getElementById('bookmark-edit-delete-button').removeEventListener("click", deleteBookmarkAreYouSure)
-        document.getElementById('bookmark-edit-delete-cancel-button').removeEventListener("click", deleteBookmarkCancel)
-        document.getElementById('bookmark-edit-delete-confirm-button').removeEventListener("click", deleteBookmark)
+        addAndRemoveKeydownHandler = (eId, func) => {
+            // Remove it first in case it's already there from a previous popup *shrug* not sure the best way to handle this
+            document.getElementById(eId).removeEventListener('keydown', func)
 
+            document.getElementById(eId).addEventListener('keydown', func)
+        }
 
-        document.getElementById('bookmark-edit-name').removeEventListener("keydown", bookmarkKeydown)
-        document.getElementById('bookmark-edit-geo-button').removeEventListener("click", openBookmarkInApp)
-        document.getElementById('bookmark-edit-geo-button-learn-more-button').removeEventListener("click", toggleGeoButtonLearnMore)
+        addAndRemoveClickHandler('bookmark-edit-begin-button', editBookmarkStart)
+        addAndRemoveClickHandler('bookmark-edit-cancel-button', editBookmarkCancel)
 
-        document.getElementById('bookmark-edit-show-geo-section-button').removeEventListener("click", toggleBookmarkPopupSections)
-        document.getElementById('bookmark-edit-show-edit-section-button').removeEventListener("click", toggleBookmarkPopupSections)
+        addAndRemoveClickHandler('bookmark-edit-save-button', addBookmark)
+        addAndRemoveClickHandler('bookmark-edit-delete-button', deleteBookmarkAreYouSure)
+        addAndRemoveClickHandler('bookmark-edit-delete-cancel-button', deleteBookmarkCancel)
+        addAndRemoveClickHandler('bookmark-edit-delete-confirm-button', deleteBookmark)
 
-        document.getElementById('bookmark-edit-save-button').addEventListener("click", addBookmark)
-        document.getElementById('bookmark-edit-name').addEventListener("keydown", bookmarkKeydown)
-        document.getElementById('bookmark-edit-delete-button').addEventListener("click", deleteBookmarkAreYouSure)
-        document.getElementById('bookmark-edit-delete-cancel-button').addEventListener("click", deleteBookmarkCancel)
-        document.getElementById('bookmark-edit-delete-confirm-button').addEventListener("click", deleteBookmark)
-        document.getElementById('bookmark-edit-geo-button').addEventListener("click", openBookmarkInApp)
+        addAndRemoveKeydownHandler('bookmark-edit-name', bookmarkKeydown)
+        addAndRemoveClickHandler('bookmark-edit-geo-button', openBookmarkInApp)
+        addAndRemoveClickHandler('bookmark-edit-geo-button-learn-more-button', toggleGeoButtonLearnMore)
+
+        addAndRemoveClickHandler('bookmark-edit-show-geo-section-button', toggleBookmarkPopupSections)
+        addAndRemoveClickHandler('bookmark-edit-show-edit-section-button', toggleBookmarkPopupSections)
 
         if (bookmarkPopup.options.bookmark.id) {
             document.getElementById("bookmark-edit-delete-button").style.display = 'inline';
@@ -551,17 +561,27 @@ const bookmarkPopup = L.popup()
 
         if (bookmarkPopup.options.bookmarkEditType === "existing") {
             document.getElementById('bookmark-header').textContent = "Bookmark"
+            document.getElementById('bookmark-edit-begin-button').textContent = "Edit"
         } else if (bookmarkPopup.options.bookmarkEditType === "arbitrary") {
             document.getElementById('bookmark-header').textContent = "Location"
             // Just because the blank space is awkward for read-only otherwise
-            document.getElementById('bookmark-edit-name-readonly').style.display = 'none'
+            document.getElementById('bookmark-edit-name-display').style.display = 'none'
+
+            // There's no text to be overflowing so we may as well drop right into
+            // the editing interface
+            document.getElementById('edit-and-delete-buttons').style.display = 'none'
+            document.getElementById('edit-bookmark-title-form').style.display = 'inline'
+
+            // In case they hit "cancel", have it be sensible text
+            document.getElementById('bookmark-edit-begin-button').textContent = "Add As Bookmark"
+
+            if (!L.Browser.mobile) { // Annoying on mobile to bring up the keyboard right away
+                document.getElementById("bookmark-edit-name").focus()
+            }
         } else if (bookmarkPopup.options.bookmarkEditType === "search") {
             document.getElementById('bookmark-header').textContent = "Search Result"
+            document.getElementById('bookmark-edit-begin-button').textContent = "Add As Bookmark"
         }
-
-        document.getElementById('bookmark-edit-geo-button-learn-more-button').addEventListener("click", toggleGeoButtonLearnMore)
-        document.getElementById('bookmark-edit-show-geo-section-button').addEventListener("click", toggleBookmarkPopupSections)
-        document.getElementById('bookmark-edit-show-edit-section-button').addEventListener("click", toggleBookmarkPopupSections)
     })
 
 // could make it a method on bookmarkPopup but I'm lazy
@@ -870,13 +890,29 @@ const addBookmark = (() => {
 })
 
 const deleteBookmarkAreYouSure = (() => {
-    $('#editor-buttons').slideUp()
+    $('#edit-and-delete-buttons').slideUp()
     $('#editor-delete-are-you-sure').slideDown()
 })
 
 const deleteBookmarkCancel = (() => {
-    $('#editor-buttons').slideDown()
+    $('#edit-and-delete-buttons').slideDown()
     $('#editor-delete-are-you-sure').slideUp()
+})
+
+const editBookmarkStart = (() => {
+    $('#edit-and-delete-buttons').slideUp()
+    $('#edit-bookmark-title-form').slideDown()
+    $('#bookmark-edit-name-display').slideUp()
+
+    // This will bring up the keyboard on mobile, but that's okay because the user
+    // deliberately clicked on the edit button at this point
+    document.getElementById("bookmark-edit-name").focus()
+})
+
+const editBookmarkCancel = (() => {
+    $('#edit-and-delete-buttons').slideDown()
+    $('#edit-bookmark-title-form').slideUp()
+    $('#bookmark-edit-name-display').slideDown()
 })
 
 const deleteBookmark = (() => {
