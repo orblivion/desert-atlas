@@ -1,3 +1,7 @@
+# 2023/10/11 - appVersion 28
+
+* Update dependencies
+
 # 2023/09/25 - appVersion 27
 
 * Line wrap for bookmark names
