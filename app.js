@@ -167,7 +167,7 @@ L.Control.AreasMenu = L.Control.extend({
 
                     <div id='areas-menu-collapsable' style='${expandedDisplayStyle}'>
                         <div id="areas-menu-delete" style="padding: 5px">
-                            You have downloaded ${numAreas} areas of the world map. Each area includes the how it looks as well as searchable places.
+                            You have downloaded ${numAreas} areas of the world map.
                             <br>
                             If you want to start over with an empty map, you can delete all downloaded map areas. (Note that this will <i>not</i> delete any of your bookmarks).
                             <br>
