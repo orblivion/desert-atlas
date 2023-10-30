@@ -140,6 +140,6 @@ These things aren't vendored in this repo, but they will be bundled in the resul
 * [Leaflet](https://github.com/Leaflet/Leaflet) - BSD 2-Clause
 * [Leaflet Search](https://github.com/stefanocudini/leaflet-search) - MIT
 * Protomaps JS (with modifications) - BSD 3-Clause
-* Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, and plan to rewrite it in Go.
+* Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
 * Powerbox Proxy (for Sandstorm) - Apache 2
 
