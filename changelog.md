@@ -1,3 +1,8 @@
+# 2023/10/30 - appVersion 29
+
+* UI copy - Completing #49
+* Some package metadata in pkgdef - Partially completing #30
+
 # 2023/10/11 - appVersion 28
 
 * Update dependencies
