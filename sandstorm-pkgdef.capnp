@@ -31,13 +31,13 @@ const pkgdef :Spk.PackageDefinition = (
     actions = [
       # Define your "new document" handlers here.
       ( nounPhrase = (defaultText = "map"),
-        command = .myCommand # TOOD - make an init script to create stuff. Don't have to run it a second time.
+        command = .myCommand
         # The command to run when starting for the first time. (".myCommand"
         # is just a constant defined at the bottom of the file.)
       )
     ],
 
-    continueCommand = .myCommand, # TODO - use this. database init goes above, etc
+    continueCommand = .myCommand,
     # This is the command called to start your app back up after it has been
     # shut down for inactivity. Here we're using the same command as for
     # starting a new instance, but you could use different commands for each
