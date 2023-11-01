@@ -4,11 +4,15 @@ Some self-hosted OpenStreetMap apps for the web will get underlying map data fro
 
 # Warnings and Limitations
 
-## Disk space
+## Performance and Disk space
 
-With this app, you download areas of the map to the grain. Because of the tools currently used to prepare this data, the size of the data on your grain can get quite large. Areas might range from 10s of megs to almost 250 megs. In the future we will hopefully be able to divide the areas in a more reasonable way.
+With this app, you download areas of the map to the grain. Because of the tools currently used to prepare this data, the size of the data on your grain can get quite large. Individual areas might range from 10s of megs to almost 250 megs. In the future we will hopefully be able to divide the areas in a more reasonable way.
 
 The size on disk will not neatly correlate with the geographical size of the area downloaded. For instance, major cities tend to take up more space.
+
+This also translates to a fair amount of virtual memory usage on the server, though it seems to be reasonably well behaved as far as RAM. However performance in the browser does start to get worse with a lot of downloaded areas.
+
+In all, it's recommended for the time being to be mindful of how many areas are downloaded in a single grain.
 
 ## Searching non-latin
 
