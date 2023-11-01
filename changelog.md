@@ -1,3 +1,8 @@
+# 2023/11/01 - appVersion 30
+
+* Warn users against downloading too many areas (for now), in UI and in app description
+* Fix bug and update copy for area downloader interface
+
 # 2023/10/30 - appVersion 29
 
 * UI copy - Completing #49
