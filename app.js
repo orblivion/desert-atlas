@@ -128,6 +128,10 @@ function loadedStatus(tileId) {
     return loaded[tileId] && loaded[tileId].status
 }
 
+function loadedNumDone() {
+    return Object.entries(loaded).filter(([k,{status}]) => status === LOADED_DONE).length
+}
+
 L.Control.AreasMenu = L.Control.extend({
     onAdd: function(map) {
         this.menu = L.DomUtil.create('div');
@@ -140,7 +144,7 @@ L.Control.AreasMenu = L.Control.extend({
         const HIDE_AREAS_MENU = '<span style="float:left;">\u{2B05}</span><center>Downloaded Areas</center>'
         const SHOW_AREAS_MENU = '\u{1F5FA}\u{FE0F}'
 
-        const numAreas = Object.keys(loaded).length
+        const numAreas = loadedNumDone()
 
         const pluralizedAreas = numAreas === 1 ? "area" : "areas"
 
@@ -167,10 +171,14 @@ L.Control.AreasMenu = L.Control.extend({
 
                     <div id='areas-menu-collapsable' style='${expandedDisplayStyle}'>
                         <div id="areas-menu-delete" style="padding: 5px">
-                            You have downloaded ${numAreas} areas of the world map.
+                            You have downloaded ${numAreas} ${pluralizedAreas} of the world map (not counting any that may be in-progress or queued). If you want to clear out the map, you can delete all downloaded map areas.
                             <br>
-                            If you want to start over with an empty map, you can delete all downloaded map areas. (Note that this will <i>not</i> delete any of your bookmarks).
                             <br>
+                            <b>Note</b>:
+                            <ul>
+                              <li>Any in-progress or queued downloads will <i>not be canceled</i>. You can restart your grain to cancel them, or else wait until they finish before they can be deleted.</li>
+                              <li>This will <i>not</i> delete any of your bookmarks</li>
+                            </ul>
                             <center>
                                 <button id="areas-menu-delete-button" class="sam-button" style="width:98%">Delete All Downloaded Map Areas</button>
                             </center>
@@ -1126,24 +1134,15 @@ function updateDownloadStatuses() {
             }
         }
 
-        let newLoaded = false
+        let newLoadedOrDeleted = false
         fullStatus.done.forEach(tileId => {
-            newLoaded = loadArea(tileId, updateDownloadStatusesFirstRun) || newLoaded
+            newLoadedOrDeleted = loadArea(tileId, updateDownloadStatusesFirstRun) || newLoadedOrDeleted
         })
-
-        if (newLoaded) {
-            areasMenu.render()
-            // Don't flash on the very initial loadAreases since that's
-            // probably not based on a recent download.
-            if (!updateDownloadStatusesFirstRun) {
-                areasMenu.flash()
-            }
-        }
 
         // Unload anything recently deleted
         for (tileId in loaded) {
             if (!fullStatus.done.includes(tileId)) {
-                unloadArea(tileId)
+                newLoadedOrDeleted = unloadArea(tileId) || newLoadedOrDeleted
 
                 if (downloadRects[tileId]) {
                     // If the rectangles have been loaded (which they probably
@@ -1152,6 +1151,15 @@ function updateDownloadStatuses() {
                     // since it's no longer downloaded.
                     downloadRects[tileId].setStyle(uiStyle.downloadRect.normal)
                 }
+            }
+        }
+
+        if (newLoadedOrDeleted) {
+            areasMenu.render()
+            // Don't flash on the very initial loadAreases since that's
+            // probably not based on a recent download.
+            if (!updateDownloadStatusesFirstRun) {
+                areasMenu.flash()
             }
         }
 
