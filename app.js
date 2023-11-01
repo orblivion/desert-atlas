@@ -124,6 +124,11 @@ LOADED_STARTED = "started"
 LOADED_DOWNLOADING = "downloading"
 let loaded = {}
 
+// This variable should be derivable from `loaded` but we don't treat queued
+// areas in `loaded` consistently (See definition of `downloadArea`). But, I
+// don't want to fix that so close to launch.
+let showPerformanceWarning = false;
+
 function loadedStatus(tileId) {
     return loaded[tileId] && loaded[tileId].status
 }
@@ -737,6 +742,22 @@ function downloadRect(tileId) {
             doubleClickTimeout = null;
 
             if (!(tileId in loaded)) {
+                let performanceWarning = ""
+
+                if (showPerformanceWarning) {
+                    performanceWarning = `
+                    <br>
+                    <div>
+                        <div>
+                            <b><font color="red">WARNING</font>: You're downloading a lot of areas!</b>
+                            <br>
+                            <br>
+                            Just a heads up: this app is not yet optimized for having a ton of areas in a single grain. If you add a lot more areas, things may start to get sluggish.
+                        </div>
+                    </div>
+                `
+                }
+
                 downloadPopup
                 .setContent(`
                     <div>
@@ -749,7 +770,7 @@ function downloadRect(tileId) {
                             <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
                     </div>
-                `)
+                ` + performanceWarning)
                 .setLatLng(L.latLng(center))
                 .addTo(map)
             } else if (loadedStatus(tileId) === LOADED_DONE) {
@@ -802,7 +823,12 @@ function downloadRect(tileId) {
 }
 
 function downloadArea(tileId) {
+    // TODO This one has some inconsistency. It does not persist after page reload.
+    // Either 1) we shouldn't set this here or 2) we should set this (from `fullStatus`) after page reload.
+    // But I don't want to change this before launch because it'll likely introduce a bug.
+    // But this has become a precarious part of the code and it should be cleaned up! (including obsoleting `showPerformanceWarning`)
     loaded[tileId] = {status: LOADED_DOWNLOADING}
+
     // force it to start the faster update loop right away, since this user initiated the
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
     updateDownloadStatuses()
@@ -1162,6 +1188,8 @@ function updateDownloadStatuses() {
                 areasMenu.flash()
             }
         }
+
+        showPerformanceWarning = loadedNumDone() + fullStatus['queued-for-download'].length > 9
 
         // Update the tutorial based on the status
         tutorial.setFromMapStatus(fullStatus)
