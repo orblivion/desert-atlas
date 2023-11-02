@@ -1,3 +1,7 @@
+# 2023/11/02 - appVersion 31
+
+* Rebrand to Desert Atlas
+
 # 2023/11/01 - appVersion 30
 
 * Warn users against downloading too many areas (for now), in UI and in app description
