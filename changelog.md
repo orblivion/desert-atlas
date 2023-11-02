@@ -1,3 +1,7 @@
+# 2023/11/02 - appVersion 32
+
+* Fix bug in new app icons
+
 # 2023/11/02 - appVersion 31
 
 * Rebrand to Desert Atlas
