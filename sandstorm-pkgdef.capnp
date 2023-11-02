@@ -51,10 +51,10 @@ const pkgdef :Spk.PackageDefinition = (
       # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
       icons = (
         # Various icons to represent the app in various contexts.
-        appGrid = (svg = embed "market/128x128.png"),
-        grain = (svg = embed "market/24x24.png"),
-        market = (svg = embed "market/150x150.png"),
-        marketBig = (svg = embed "market/300x300.png"),
+        appGrid = (png = (dpi1x = embed "market/128x128.png")),
+        grain = (png = (dpi1x = embed "market/24x24.png")),
+        market = (png = (dpi1x = embed "market/150x150.png")),
+        marketBig = (png = (dpi1x = embed "market/300x300.png")),
       ),
 
       website = "https://github.com/orblivion/desert-atlas",
