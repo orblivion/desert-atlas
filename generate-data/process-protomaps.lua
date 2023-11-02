@@ -6,7 +6,7 @@
 -- Licensed under FTWPL
 
 -- Changes By Daniel Krol
--- Altered Version under the same license as share-a-map (I assume that relicensing is covered under "WTF [I] WANT TO")
+-- Altered Version under the same license as Desert Atlas (I assume that relicensing is covered under "WTF [I] WANT TO")
 
 -- NOTE - This is a SUPER UGLY edit from something that generates a file in
 -- the shortbread schema, to something that just passably renders in protomaps.js

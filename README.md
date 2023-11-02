@@ -1,14 +1,14 @@
-Share-A-Map is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. All map data is stored on your own server; you choose the regions you want. The goal is to provide the basic functionality of Google Maps while respecting privacy.
+Desert Atlas is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. All map data is stored on your own server; you choose the regions you want. The goal is to provide the basic functionality of Google Maps while respecting privacy.
 
 You can check out a live demo [here](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
 
 ![Screenshot](market/screenshots/screenshot-1.png)
 
-Share-A-Map allows you to plan trip destinations with friends, store important locations, etc, and export the result to a convenient phone application like OrganicMaps for navigation. Perhaps some day (with some work on the phone app side) there could be a more automatic sync option. If there are other bits of standard functionality you would like to see, please let me know!
+Desert Atlas allows you to plan trip destinations with friends, store important locations, etc, and export the result to a convenient phone application like OrganicMaps for navigation. Perhaps some day (with some work on the phone app side) there could be a more automatic sync option. If there are other bits of standard functionality you would like to see, please let me know!
 
-Some other self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With Share-A-Map, all of the map data is fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map on your phone. The map data needs to come from somewhere of course, so as with OrganicMaps you need to download the regions you need (about the size of a US state) from a map data server, but you only need to do this once per grain (until you want to update the data). Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
+Some other self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With Desert Atlas, all of the map data is fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map on your phone. The map data needs to come from somewhere of course, so as with OrganicMaps you need to download the regions you need (about the size of a US state) from a map data server, but you only need to do this once per grain (until you want to update the data). Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
 
-There are other fully self-hosted OSM solutions, admittedly including at least one that uses docker and is thus probably easy to set up. But thanks to Sandstorm, and Share-A-Map aiming for the "simplest version of everything" in the OSM ecosystem, Share-A-Map is even easier. A "full stack" OSM setup generally includes something like postgres for generating tiles and elasticsearch for search, neither of which play nicely with Sandstorm. Share-A-Map by contrast uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search (a home-grown solution, importing search data extracted from raw OSM data using the common tool `osmium`). No shade on the other solutions, they have more sophisticated search and nicer map renders, but Share-A-Map is simple enough to be a consumer app.
+There are other fully self-hosted OSM solutions, admittedly including at least one that uses docker and is thus probably easy to set up. But thanks to Sandstorm, and Desert Atlas aiming for the "simplest version of everything" in the OSM ecosystem, Desert Atlas is even easier. A "full stack" OSM setup generally includes something like postgres for generating tiles and elasticsearch for search, neither of which play nicely with Sandstorm. Desert Atlas by contrast uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search (a home-grown solution, importing search data extracted from raw OSM data using the common tool `osmium`). No shade on the other solutions, they have more sophisticated search and nicer map renders, but Desert Atlas is simple enough to be a consumer app.
 
 This is a work in progress, but it's just about at releaseable "minimum viable product" status. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
 
@@ -16,7 +16,7 @@ This is a work in progress, but it's just about at releaseable "minimum viable p
 
 Sandstorm is a user friendly platform for self-hosted web applications. Installation of the Sandstorm platform itself is pretty easy, and it updates itself in the background automatically. Once the platform is installed, everything is administered in-browser. Installing individual apps is like using an app store on the phone or desktop. The headaches of maintaning individual web apps are gone.
 
-From a developer's point of view it can be a double-edged sword. Sandstorm has usability and security features built in, taking care of a lot of the overhead, allowing devs to focus on the core features of the app. On the other hand, it comes with a lot of restrictions, which can be especially challenging when porting existing apps. Share-A-Map is a new app, but it reuses some existing components that took a little work to fit into Sandstorm's restrictions.
+From a developer's point of view it can be a double-edged sword. Sandstorm has usability and security features built in, taking care of a lot of the overhead, allowing devs to focus on the core features of the app. On the other hand, it comes with a lot of restrictions, which can be especially challenging when porting existing apps. Desert Atlas is a new app, but it reuses some existing components that took a little work to fit into Sandstorm's restrictions.
 
 You can read about Sandstorm's model in some depth [on their website](https://sandstorm.io/how-it-works), but we'll go over it briefly here.
 
@@ -30,17 +30,17 @@ With Sandstorm's model, a similar word processor app would be designed to be con
 
 Sandstorm apps run in a restrictive, isolated container environment. No grain has access to any other grain without explicit user permission (via a popup in the UI), whether of the same or different apps.
 
-Sandstorm restricts the app's access to the kernel API, which adds security. The environment is also single-user (as in, Unix user), which makes running databases like Postgres very difficult. However sqlite tends to scale just fine on Sandstorm because each grain will rarely have more than a few users interacting with it. Sqlite also starts faster, which is good since grains start and stop often on Sandstorm. The standard "full OpenStreetMap stack" uses Postgres and Elasticsearch, so Share-A-Map uses some stripped-down alternatives.
+Sandstorm restricts the app's access to the kernel API, which adds security. The environment is also single-user (as in, Unix user), which makes running databases like Postgres very difficult. However sqlite tends to scale just fine on Sandstorm because each grain will rarely have more than a few users interacting with it. Sqlite also starts faster, which is good since grains start and stop often on Sandstorm. The standard "full OpenStreetMap stack" uses Postgres and Elasticsearch, so Desert Atlas uses some stripped-down alternatives.
 
 All of the grain's data ends up in one directory, making grain backups a simple matter of clicking a button in the UI to download a zip file.
 
 ### Connections and Access
 
-Each grain's url contains a randomly generated string, making it hard for attackers to guess. A user can share one of their grains with other users (or even non-users) via a share link that contains its own hard-to-guess string. Each share link is revokable, and has a permission level associated. While the permissions UI is built into Sandstorm, the app defines the permission levels and is responsible for implementing them. For instance Share-A-Map has separate permissions for downloading map data and editing bookmarks.
+Each grain's url contains a randomly generated string, making it hard for attackers to guess. A user can share one of their grains with other users (or even non-users) via a share link that contains its own hard-to-guess string. Each share link is revokable, and has a permission level associated. While the permissions UI is built into Sandstorm, the app defines the permission levels and is responsible for implementing them. For instance Desert Atlas has separate permissions for downloading map data and editing bookmarks.
 
 Inbound connections from the browser go through a proxy to handle authentication. It adds special headers to tell the app which Sandstorm user is making the request and what permissions they're supposed to have.
 
-Outbound network connections from the backend require explicit user permission (again via a popup) to prevent a malicious app from "phoning home". Share-A-Map makes use of this as users request to download map data for a given region.
+Outbound network connections from the backend require explicit user permission (again via a popup) to prevent a malicious app from "phoning home". Desert Atlas makes use of this as users request to download map data for a given region.
 
 # Building
 
@@ -121,13 +121,17 @@ I extract tile data from the above into a file in the pmtiles format (see [Proto
 
 # Images
 
-## OSM logo
+## Application Icons
 
-https://commons.wikimedia.org/wiki/File:Openstreetmap_logo.svg
+Source images:
+
+* https://openclipart.org/detail/336198/home-map-colour-remix - CC0
+* https://openclipart.org/detail/306084/digital-landscape-illustration-2 - CC0
+* https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg - BSD 2-Clause
 
 ## search-marker.svg bookmark-marker.svg
 
-Possibly edited, original from https://github.com/Leaflet/Leaflet/blob/main/src/images/marker.svg
+Possibly edited, original from https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg
 
 # Software Licenses
 

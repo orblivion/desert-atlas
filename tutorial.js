@@ -120,7 +120,7 @@ L.Control.Tutorial = L.Control.extend({
         const stateContent = {
             'downloader-intro': `
 
-                <h3>Welcome to Share-A-Map</h3>
+                <h3>Welcome to Desert Atlas</h3>
 
                 <p>
                     A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
@@ -133,8 +133,8 @@ L.Control.Tutorial = L.Control.extend({
                     <li>Export destinations to navigation app.</li>
                 </ul>
 
-                <button class="sam-button tutorial-do-post-download-intro tutorial-do-continue">Continue Tutorial</button>
-                <button class="sam-button tutorial-do-post-download-instructions tutorial-do-skip">No Thanks I Got This</button>
+                <button class="da-button tutorial-do-post-download-intro tutorial-do-continue">Continue Tutorial</button>
+                <button class="da-button tutorial-do-post-download-instructions tutorial-do-skip">No Thanks I Got This</button>
             `,
 
             'downloader-instructions': `
@@ -147,7 +147,7 @@ L.Control.Tutorial = L.Control.extend({
                 <p>
                     When you continue, you will be asked to grant permission to this grain to access the map data server.
                 </p>
-                <button class="sam-button tutorial-do-post-download-instructions tutorial-do-continue">Continue</button>
+                <button class="da-button tutorial-do-post-download-instructions tutorial-do-continue">Continue</button>
             `,
 
             'wait-powerbox-request': `
@@ -182,7 +182,7 @@ L.Control.Tutorial = L.Control.extend({
                     <li>Wait for your region(s) to finish downloading and turn green.</li>
                 </ol>
 
-                <button class="sam-button tutorial-do-collapse tutorial-do-continue">Continue</button>
+                <button class="da-button tutorial-do-collapse tutorial-do-continue">Continue</button>
             `,
 
             'downloader-search-and-bookmark': `
@@ -199,12 +199,12 @@ L.Control.Tutorial = L.Control.extend({
                     <li>Export your bookmarks to your OpenStreetMap phone app (such as OrganicMaps).</li>
                 </ul>
 
-                <button class="sam-button tutorial-do-collapse tutorial-do-skip">Okay</button>
-                <button class="sam-button tutorial-see-downloader-intro-again tutorial-do-restart">See Introduction Again</button>
+                <button class="da-button tutorial-do-collapse tutorial-do-skip">Okay</button>
+                <button class="da-button tutorial-see-downloader-intro-again tutorial-do-restart">See Introduction Again</button>
             `,
 
             'editor-intro': `
-                <h3>Welcome to Share-A-Map</h3>
+                <h3>Welcome to Desert Atlas</h3>
 
                 <p>
                     A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
@@ -214,8 +214,8 @@ L.Control.Tutorial = L.Control.extend({
                     Plan trips with friends privately (assuming you trust this server!)
                 </p>
 
-                <button class="sam-button tutorial-see-editor-instructions tutorial-do-continue">Continue Tutorial</button>
-                <button class="sam-button tutorial-do-skip tutorial-do-collapse">No Thanks I Got This</button>
+                <button class="da-button tutorial-see-editor-instructions tutorial-do-continue">Continue Tutorial</button>
+                <button class="da-button tutorial-do-skip tutorial-do-collapse">No Thanks I Got This</button>
             `,
 
             'editor-instructions': `
@@ -231,12 +231,12 @@ L.Control.Tutorial = L.Control.extend({
                     <li>Export your bookmarks to your OpenStreetMap phone app (such as OrganicMaps)</li>
                 </ul>
 
-                <button class="sam-button tutorial-do-collapse tutorial-do-skip">Done</button>
-                <button class="sam-button tutorial-see-editor-intro-again tutorial-do-restart">See Introduction Again</button>
+                <button class="da-button tutorial-do-collapse tutorial-do-skip">Done</button>
+                <button class="da-button tutorial-see-editor-intro-again tutorial-do-restart">See Introduction Again</button>
             `,
 
             'viewer-intro': `
-                <h3>Welcome to Share-A-Map</h3>
+                <h3>Welcome to Desert Atlas</h3>
 
                 <p>
                     A fully self-hosted map for Sandstorm, based on OpenStreetMap data. <i>(Map data is a work-in-progress; doublecheck other sources for anything super important.)</i>
@@ -251,14 +251,14 @@ L.Control.Tutorial = L.Control.extend({
                     <li>Export any bookmarks (added by others) to your OpenStreetMap phone app (such as OrganicMaps)</li>
                 </ul>
 
-                <button class="sam-button tutorial-do-collapse tutorial-do-skip">Done</button>
+                <button class="da-button tutorial-do-collapse tutorial-do-skip">Done</button>
             `,
 
         }
 
         this.states = Object.keys(stateContent)
 
-        header = `<a class='tutorial-do-collapse leaflet-interactive sam-control-header' style='width:auto; min-width:10em'>${HIDE_TUTORIAL}</a>`
+        header = `<a class='tutorial-do-collapse leaflet-interactive da-control-header' style='width:auto; min-width:10em'>${HIDE_TUTORIAL}</a>`
         this.states.forEach(state => {
             stateContent[state] = (
                 header + `<div class="tutorial-content">` + stateContent[state] + `</div>`

@@ -172,7 +172,7 @@ L.Control.AreasMenu = L.Control.extend({
                     <div style="background-color: #f4aa88;" class="leaflet-interactive">  <!-- For the flashing animation -->
                         <a class='areas-menu-show' style='${collapsedDisplayStyle}'>${SHOW_AREAS_MENU}</a>
                     </div>
-                    <a class='areas-menu-hide leaflet-interactive sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle};'>${HIDE_AREAS_MENU}</a>
+                    <a class='areas-menu-hide leaflet-interactive da-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle};'>${HIDE_AREAS_MENU}</a>
 
                     <div id='areas-menu-collapsable' style='${expandedDisplayStyle}'>
                         <div id="areas-menu-delete" style="padding: 5px">
@@ -185,14 +185,14 @@ L.Control.AreasMenu = L.Control.extend({
                               <li>This will <i>not</i> delete any of your bookmarks</li>
                             </ul>
                             <center>
-                                <button id="areas-menu-delete-button" class="sam-button" style="width:98%">Delete All Downloaded Map Areas</button>
+                                <button id="areas-menu-delete-button" class="da-button" style="width:98%">Delete All Downloaded Map Areas</button>
                             </center>
                         </div>
                         <div id="areas-menu-delete-confirm" style="display:none; background-color: #ecc; padding: 5px;">
                             <b>Are you sure you want to delete all downloaded map data from this grain?</b>
                             <br>
-                            <button id="areas-menu-delete-confirm-button" class="sam-button" style="width:48%">Confirm</button>
-                            <button id="areas-menu-delete-cancel-button" class="sam-button" style="width:48%"">Cancel</button>
+                            <button id="areas-menu-delete-confirm-button" class="da-button" style="width:48%">Confirm</button>
+                            <button id="areas-menu-delete-cancel-button" class="da-button" style="width:48%"">Cancel</button>
                         </div>
                         <div id="areas-menu-delete-done" style="display:none; padding: 5px;">
                             All areas are queued up for deletion. You may need to wait for some downloads to finish first.
@@ -378,7 +378,7 @@ L.Control.BookmarksList = L.Control.extend({
             <div style="background-color: #f4aa88;" class="leaflet-interactive">  <!-- For the flashing animation -->
                 <a class='bookmark-list-show' style='${collapsedDisplayStyle}'>${SHOW_BOOKMARK_MENU}</a>
             </div>
-            <a class='bookmark-list-hide leaflet-interactive sam-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
+            <a class='bookmark-list-hide leaflet-interactive da-control-header' style='width:auto; min-width:10em;${expandedDisplayStyle}'>${HIDE_BOOKMARK_MENU}</a>
             <div id='bookmark-list-collapsable' style='${expandedDisplayStyle}'>
                 <div id='bookmark-list'>
                     ${listItems}
@@ -461,25 +461,25 @@ const bookmarkPopup = L.popup()
           <div style="margin-top: 7px" class="for-editor">
               <center id="edit-and-delete-buttons">
                   <!-- Text of the button is variable, see below -->
-                  <button id="bookmark-edit-begin-button" class="sam-button" style="width:48%"></button>
+                  <button id="bookmark-edit-begin-button" class="da-button" style="width:48%"></button>
 
-                  <button id="bookmark-edit-delete-button" class="sam-button" style="display:none;width:48%">Delete</button>
+                  <button id="bookmark-edit-delete-button" class="da-button" style="display:none;width:48%">Delete</button>
               </center>
               <center id="edit-bookmark-title-form" style="display:none;">
                   <input id="bookmark-edit-name" class="for-editor bookmark-edit-name" style="width:96%">
-                  <button id="bookmark-edit-save-button" class="sam-button" style="width:48%">Save Bookmark</button>
-                  <button id="bookmark-edit-cancel-button" class="sam-button" style="width:48%">Cancel</button>
+                  <button id="bookmark-edit-save-button" class="da-button" style="width:48%">Save Bookmark</button>
+                  <button id="bookmark-edit-cancel-button" class="da-button" style="width:48%">Cancel</button>
               </center>
               <center id="editor-delete-are-you-sure" style="display:none; background-color: #ecc; padding: 5px;">
                   <b>Are you sure you want to delete this bookmark?</b>
                   <br>
-                  <button id="bookmark-edit-delete-confirm-button" class="sam-button" style="width:48%">Confirm</button>
-                  <button id="bookmark-edit-delete-cancel-button" class="sam-button" style="width:48%"">Cancel</button>
+                  <button id="bookmark-edit-delete-confirm-button" class="da-button" style="width:48%">Confirm</button>
+                  <button id="bookmark-edit-delete-cancel-button" class="da-button" style="width:48%"">Cancel</button>
               </center>
               <span id="bookmark-edit-loading" style="display:none">SAVING CHANGES...</span>
           </div>
           <p><b>Latitude/Longitude</b>:<br><span id="bookmark-latlng"></span></p>
-          <button id="bookmark-edit-show-geo-section-button" class="sam-button" style="width:100%">
+          <button id="bookmark-edit-show-geo-section-button" class="da-button" style="width:100%">
               <span class="emoji">\u{2B07}</span>&nbsp Open In External App
           </button>
       </div>
@@ -491,13 +491,13 @@ const bookmarkPopup = L.popup()
               <br>
           </div>
           <center>
-              <button id="bookmark-edit-geo-button" class="sam-button" style="width:25%">
+              <button id="bookmark-edit-geo-button" class="da-button" style="width:25%">
                   <span class="emoji">&#x23CF;&#xFE0F;</span>&nbsp Open
               </button>
-              <button id="bookmark-edit-geo-button-learn-more-button" class="sam-button" style="width:40%">
+              <button id="bookmark-edit-geo-button-learn-more-button" class="da-button" style="width:40%">
                   <span class="emoji">&#x2139;</span>&nbsp Learn More
               </button>
-              <button id="bookmark-edit-show-edit-section-button" class="sam-button" style="width:25%">
+              <button id="bookmark-edit-show-edit-section-button" class="da-button" style="width:25%">
                   <span class="emoji">\u{2B06}</span>&nbsp Back
               </button>
           </center>
@@ -766,8 +766,8 @@ function downloadRect(tileId) {
                             <b>Download this area to this grain?</b>
                             <br>
                             <br>
-                            <button class="sam-button" onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
-                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
+                            <button class="da-button" onclick="downloadArea('${tileId}'); downloadPopup.remove()">Ok</button>
+                            <button class="da-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
                     </div>
                 ` + performanceWarning)
@@ -781,7 +781,7 @@ function downloadRect(tileId) {
                 let zoomToArea = ``;
                 if (map.getBoundsZoom(areaBoundses[tileId]) > map.getZoom()) {
                     zoomToArea = `
-                        <button class="sam-button" onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
+                        <button class="da-button" onclick="map.fitBounds(areaBoundses['${tileId}']); downloadPopup.remove()">Zoom to area</button>
                     `
                 }
 
@@ -789,16 +789,16 @@ function downloadRect(tileId) {
                     <div>
                         <h1 id="area-download-header">Downloaded Area</h1>
                         <div id='downloaded-area-main'>
-                            <button class="sam-button" onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
+                            <button class="da-button" onclick="$('#downloaded-area-main').slideUp();$('#area-delete-are-you-sure').slideDown();">Delete area</button>
                             ${zoomToArea}
-                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
+                            <button class="da-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
                         <div id='area-delete-are-you-sure' style='display:none; background-color: #ecc; padding: 5px;'>
                             <b>Are you sure you want to delete this downloaded area from this grain?</b>
                             <br>
                             <br>
-                            <button class="sam-button" onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
-                            <button class="sam-button" onclick="downloadPopup.remove()">Cancel</button>
+                            <button class="da-button" onclick="deleteArea('${tileId}'); downloadPopup.remove()">Confirm Delete</button>
+                            <button class="da-button" onclick="downloadPopup.remove()">Cancel</button>
                         </div>
                     </div>
                 `

@@ -20,7 +20,7 @@ const pkgdef :Spk.PackageDefinition = (
     # This manifest is included in your app package to tell Sandstorm
     # about your app.
 
-    appTitle = (defaultText = "Share-A-Map"),
+    appTitle = (defaultText = "Desert Atlas"),
 
     appVersion = 30,  # Increment this for every release.
 
@@ -51,16 +51,16 @@ const pkgdef :Spk.PackageDefinition = (
       # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
       icons = (
         # Various icons to represent the app in various contexts.
-        appGrid = (svg = embed "market/osm-logo.svg"),
-        grain = (svg = embed "market/osm-logo.svg"),
-        market = (svg = embed "market/osm-logo.svg"),
-        marketBig = (svg = embed "market/osm-logo.svg"),
+        appGrid = (svg = embed "market/128x128.png"),
+        grain = (svg = embed "market/24x24.png"),
+        market = (svg = embed "market/150x150.png"),
+        marketBig = (svg = embed "market/300x300.png"),
       ),
 
-      website = "https://github.com/orblivion/sandstorm-share-a-map",
+      website = "https://github.com/orblivion/desert-atlas",
       # This should be the app's main website url.
 
-      codeUrl = "https://github.com/orblivion/sandstorm-share-a-map",
+      codeUrl = "https://github.com/orblivion/desert-atlas",
       # URL of the app's source code repository, e.g. a GitHub URL.
       # Required if you specify a license requiring redistributing code, but optional otherwise.
 
