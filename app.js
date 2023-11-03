@@ -117,7 +117,17 @@ renderLoop()
 // user.
 permissions = PERMISSIONS_REPLACE_ME
 
-const map = L.map('map')
+const map = L.map(
+    'map',
+    // 200 instead of 180 to give it a little leeway scrolling sideways. It's
+    // especially useful given the menus.
+    // I'd like to do the same scrolling up and down but it doesn't seem to
+    // work past 90. It's fine, there's not the same menus in the way.
+    {maxBounds: L.latLngBounds([
+        L.latLng({lat: -90, lng: -200}),
+        L.latLng({lat: 90, lng: 200}),
+    ])}
+)
 
 LOADED_DONE = "done"
 LOADED_STARTED = "started"
