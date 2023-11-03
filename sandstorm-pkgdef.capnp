@@ -53,7 +53,7 @@ const pkgdef :Spk.PackageDefinition = (
         # Various icons to represent the app in various contexts.
         appGrid = (png = (dpi1x = embed "metadata/128x128.png")),
         grain = (png = (dpi1x = embed "metadata/24x24.png")),
-        market = (png = (dpi1x = embed "metadata/150x150.png")),
+        market = (png = (dpi1x = embed "metadata/300x300.png")),
         marketBig = (png = (dpi1x = embed "metadata/300x300.png")),
       ),
 
