@@ -1,3 +1,8 @@
+# 2023/11/02 - appVersion 34
+
+* Icon touchups
+* Try using 300x300 icon for "market" (not just "marketBig"). 150x150 gets sized up in the market and looks fuzzy.
+
 # 2023/11/02 - appVersion 33
 
 * Clearer app icons (people thought the scroll was a mountain)
