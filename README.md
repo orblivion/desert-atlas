@@ -2,7 +2,7 @@ Desert Atlas is a general purpose, fully self-hosted map app for the Sandstorm p
 
 You can check out a live demo [here](https://apps.sandstorm.io/app/m3ctajcm6nnpce287r0a4t52ackzv7p7mmffrw88nge64fp0m8yh?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
 
-![Screenshot](market/screenshots/screenshot-1.png)
+![Screenshot](metadata/screenshots/screenshot-1.png)
 
 Desert Atlas allows you to plan trip destinations with friends, store important locations, etc, and export the result to a convenient phone application like OrganicMaps for navigation. Perhaps some day (with some work on the phone app side) there could be a more automatic sync option. If there are other bits of standard functionality you would like to see, please let me know!
 

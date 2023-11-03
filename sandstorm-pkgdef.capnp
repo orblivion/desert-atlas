@@ -51,10 +51,10 @@ const pkgdef :Spk.PackageDefinition = (
       # https://github.com/sandstorm-io/sandstorm/blob/master/src/sandstorm/package.capnp
       icons = (
         # Various icons to represent the app in various contexts.
-        appGrid = (png = (dpi1x = embed "market/128x128.png")),
-        grain = (png = (dpi1x = embed "market/24x24.png")),
-        market = (png = (dpi1x = embed "market/150x150.png")),
-        marketBig = (png = (dpi1x = embed "market/300x300.png")),
+        appGrid = (png = (dpi1x = embed "metadata/128x128.png")),
+        grain = (png = (dpi1x = embed "metadata/24x24.png")),
+        market = (png = (dpi1x = embed "metadata/150x150.png")),
+        marketBig = (png = (dpi1x = embed "metadata/300x300.png")),
       ),
 
       website = "https://github.com/orblivion/desert-atlas",
@@ -112,7 +112,7 @@ const pkgdef :Spk.PackageDefinition = (
       #
       # Where `<key-id>` is a PGP key ID or email address associated with the key.
 
-      description = (defaultText = embed "description.md"),
+      description = (defaultText = embed "metadata/description.md"),
       # The app's description in Github-flavored Markdown format, to be displayed e.g.
       # in an app store. Note that the Markdown is not permitted to contain HTML nor image tags (but
       # you can include a list of screenshots separately).
@@ -127,10 +127,10 @@ const pkgdef :Spk.PackageDefinition = (
         # Sizes are given in device-independent pixels, so if you took these
         # screenshots on a Retina-style high DPI screen, divide each dimension by two.
 
-        (width = 1200, height = 760, jpeg = embed "market/screenshots/screenshot-0.png"),
-        (width = 1200, height = 760, jpeg = embed "market/screenshots/screenshot-1.png"),
-        (width = 1200, height = 760, jpeg = embed "market/screenshots/screenshot-2.png"),
-        (width = 1200, height = 760, jpeg = embed "market/screenshots/screenshot-3.png"),
+        (width = 1200, height = 760, png = embed "metadata/screenshots/screenshot-0.png"),
+        (width = 1200, height = 760, png = embed "metadata/screenshots/screenshot-1.png"),
+        (width = 1200, height = 760, png = embed "metadata/screenshots/screenshot-2.png"),
+        (width = 1200, height = 760, png = embed "metadata/screenshots/screenshot-3.png"),
       ],
       changeLog = (defaultText = embed "changelog.md"),
       # Documents the history of changes in Github-flavored markdown format (with the same restrictions
