@@ -1,3 +1,9 @@
+# 2023/11/02 - appVersion 33
+
+* Clearer app icons (people thought the scroll was a mountain)
+* Remove "productivity" category
+* Metadata fix
+
 # 2023/11/02 - appVersion 32
 
 * Fix bug in new app icons
