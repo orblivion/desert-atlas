@@ -327,7 +327,9 @@ L.Control.Tutorial = L.Control.extend({
 
             $('.tutorial-do-post-download-instructions').on('click', e => {
                 // Tell the backend to try the manifest download
-                fetch('download-manifest', {method: 'POST'}).catch(console.log)
+                fetch('download-manifest', {
+                    method: 'POST'
+                }).catch(console.log)
                 tutorial.setState('wait-powerbox-request')
                 tutorial.collapse()
             })
@@ -343,11 +345,13 @@ L.Control.Tutorial = L.Control.extend({
 
             $('.tutorial-do-skip').on('click', () => {
                 fetch('tutorial-mode', {
-                    // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
-                    method: 'POST',
-                    body: JSON.stringify({'tutorial-mode': TUTORIAL_DONE}),
-                })
-                .catch(console.log)
+                        // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
+                        method: 'POST',
+                        body: JSON.stringify({
+                            'tutorial-mode': TUTORIAL_DONE
+                        }),
+                    })
+                    .catch(console.log)
 
                 tutorial.mode = TUTORIAL_DONE;
                 updateDownloadStatuses() // update sooner to be more snappy
@@ -357,7 +361,9 @@ L.Control.Tutorial = L.Control.extend({
                 fetch('tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
-                    body: JSON.stringify({'tutorial-mode': TUTORIAL_STARTED}),
+                    body: JSON.stringify({
+                        'tutorial-mode': TUTORIAL_STARTED
+                    }),
                 })
 
                 tutorial.mode = TUTORIAL_STARTED;
@@ -369,7 +375,9 @@ L.Control.Tutorial = L.Control.extend({
                 fetch('tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
-                    body: JSON.stringify({'tutorial-mode': TUTORIAL_INTRO}),
+                    body: JSON.stringify({
+                        'tutorial-mode': TUTORIAL_INTRO
+                    }),
                 })
                 tutorial.mode = TUTORIAL_INTRO;
                 updateDownloadStatuses() // update sooner to be more snappy
@@ -379,7 +387,7 @@ L.Control.Tutorial = L.Control.extend({
         return this.wrapper;
     },
 
-    setFromMapStatus: function (fullStatus) {
+    setFromMapStatus: function(fullStatus) {
         // Mode is different from state; mode is user-specific.
         // If the mode is TUTORIAL_DONE, we might still be in a "state" as
         // defined below. It just means it's collapsed by default.
@@ -418,7 +426,7 @@ L.Control.Tutorial = L.Control.extend({
                     this.setState('viewer-intro')
                 }
             }
-        } else if(fullStatus['available-areas-status'] === 'error') {
+        } else if (fullStatus['available-areas-status'] === 'error') {
             // Error downloading the manifest. Tell them there was a problem.
             this.setState('retry-powerbox')
 
@@ -430,14 +438,14 @@ L.Control.Tutorial = L.Control.extend({
             // intro screen. After the intro they can see the necessary
             // status-based helper message.
             this.setState('downloader-intro')
-        } else if(fullStatus.done.length) {
+        } else if (fullStatus.done.length) {
             // At least one map downloaded. This map is "ready".
             // Instructions for searching and adding bookmarks (similar to the intro for bookmarker users)
             this.setState('downloader-search-and-bookmark')
         } else if (fullStatus['available-areas']) {
             // We have the manifest, but we haven't downloaded any maps yet
             this.setState('search-and-download-maps')
-        } else if(fullStatus['available-areas-status'] === 'started') {
+        } else if (fullStatus['available-areas-status'] === 'started') {
             // We told the server we're ready to start the powerbox request,
             // so we can kick it into the "waiting" state.
             this.setState('wait-powerbox-request')
@@ -462,7 +470,9 @@ L.Control.Tutorial = L.Control.extend({
                     // the user can't trigger it the normal way without the tutorial.
                     // (Calling this enpoint multiple times won't trigger
                     // multiple powerbox requests).
-                    fetch('download-manifest', {method: 'POST'}).catch(console.log)
+                    fetch('download-manifest', {
+                        method: 'POST'
+                    }).catch(console.log)
                 }
                 // If we're collapsed already waiting for the powerbox, we'll
                 // already be on this state so this won't have an effect. If
