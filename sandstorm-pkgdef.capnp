@@ -22,7 +22,7 @@ const pkgdef :Spk.PackageDefinition = (
 
     appTitle = (defaultText = "Desert Atlas"),
 
-    appVersion = 34,  # Increment this for every release.
+    appVersion = 35,  # Increment this for every release.
 
     appMarketingVersion = (defaultText = "0.1.0"),
     # Human-readable representation of appVersion. Should match the way you
