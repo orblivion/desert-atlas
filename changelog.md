@@ -1,6 +1,9 @@
 # 2023/11/06 - appVersion 35
 
 * Stop users from scrolling out into the void
+* Build scripts; confirmed they're reproduced on a new system
+* Put dependencies in a subdirectory
+* Do away with npm as a dependency
 * Sign with author's actual identity (prior to this it was a temporary key, as a matter of convenience)
 
 # 2023/11/02 - appVersion 34
