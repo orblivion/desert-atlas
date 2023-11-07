@@ -86,6 +86,10 @@ For generating map tile and search data, [see here](generate-data).
 
 # License/Credit
 
+* TODO - the building apps in generte-data. though... they're not included? but shortbread tho for the data. and the geojsons, make sure the license is compatible or whatever with osm
+
+* TODO - fix header levels here. I think everything under this should be under Licens/Credit
+
 ## Base map
 
 ### GeoJSON (the "wireframe" look)
@@ -142,3 +146,7 @@ These things aren't vendored in this repo, but they will be bundled in the resul
 * Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
 * Powerbox Proxy (for Sandstorm) - Apache 2
     * Including `assets/js/powerbox-helper.js`. It's built using typescript from a file in the Powerbox repo.
+
+* TODO - Whatever I vacuum up from Debian (via Qubes)! And which version.
+* TODO - Merge from description.md into this. Link from there to here since it's a bit off-topic there.
+
