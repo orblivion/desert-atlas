@@ -6,7 +6,13 @@ set -euo pipefail
 git submodule init
 git submodule update
 
-(cd powerbox-http-proxy; go build && npm install && npm run build)
+(cd powerbox-http-proxy; go build)
+
+# Instead of installing npm (a lot of packages on Debian!) and building this
+# tiny file that almost centairly will never change, I just built it and copied
+# it to this repo. All I need to do is confirm that we have not upgraded
+# powerbox-http-proxy
+git -C powerbox-http-proxy rev-parse HEAD | grep 40d655f2b9083cb4874cbc03753bb07060159357 || (echo "Error: Powerbox Proxy was updated, doublecheck that index.ts (powerbox-helper.js) is unchanged, and update this hash" && exit 1)
 
 # Not quite submodules
 (cd jquery; ./setup.sh)

@@ -134,4 +134,4 @@ These things aren't vendored in this repo, but they will be bundled in the resul
 * Protomaps JS (with modifications) - BSD 3-Clause
 * Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
 * Powerbox Proxy (for Sandstorm) - Apache 2
-
+    * Including `assets/js/powerbox-helper.js`. It's built using typescript from a file in the Powerbox repo.

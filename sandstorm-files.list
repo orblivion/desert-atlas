@@ -42,7 +42,6 @@ lib
 lib32
 lib64
 libx32
-powerbox-http-proxy/build/index.js
 powerbox-http-proxy/powerbox-http-proxy
 proc/cpuinfo
 protomaps.js/protomaps.js
