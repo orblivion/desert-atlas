@@ -52,8 +52,13 @@ Outbound network connections from the backend require explicit user permission (
 
 Assumes Debian 11 (Bullseye)
 
+    git submodule init
+    git submodule update
+
     sudo ./setup.sh
     ./build.sh
+
+At this point it should be possible to run `spk pack` without running it first. All of the files should be there.
 
 # Code
 

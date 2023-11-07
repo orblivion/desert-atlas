@@ -2,9 +2,7 @@
 
 set -euo pipefail
 
-# Submodules
-git submodule init
-git submodule update
+# Powerbox Proxy
 
 (cd dependencies/powerbox-http-proxy; go build)
 
