@@ -48,6 +48,8 @@ Outbound network connections from the backend require explicit user permission (
 
 **WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
 
+**WARNING** this will run `git submodule update`. Make sure you're not going to lose any work you have on checked out submodules.
+
 Assumes Debian 11 (Bullseye)
 
     sudo ./setup.sh
