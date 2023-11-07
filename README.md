@@ -8,7 +8,7 @@ Desert Atlas allows you to plan trip destinations with friends, store important 
 
 Some other self-hosted map apps will still get tile data from external sources on-demand, leaking some amount of your usage patterns to the outside world, and making you dependent on their services. With Desert Atlas, all of the map data is fully self-hosted in your Sandstorm grain, in the same way that OrganicMaps fully holds regions of the map on your phone. The map data needs to come from somewhere of course, so as with OrganicMaps you need to download the regions you need (about the size of a US state) from a map data server, but you only need to do this once per grain (until you want to update the data). Perhaps some day the data could be shared between grains on the same server, reducing the amount of downloads further, increasing privacy. But that's very much a stretch goal.
 
-There are other fully self-hosted OSM solutions, admittedly including at least one that uses docker and is thus probably easy to set up. But thanks to Sandstorm, and Desert Atlas aiming for the "simplest version of everything" in the OSM ecosystem, Desert Atlas is even easier. A "full stack" OSM setup generally includes something like postgres for generating tiles and elasticsearch for search, neither of which play nicely with Sandstorm. Desert Atlas by contrast uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search (a home-grown solution, importing search data extracted from raw OSM data using the common tool `osmium`). No shade on the other solutions, they have more sophisticated search and nicer map renders, but Desert Atlas is simple enough to be a consumer app.
+There are other fully self-hosted OSM solutions, admittedly including at least one that uses docker and is thus probably easy to set up. But thanks to Sandstorm, and Desert Atlas aiming for the "simplest version of everything" in the OSM ecosystem, Desert Atlas is even easier. A "full stack" OSM setup generally includes something like postgres for generating tiles and elasticsearch for search, neither of which play nicely with Sandstorm. Desert Atlas by contrast uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search (a home-grown solution, importing search data extracted from raw OSM data using python bindings for the common tool `osmium`). No shade on the other solutions, they have more sophisticated search and nicer map renders, but Desert Atlas is simple enough to be a consumer app.
 
 This is a work in progress, but it's just about at releaseable "minimum viable product" status. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
 
@@ -44,26 +44,14 @@ Outbound network connections from the backend require explicit user permission (
 
 # Building
 
-`spk` only for now. **WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
+`spk` only for now. Have not tested on `vagrant-spk` but I tried to split up the setup scripts with it in mind. Happy to hear feedback or especially fixes for that.
 
-`build.sh` is a TODO. We can probably get this going on `vagrant-spk`. It would also be useful for auto-installing things in this section.
+**WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
 
-Git submodules, protomaps.js/setup.sh. All of the symlinks within `assets/` should be pointing to something real. build powerbox-http-proxy.
+Assumes Debian 11 (Bullseye)
 
-Debian (probably among other things, TODO make this comprehensive and probably put in `build.sh`): `nginx`, `python3-flask`, `python3-unidecode`, `npm`
-
-And then for nginx:
-
-```
-sudo service nginx stop
-sudo systemctl disable nginx
-```
-
-Unless you actually want to have an nginx server always running on your system.
-
-Also install golang for the powerbox-http-proxy.
-
-Yeah this is a TODO, feel free to fill this in with useful info.
+    sudo ./setup.sh
+    ./build.sh
 
 # Code
 

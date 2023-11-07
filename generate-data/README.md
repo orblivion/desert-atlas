@@ -67,7 +67,7 @@ Available via pip, though you can get it on Debian as `s3cmd`.
 
 (TODO - s3 credentials on real version)
 
-(TODO - explain planet-test.osm.pbf. It's for testing the build process with a very very small planet file. It won't deal with data issues or resource limitations but it'll see if you're probably running the correct commands. Created (hopefully) with `osmium tags-filter planet.osm.pbf n/place=city -o planet-test.osm.pbf` and then with pyosmium filtering out lower population cities to make it even smaller. EDIT: akshually we want the bigger one probably so that we have at least 2 regions per super region.)
+(TODO - explain planet-test.osm.pbf. It's for testing the build process with a very very small planet file. It won't deal with data issues or resource limitations but it'll see if you're probably running the correct commands. Created (hopefully) with `osmium tags-filter planet.osm.pbf n/place=city -o planet-test.osm.pbf` (requires `osmium` package on Debian) and then with pyosmium filtering out lower population cities to make it even smaller. EDIT: akshually we want the bigger one probably so that we have at least 2 regions per super region.)
 
 Real version: Run `./build_all.py` and it will build the world for you using the latest weekly `planet.osm.pbf`. The results will be in the `output/` directory, and will also be uploaded to S3. As of this writing this will take about 2 and a half days on a shared Linode VPS with 16 GB of memory.
 
@@ -117,3 +117,8 @@ in/<region_code>/search - .json.gz gazetteer output
 (for each region)
 
 TODO - make sure this works
+
+## Generating the pre-download set of big cities around the world
+
+* For Debian 11, install `python3-shapely`
+* Run import-places.py to generate `base-map/places.gz`
