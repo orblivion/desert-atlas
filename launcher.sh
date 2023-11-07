@@ -9,7 +9,7 @@ export DB_URI="/var/powerbox-http-proxy.db"
 export CA_CERT_PATH=/var/powerbox-http-proxy.pem
 rm -f $CA_CERT_PATH
 
-./powerbox-http-proxy/powerbox-http-proxy &
+./dependencies/powerbox-http-proxy/powerbox-http-proxy &
 while [ ! -e "$CA_CERT_PATH" ] ; do
     echo "waiting for powerbox-http-proxy to start"
     sleep .1

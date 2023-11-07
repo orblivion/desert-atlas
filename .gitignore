@@ -1,9 +1,9 @@
 __pycache__
-protomaps.js/protomaps.js
-protomaps.js/protomaps.js.orig
-jquery/jquery.min.js
-leaflet/leaflet.js
-leaflet/leaflet.css
+dependencies/protomaps.js/protomaps.js
+dependencies/protomaps.js/protomaps.js.orig
+dependencies/jquery/jquery.min.js
+dependencies/leaflet/leaflet.js
+dependencies/leaflet/leaflet.css
 generate-data/pbf/planet.done
 generate-data/pbf/planet.osm.pbf
 generate-data/pbf/regions

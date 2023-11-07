@@ -1,1 +1,1 @@
-../../leaflet/leaflet.js
+../../dependencies/leaflet/leaflet.js

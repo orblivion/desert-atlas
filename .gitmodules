@@ -1,8 +1,8 @@
 [submodule "powerbox-http-proxy"]
-	path = powerbox-http-proxy
+	path = dependencies/powerbox-http-proxy
 	url = https://github.com/zenhack/powerbox-http-proxy
 [submodule "leaflet-search"]
-	path = leaflet-search
+	path = dependencies/leaflet-search
 	url = https://github.com/stefanocudini/leaflet-search
 [submodule "generate-data/tilemaker"]
 	path = generate-data/tilemaker

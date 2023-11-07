@@ -1,1 +1,1 @@
-../../protomaps.js/protomaps.js
+../../dependencies/protomaps.js/protomaps.js

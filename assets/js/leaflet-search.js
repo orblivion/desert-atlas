@@ -1,1 +1,1 @@
-../../leaflet-search/src/leaflet-search.js
+../../dependencies/leaflet-search/src/leaflet-search.js
