@@ -14,6 +14,10 @@ This also translates to a fair amount of virtual memory usage on the server, tho
 
 In all, it's recommended for the time being to be mindful of how many areas are downloaded in a single grain.
 
+## Searching addresses
+
+Full addresses are not yet searchable. Street names are searchable, however.
+
 ## Searching non-latin
 
 As far as I can tell, searching in non-latin characters is not yet supported.
