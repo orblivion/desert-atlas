@@ -45,13 +45,13 @@ Copy s3 credentials for your bucket to `~/.s3cfg`
 
     cd generate-data/
 
-Enter a tmux! Kick off these three at once:
+You can kick off these three one at a time, or at once in a different terminal (tmux is nice here). All starting from `generate-data/`:
 
     export PATH=$PATH:/usr/local/go/bin; cd go-pmtiles; go build
     cd tilemaker; make
     ./get-mkgmap-splitter.sh
 
-After those are built, you have your tools to do everything else:
+After those are built, you have your tools to do everything else. Again from `generate-data/`:
 
     # This sets the timestamp. It's sepate so that if we have to run ./build_all.py again it won't start over.
     ./set_build_name.py
