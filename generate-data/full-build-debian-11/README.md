@@ -28,11 +28,11 @@ Create shared CPU Linode with 16GB of RAM
 
 ## As mapbuilder
 
-    git clone https://github.com/orblivion/sandstorm-share-a-map
+    git clone https://github.com/orblivion/desert-atlas
 
 ## As root again
 
-    cd sandstorm-share-a-map/generate-data/full-build-debian-11
+    cd desert-atlas/generate-data/full-build-debian-11
     ./install-go.sh
 
 ## As mapbuilder again
@@ -41,7 +41,7 @@ Create shared CPU Linode with 16GB of RAM
 
 Copy s3 credentials for your bucket to `~/.s3cfg`
 
-    cd sandstorm-share-a-map/
+    cd desert-atlas/
     git submodule init
     git submodule update
 
