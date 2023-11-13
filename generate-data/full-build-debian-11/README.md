@@ -37,8 +37,6 @@ Create shared CPU Linode with 16GB of RAM
 
 ## As mapbuilder again
 
-    export PATH=$PATH:/usr/local/go/bin
-
 Copy s3 credentials for your bucket to `~/.s3cfg`
 
     cd desert-atlas/
@@ -49,7 +47,7 @@ Copy s3 credentials for your bucket to `~/.s3cfg`
 
 Enter a tmux! Kick off these three at once:
 
-    cd go-pmtiles; go build
+    export PATH=$PATH:/usr/local/go/bin; cd go-pmtiles; go build
     cd tilemake; make
     ./get-mkgmap-splitter.sh
 
