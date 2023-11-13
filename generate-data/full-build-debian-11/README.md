@@ -48,7 +48,7 @@ Copy s3 credentials for your bucket to `~/.s3cfg`
 Enter a tmux! Kick off these three at once:
 
     export PATH=$PATH:/usr/local/go/bin; cd go-pmtiles; go build
-    cd tilemake; make
+    cd tilemaker; make
     ./get-mkgmap-splitter.sh
 
 After those are built, you have your tools to do everything else:
