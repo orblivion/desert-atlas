@@ -21,7 +21,7 @@ Create shared CPU Linode with 16GB of RAM
     apt install -y build-essential libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-program-options-dev libboost-system-dev liblua5.1-0-dev libprotobuf-dev libshp-dev libsqlite3-dev protobuf-compiler rapidjson-dev # I think this was for building tilemaker
     apt install -y osmium-tool pyosmium # extracting search
     apt install -y default-jre unzip # mkgmap's splitter
-    apt install -y tmux git # I find tmux useful for this
+    apt install -y tmux git # git for the repo, tmux so you can disconnect and leave it building for days
     apt install -y aria2 s3cmd # Downloading torrent of osm's raw planet, and uploading the result to S3
 
     adduser mapbuilder --disabled-password
@@ -51,12 +51,14 @@ You can kick off these three one at a time, or at once in a different terminal (
     cd tilemaker; make
     ./get-mkgmap-splitter.sh
 
-After those are built, you have your tools to do everything else. Again from `generate-data/`:
+After those are built, you have your tools to do everything else. Make sure you are in tmux! This is the part that will run for days. Again from `generate-data/`:
 
     # This sets the timestamp. It's sepate so that if we have to run ./build_all.py again it won't start over.
     ./set_build_name.py
 
     S3BUCKET=desert-atlas ./build_all.py
+
+Disconnect from your tmux session. Check back in a couple days.
 
 ## Two or three days later
 
