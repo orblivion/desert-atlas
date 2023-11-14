@@ -1443,7 +1443,7 @@ getGeoJson("usa-states")
 updateDownloadStatuses()
 
 const PLACES_SEARCH_TEXT_PLACEHOLDER = "Cities, States, or Countries"
-const POIS_SEARCH_TEXT_PLACEHOLDER = "Nearby cafes, streets, parks..."
+const POIS_SEARCH_TEXT_PLACEHOLDER = "Nearby cafes, street names, parks..."
 
 const searchControl = new L.Control.Search({
     url: () => {
