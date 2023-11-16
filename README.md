@@ -2,7 +2,7 @@ Desert Atlas is a general purpose, fully self-hosted map app for the Sandstorm p
 
 You can check out a live demo [here](https://apps.sandstorm.io/app/e5eaqnrqfrhgax1awtgw9uqayg42kcen2gkpynjs3j5mww7w3rp0?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
 
-![Screenshot](metadata/screenshots/screenshot-1.png)
+![Screenshot](.sandstorm/metadata/screenshots/screenshot-1.png)
 
 Desert Atlas allows you to plan trip destinations with friends, store important locations, etc, and export the result to a convenient phone application like OrganicMaps for navigation. Perhaps some day (with some work on the phone app side) there could be a more automatic sync option. If there are other bits of standard functionality you would like to see, please let me know!
 
@@ -42,23 +42,38 @@ Inbound connections from the browser go through a proxy to handle authentication
 
 Outbound network connections from the backend require explicit user permission (again via a popup) to prevent a malicious app from "phoning home". Desert Atlas makes use of this as users request to download map data for a given region.
 
-# Building
+# Running
 
-`spk` only for now. Have not tested on `vagrant-spk` but I tried to split up the setup scripts with it in mind. Happy to hear feedback or especially fixes for that.
-
-**WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
-
-**WARNING** this will run `git submodule update`. Make sure you're not going to lose any work you have on checked out submodules.
-
-Assumes Debian 11 (Bullseye)
+First, check out the git submodules:
 
     git submodule init
     git submodule update
 
-    sudo ./setup.sh
-    ./build.sh
+## Vagrant SPK
 
-At this point it should be possible to run `spk pack` without running it first. All of the files should be there.
+Normal stuff; `vagrant-spk vm up`, `vagrant-spk dev`. Just check out the [Sandstorm packaging tutorial](https://docs.sandstorm.io/en/latest/vagrant-spk/packaging-tutorial/) if you're unfamiliar.
+
+## SPK (no virtual machines)
+
+`spk`-only is a bit more advanced. It's only recommended if you have a reason not to use Vagrant (such as developing on QubesOS that isn't as friendly to VirtualBox).
+
+**WARNING** this should be built on an environment you do not mind modifying and risking breaking, etc. This will require installing things on your system and maybe changing things. The main author uses QubesOS and thus has a dedicated VM for this project.
+
+Assumes Debian 11 (Bullseye) and that your current directory is the repository root
+
+    # This is how vagrant-spk likes to work, and it's easier to just follow suit
+    sudo mkdir /opt/app
+    sudo mount --bind . /opt/app
+
+    sudo .sandstorm/setup.sh
+    .sandstorm/build.sh
+
+    cd .sandstorm
+    spk dev
+
+# Buliding
+
+At this point it should be possible to run `spk pack` (within the `.sandstorm` directory) / `vagrant-spk pack` without running it first. All of the files should be there.
 
 # Code
 

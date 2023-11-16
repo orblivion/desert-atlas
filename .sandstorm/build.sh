@@ -1,6 +1,7 @@
 #!/bin/bash
-
 set -euo pipefail
+
+cd /opt/app
 
 # Powerbox Proxy
 
@@ -28,3 +29,5 @@ python3 -c "import csv_format"
 python3 -c "import query"
 
 echo "Built!"
+
+exit 0
