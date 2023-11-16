@@ -340,7 +340,7 @@ def delete_search(tile_id):
     con.commit()
 
 if sys.version_info.major < 3:
-    print_err("demo.py requires python3 or later: python3 demo.py")
+    print_err("server.py requires python3 or later: python3 server.py")
     exit(1)
 import re
 import mmap # this is a system level thing. when converting to Go do the same thing: https://pkg.go.dev/golang.org/x/exp/mmap (unless we can just use Caddy?) except we need to convert the range requests.

@@ -21,7 +21,6 @@ base-map/places.gz
 base-map/usa-states.geojson.gz
 bin
 csv_format.py
-demo.py
 dependencies/jquery/jquery.min.js
 dependencies/leaflet-search/images/loader.gif
 dependencies/leaflet-search/images/search-icon.png
@@ -50,6 +49,7 @@ sandstorm-http-bridge
 sandstorm-http-bridge-config
 sandstorm-manifest
 sbin
+server.py
 service-config/mime.types
 service-config/nginx.conf
 tutorial.js

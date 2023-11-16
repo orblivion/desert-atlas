@@ -78,7 +78,7 @@ The data generation scripts are mostly bash and python. I'd be happy with moving
 
 Sometimes useful. I should add some instructions. But it's currently shaky, so not worth documenting since it'll probably change.
 
-But it involves running `./demo.py`. This will start a web server on port 3857 and possibly open a browser.
+But it involves running `./server.py`. This will start a web server on port 3857 and possibly open a browser.
 
 # Generating map data
 
@@ -140,7 +140,7 @@ These things aren't vendored in this repo, but they will be bundled in the resul
 * [Leaflet](https://github.com/Leaflet/Leaflet) - BSD 2-Clause
 * [Leaflet Search](https://github.com/stefanocudini/leaflet-search) - MIT
 * Protomaps JS (with modifications) - BSD 3-Clause
-* Protomaps demo.py - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
+* Protomaps demo.py (now server.py) - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
 * Powerbox Proxy (for Sandstorm) - Apache 2
     * Including `assets/js/powerbox-helper.js`. It's built using typescript from a file in the Powerbox repo.
 
