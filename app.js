@@ -490,8 +490,9 @@ const bookmarkPopup = L.popup()
               <center id="edit-and-delete-buttons">
                   <!-- Text of the button is variable, see below -->
                   <button id="bookmark-edit-begin-button" class="da-button" style="width:48%"></button>
-
                   <button id="bookmark-edit-delete-button" class="da-button" style="display:none;width:48%">Delete</button>
+
+                  <button id="bookmark-edit-hide-button" class="da-button" style="display:none;width:48%">Hide Search Result</button>
               </center>
               <center id="edit-bookmark-title-form" style="display:none;">
                   <input id="bookmark-edit-name" class="for-editor bookmark-edit-name" style="width:96%">
@@ -585,6 +586,7 @@ const bookmarkPopup = L.popup()
 
         addAndRemoveClickHandler('bookmark-edit-save-button', addBookmark)
         addAndRemoveClickHandler('bookmark-edit-delete-button', deleteBookmarkAreYouSure)
+        addAndRemoveClickHandler('bookmark-edit-hide-button', removeSearchMarker)
         addAndRemoveClickHandler('bookmark-edit-delete-cancel-button', deleteBookmarkCancel)
         addAndRemoveClickHandler('bookmark-edit-delete-confirm-button', deleteBookmark)
 
@@ -622,6 +624,17 @@ const bookmarkPopup = L.popup()
                 document.getElementById("bookmark-edit-name").focus()
             }
         } else if (bookmarkPopup.options.bookmarkEditType === "search") {
+            // Let us hide the marker if it's a search result.
+            //
+            // This is important because if you select the search result for
+            // "New York City" before downloading any regions, there are some
+            // small nearby regions that are part of the NYC metro that you
+            // can't even click on to download because the search result marker
+            // keeps getting clicked.
+            //
+            // It may also be helpful in other contexts.
+            document.getElementById('bookmark-edit-hide-button').style.display = 'inline'
+
             document.getElementById('bookmark-header').textContent = "Search Result"
             document.getElementById('bookmark-edit-begin-button').textContent = "Add As Bookmark"
         }
@@ -962,6 +975,11 @@ const addBookmark = (() => {
                     console.error(e)
                 })
         })
+})
+
+const removeSearchMarker = (() => {
+    searchMarker.remove()
+    bookmarkPopup.close()
 })
 
 const deleteBookmarkAreYouSure = (() => {
