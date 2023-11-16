@@ -3,7 +3,7 @@
 set -exuo pipefail
 
 # https://golang.org/doc/install
-wget https://golang.org/dl/go1.18.1.linux-amd64.tar.gz -O /tmp/golang.tar.gz
+wget https://golang.org/dl/go1.21.4.linux-amd64.tar.gz -O /tmp/golang.tar.gz
 sha256sum --strict -c golang.checksum
 
 # https://golang.org/doc/install
