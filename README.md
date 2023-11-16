@@ -42,7 +42,7 @@ Inbound connections from the browser go through a proxy to handle authentication
 
 Outbound network connections from the backend require explicit user permission (again via a popup) to prevent a malicious app from "phoning home". Desert Atlas makes use of this as users request to download map data for a given region.
 
-# Running
+# Running / Developing
 
 First, check out the git submodules:
 
@@ -71,7 +71,7 @@ Assumes Debian 11 (Bullseye) and that your current directory is the repository r
     cd .sandstorm
     spk dev
 
-# Buliding
+# Building / Releasing
 
 At this point it should be possible to run `spk pack` (within the `.sandstorm` directory) / `vagrant-spk pack` without running it first. All of the files should be there.
 
