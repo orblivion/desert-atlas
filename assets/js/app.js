@@ -1134,7 +1134,7 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
 
 let updateDownloadStatusesTimeout = null
 let updateDownloadStatusesFirstRun = true
-let isDownloader = false // Don't rely on this being accurate in the first few seconds. Gets loaded from map status.
+let isDownloader = undefined // Don't rely on this being accurate in the first few seconds. Gets loaded from map status.
 
 function updateDownloadStatuses() {
     let uniqueLoadedStatuses = new Set(Object.values(loaded).map(({
@@ -1157,8 +1157,10 @@ function updateDownloadStatuses() {
 
     if (
         // IF we already have the manifest OR we're a non-downloader (and thus
-        // don't care about the manifest)
-        (!!Object.keys(areaBoundses).length || !isDownloader) &&
+        // don't care about the manifest) (need to explicitly check if `false`
+        // because this variable starts `undefined` i.e. undetermined in which
+        // case we want to default to faster)
+        (!!Object.keys(areaBoundses).length || isDownloader === false) &&
 
         // AND we don't have any active downloads (either no downloads at all,
         // or LOADED_DONE is the only status for any area in `loaded`)
