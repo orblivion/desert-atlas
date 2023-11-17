@@ -118,11 +118,6 @@ const renderLoop = () => {
 
 renderLoop()
 
-// Text-replace this with the permissions when we render app.js. This of course
-// should not be relied on for security, just UI changes to not confuse the
-// user.
-permissions = PERMISSIONS_REPLACE_ME
-
 const map = L.map('map')
 
 LOADED_DONE = "done"
@@ -153,7 +148,7 @@ L.Control.AreasMenu = L.Control.extend({
         return this.menu
     },
 
-    render: function() {
+    render: function(permissions) {
         const HIDE_AREAS_MENU = '<span style="float:left;">\u{2B05}</span><center>Downloaded Areas</center>'
         const SHOW_AREAS_MENU = '\u{1F5FA}\u{FE0F}'
 
@@ -455,14 +450,22 @@ L.control.bookmarksList = function() {
 const bookmarksList = L.control.bookmarksList()
 bookmarksList.addTo(map)
 
-if (permissions.indexOf("bookmarks") === -1) {
-    bookmarkEditClass = "is-read-only"
-} else {
-    bookmarkEditClass = "is-editor"
-}
-
 const bookmarkPopup = L.popup()
-    .setContent(
+let bookmarkPopupInitialized = false
+
+// TODO - try to make a popup super fast?
+function bookmarkPopupInit(permissions) {
+    if (bookmarkPopupInitialized) {
+        return
+    }
+
+    if (permissions.indexOf("bookmarks") === -1) {
+        bookmarkEditClass = "is-read-only"
+    } else {
+        bookmarkEditClass = "is-editor"
+    }
+
+    bookmarkPopup.setContent(
         `
       <h1 id="bookmark-header"></h1>
       <div id="bookmark-edit-section-edit" class="${bookmarkEditClass}">
@@ -621,9 +624,16 @@ const bookmarkPopup = L.popup()
             document.getElementById('bookmark-edit-begin-button').textContent = "Add As Bookmark"
         }
     })
+    bookmarkPopupInitialized = true
+}
 
 // could make it a method on bookmarkPopup but I'm lazy
 function setBookmarkPopup(bookmark, editType) {
+    // Just in case people click super early
+    if (!bookmarkPopupInitialized) {
+        return
+    }
+
     bookmarkPopup.options.bookmarkEditType = editType
 
     // safe copy
@@ -1124,6 +1134,7 @@ const selectBookmarkMarker = (bookmarkId, doZoom) => {
 
 let updateDownloadStatusesTimeout = null
 let updateDownloadStatusesFirstRun = true
+let isDownloader = false // Don't rely on this being accurate in the first few seconds. Gets loaded from map status.
 
 function updateDownloadStatuses() {
     let uniqueLoadedStatuses = new Set(Object.values(loaded).map(({
@@ -1147,7 +1158,7 @@ function updateDownloadStatuses() {
     if (
         // IF we already have the manifest OR we're a non-downloader (and thus
         // don't care about the manifest)
-        (!!Object.keys(areaBoundses).length || permissions.indexOf("download") === -1) &&
+        (!!Object.keys(areaBoundses).length || !isDownloader) &&
 
         // AND we don't have any active downloads (either no downloads at all,
         // or LOADED_DONE is the only status for any area in `loaded`)
@@ -1192,6 +1203,10 @@ function updateDownloadStatuses() {
         })
         .then(res => res.json())
         .then(fullStatus => {
+            const permissions = fullStatus['permissions']
+            bookmarkPopupInit(permissions)
+            isDownloader = permissions.indexOf("download") !== -1
+
             const inProgress = fullStatus['in-progress']
 
             // If another user/share started the download and we see it here, or
@@ -1610,7 +1625,7 @@ function boundsKeeper () {
     clearTimeout(boundsKeeperTimeout)
 
     if (boundsKeeperNewLoc) {
-        console.log(boundsKeeperNewLoc, boundsKeeperTimeout)
+        console.log("boundsKeeper", boundsKeeperNewLoc)
         map.panTo(boundsKeeperNewLoc)
         boundsKeeperNewLoc = null
     }

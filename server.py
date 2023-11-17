@@ -481,19 +481,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
-        if url.path == '/app.js':
-            permissions = get_permissions(self.headers)
-
-            self.send_response(HTTPStatus.OK)
-            self.end_headers()
-
-            with open('app.js') as f:
-                content = (
-                    f.read()
-                    .replace("PERMISSIONS_REPLACE_ME", repr(permissions))
-                )
-                self.wfile.write(bytes(content, "utf-8"))
-            return
         if url.path.endswith('bookmarks'):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
@@ -614,6 +601,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 ],
                 "done": [fname.split('.pmtiles')[0] for fname in filemaps],
                 "tutorial-mode": tutorial_mode,
+                "permissions": get_permissions(self.headers),
             }
             self.wfile.write(bytes(json.dumps(full_status), "utf-8"))
             return
@@ -633,7 +621,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(open(kmz_path, "rb").read())
             return
 
-        # TODO - only do this path for local. we should use nginx for sandstorm
+        # We need to do this via the app only because of the sandstorm range request workaround
         if url.path.endswith('.pmtiles'):
             fname = url.path.split('/')[-1]
             qs = urllib.parse.parse_qs(url.query)

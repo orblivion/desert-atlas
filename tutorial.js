@@ -399,6 +399,7 @@ L.Control.Tutorial = L.Control.extend({
             this.mode = fullStatus['tutorial-mode']
         }
 
+        const permissions = fullStatus['permissions']
         if (permissions.indexOf("download") === -1) {
             // Non-download users tutorial logic is simple and different from
             // downloader users. Let's get it out of the way first.
