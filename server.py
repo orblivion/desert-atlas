@@ -639,8 +639,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(filemaps[fname][first:last+1])
             return
 
-        # TODO - only do this path for local. we should use nginx for sandstorm
-        if url.path.endswith('.geojson'):
+        # Only do this path for local, use nginx for sandstorm
+        if url.path.endswith('.geojson') and is_local:
             fname = url.path.split('/')[-1]
             qs = urllib.parse.parse_qs(url.query)
             self.send_response(HTTPStatus.PARTIAL_CONTENT)
@@ -655,12 +655,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(geojson_file.read())
             return
 
-        f = self.send_head()
-        if f:
-            try:
-                self.copyfile(f, self.wfile)
-            finally:
-                f.close()
+        # Only do this path for local, use nginx for sandstorm
+        if ('assets' in url.path or 'index.html' in url.path or url.path == '/') and is_local:
+            f = self.send_head()
+            if f:
+                try:
+                    self.copyfile(f, self.wfile)
+                finally:
+                    f.close()
+
+        self.send_response(HTTPStatus.NOT_FOUND)
+        self.end_headers()
+        return
 
 def kml():
     beginning = '\n'.join([

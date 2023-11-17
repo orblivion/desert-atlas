@@ -1382,36 +1382,27 @@ function unloadArea(tileId) {
     return true
 }
 
-function getGeoJson(name) {
-    path = `base-map/${name}.geojson`
-    return fetch(path, {
-            method: 'GET'
-        })
-        .then(res => {
-            return res.json().then(geoJson => {
-                // Remove the US since we already have the states. This will avoid the annoying
-                // inconsistent double-borders. Still have that problem on the northern and
-                // southern borders though.
-                geoJson.features = geoJson.features.filter(f => f.properties.ADMIN !== "United States of America")
-                const geoJsonLayer = L.geoJson(geoJson, {
-                    attribution: (
-                        '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
-                        '<a href="https://github.com/lexman">Lexman</a>, ' +
-                        '<a href="https://okfn.org/">Open Knowledge Foundation</a>, ' +
-                        '<a href="https://geonames.org/">GeoNames</a>'
-                    ),
-                    // Public domain but they said they'd appreciate attribution
-                    style: {
-                        ...uiStyle.borders,
-                        interactive: false,
-                    }
-                }).addTo(map)
-                geoJsons[name] = geoJsonLayer
-                setGeoJsonOpacityAndBackground()
-                return geoJsonLayer
-            })
-        })
-        .catch(console.log)
+function showGeoJson(geoJson) {
+    // Remove the US since we already have the states. This will avoid the annoying
+    // inconsistent double-borders. Still have that problem on the northern and
+    // southern borders though.
+    geoJson.features = geoJson.features.filter(f => f.properties.ADMIN !== "United States of America")
+    const geoJsonLayer = L.geoJson(geoJson, {
+        attribution: (
+            '<a href="https://www.naturalearthdata.com/">Natural Earth</a>, ' +
+            '<a href="https://github.com/lexman">Lexman</a>, ' +
+            '<a href="https://okfn.org/">Open Knowledge Foundation</a>, ' +
+            '<a href="https://geonames.org/">GeoNames</a>'
+        ),
+        // Public domain but they said they'd appreciate attribution
+        style: {
+            ...uiStyle.borders,
+            interactive: false,
+        }
+    }).addTo(map)
+    geoJsons[name] = geoJsonLayer
+    setGeoJsonOpacityAndBackground()
+    return geoJsonLayer
 }
 
 function setGeoJsonOpacityAndBackground() {
@@ -1452,8 +1443,8 @@ geoJsons = {}
 // TODO - probably actually replace this with dead simple world map tiles if I can.
 // It will look better. Also geoJson seems to want to always be on top of tiles so
 // it'll always show up at least a little bit.
-getGeoJson("countries")
-getGeoJson("usa-states")
+showGeoJson(countries_geojson)
+showGeoJson(usa_states_geojson)
 
 updateDownloadStatuses()
 
