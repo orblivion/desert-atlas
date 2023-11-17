@@ -1632,8 +1632,8 @@ map.on('moveend', () => {
 
     const LAT_MAX = 85
     const LAT_MIN = -85
-    const LNG_MAX = 100
-    const LNG_MIN = -100
+    const LNG_MAX = 180
+    const LNG_MIN = -180
 
     if (
         (lat > LAT_MAX) ||
