@@ -1246,7 +1246,7 @@ function updateDownloadStatuses() {
             }
 
             if (newLoadedOrDeleted) {
-                areasMenu.render()
+                areasMenu.render(permissions)
                 // Don't flash on the very initial loadAreases since that's
                 // probably not based on a recent download.
                 if (!updateDownloadStatusesFirstRun) {
