@@ -1,3 +1,28 @@
+# 2023/11/17 - appVersion 36
+
+* Performance
+  * Much faster page and app load times!
+    * Don't wait for the server to start
+        * Load front-end permission via status endpoint instead of code generation, so app.js can be a static asset
+        * Load all static assets via nginx instead of app
+    * Don't wait for powerbox proxy to start
+      * Wait at the point of making the first outbound request instead.
+  * World base map shows up faster (less glichy hopefully)
+    * Turn geojson files into javascript files and load them via index.html. Presumably faster than js fetch.
+* Save the manifest file in the grain
+  * I promised no extra outbound requests, and it's possibly marginally faster this way
+* Allow hiding the search marker
+  * It was really annoying to search for NYC and not be able to click to download the small areas near the marker
+* Fix limits for zooming out into the void - needed a bit more room
+* Search box now says "street names" instead of "streets"
+  * Make it slightly more clear that addresses are unsupported
+* Mention addresss search as a non-feature in description
+
+On the dev end:
+* vagrant-spk now supported
+* Some more useful build-the-world scripts/instructions
+* Upgrade go-pmtiles because I hit a bug
+
 # 2023/11/07 - appVersion 35
 
 * Stop users from scrolling out into the void
