@@ -18,9 +18,6 @@ export https_proxy=http://localhost:$POWERBOX_PROXY_PORT
 
 ./server.py &
 
-# Hang out until the app starts and curl gets something back
-curl --connect-timeout 5 --max-time 1 --retry 5 --retry-delay 1 --retry-max-time 10 --retry-connrefused -I localhost:3857
-
 export HOME=/var
 
 mkdir -p /var/run
