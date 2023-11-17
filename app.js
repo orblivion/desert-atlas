@@ -123,25 +123,7 @@ renderLoop()
 // user.
 permissions = PERMISSIONS_REPLACE_ME
 
-const map = L.map(
-    'map',
-    // 200 instead of 180 to give it a little leeway scrolling sideways. It's
-    // especially useful given the menus.
-    // I'd like to do the same scrolling up and down but it doesn't seem to
-    // work past 90. It's fine, there's not the same menus in the way.
-    {
-        maxBounds: L.latLngBounds([
-            L.latLng({
-                lat: -90,
-                lng: -200
-            }),
-            L.latLng({
-                lat: 90,
-                lng: 200
-            }),
-        ])
-    }
-)
+const map = L.map('map')
 
 LOADED_DONE = "done"
 LOADED_STARTED = "started"
@@ -1613,6 +1595,54 @@ function setLoc() {
 setLoc()
 map.on('zoomend', setLoc)
 map.on('moveend', setLoc)
+
+
+// Doing this instead of using maxBounds because it doesn't let me scroll past 90/-90 vertically,
+// which I need for setting a popup at the top of Greenland zoomed out. And I'm also allowing extra
+// room sideways. Note that I'm going by "center" rather than bounds, so the numbers are a bit
+// different than maxBounds. Also lat does this weird thing where it approaches 90 asymptotically
+// instead of going past 90. I guess because lat doesn't loop around like lng does.
+//
+// This thing is really touchy. Have to make sure I do this right.
+let boundsKeeperTimeout = null
+let boundsKeeperNewLoc = null
+function boundsKeeper () {
+    clearTimeout(boundsKeeperTimeout)
+
+    if (boundsKeeperNewLoc) {
+        console.log(boundsKeeperNewLoc, boundsKeeperTimeout)
+        map.panTo(boundsKeeperNewLoc)
+        boundsKeeperNewLoc = null
+    }
+    boundsKeeperTimeout = setTimeout(boundsKeeper, 500)
+}
+boundsKeeper()
+map.on('movestart', () => {
+    // Need this to prevent stuff with it panning to the bounds inappropriately if you move around a lot
+    boundsKeeperNewLoc = null
+})
+map.on('moveend', () => {
+    const {lat, lng} = map.getCenter()
+
+    const LAT_MAX = 85
+    const LAT_MIN = -85
+    const LNG_MAX = 100
+    const LNG_MIN = -100
+
+    if (
+        (lat > LAT_MAX) ||
+        (lat < LAT_MIN) ||
+        (lng > LNG_MAX) ||
+        (lng < LNG_MIN)
+    ) {
+        boundsKeeperNewLoc = {
+            lat: Math.min(Math.max(lat, LAT_MIN), LAT_MAX),
+            lng: Math.min(Math.max(lng, LNG_MIN), LNG_MAX)
+        }
+    }
+})
+
+
 map.on('zoomend', setGeoJsonOpacityAndBackground)
 map.on('zoomend', setDownloadRectVisibility)
 
