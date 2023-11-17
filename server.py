@@ -351,9 +351,26 @@ import http.server
 from socketserver import ThreadingMixIn
 from http import HTTPStatus
 
+# Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
+# This is only useful if you want to check the data you just generated with the much much smaller test planet
+# data included in this repo. And you'd only do that to test changes to the build pipeline.
+LOCAL_DATA = False
+
+# This refers to the version of the generated map data we will be downloading.
+# This number is a timestamp for when the build process began.
+DL_VERSION = "1691527217.0791874"
+
+DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
+
 filemaps = None
+
+manifest_path = os.path.join(basedir, 'manifest.' + DL_VERSION + '.json')
 manifest = None
 manifest_error = False
+
+if os.path.exists(manifest_path):
+    manifest = json.load(open(manifest_path))
+
 map_update_status = {} # TODO For now just partial downloads. eventually, let's add completed and queued
 
 def byterange(s):
@@ -736,23 +753,6 @@ def update_filemaps():
         for (fname, f)
         in files.items()
     }
-    if filemaps:
-        # Get the manifest if we got some sort of file already. The user might
-        # have restarted the grain after getting a map. At this point we have
-        # powerbox permissions already so we don't need to wait for them to
-        # push the appropriate button in the tutorial.
-        download_queue.add(DOWNLOAD_MANIFEST)
-
-# Setting to True would check for data inside generate-data/output instead of the S3 bucket over the Internet.
-# This is only useful if you want to check the data you just generated with the much much smaller test planet
-# data included in this repo. And you'd only do that to test changes to the build pipeline.
-LOCAL_DATA = False
-
-# This refers to the version of the generated map data we will be downloading.
-# This number is a timestamp for when the build process began.
-DL_VERSION = "1691527217.0791874"
-
-DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
 
 class DownloadError(Exception):
     pass
@@ -806,8 +806,9 @@ def download_file(fname):
 def download_manifest():
     global manifest
     manifest = download_file('manifest.json').json()
+    json.dump(manifest, open(manifest_path, "w"))
 
-def get_bounds_map(): # {area-key: area_bounds}.
+def get_bounds_map(): # {area-key: area_bounds}
     if manifest is None:
         return None
 
