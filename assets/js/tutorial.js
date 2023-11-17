@@ -327,7 +327,7 @@ L.Control.Tutorial = L.Control.extend({
 
             $('.tutorial-do-post-download-instructions').on('click', e => {
                 // Tell the backend to try the manifest download
-                fetch('download-manifest', {
+                fetch('/app/download-manifest', {
                     method: 'POST'
                 }).catch(console.log)
                 tutorial.setState('wait-powerbox-request')
@@ -344,7 +344,7 @@ L.Control.Tutorial = L.Control.extend({
             })
 
             $('.tutorial-do-skip').on('click', () => {
-                fetch('tutorial-mode', {
+                fetch('/app/tutorial-mode', {
                         // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                         method: 'POST',
                         body: JSON.stringify({
@@ -358,7 +358,7 @@ L.Control.Tutorial = L.Control.extend({
             })
 
             $('.tutorial-do-continue').on('click', () => {
-                fetch('tutorial-mode', {
+                fetch('/app/tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
                     body: JSON.stringify({
@@ -372,7 +372,7 @@ L.Control.Tutorial = L.Control.extend({
 
             $('.tutorial-do-restart').on('click', () => {
                 // In case they want to see the intro info again
-                fetch('tutorial-mode', {
+                fetch('/app/tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
                     body: JSON.stringify({
@@ -471,7 +471,7 @@ L.Control.Tutorial = L.Control.extend({
                     // the user can't trigger it the normal way without the tutorial.
                     // (Calling this enpoint multiple times won't trigger
                     // multiple powerbox requests).
-                    fetch('download-manifest', {
+                    fetch('/app/download-manifest', {
                         method: 'POST'
                     }).catch(console.log)
                 }

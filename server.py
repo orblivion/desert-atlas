@@ -375,7 +375,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         url = urllib.parse.urlparse(self.path)
         permissions = get_permissions(self.headers)
-        if url.path == '/bookmark':
+        if url.path == '/app/bookmark':
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
@@ -401,7 +401,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps([bookmark_id, new_bookmark]), "utf-8"))
 
         # TODO - should be a DELETE request but I didn't want to figure it out
-        if url.path == '/bookmark-delete':
+        if url.path == '/app/bookmark-delete':
             if 'bookmarks' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
@@ -418,7 +418,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
-        if url.path == '/map-delete':
+        if url.path == '/app/map-delete':
             if 'download' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
@@ -437,7 +437,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             for tile_id in tile_ids:
                 download_queue.add((tile_id, DELETE))
 
-        if url.path == '/download-map':
+        if url.path == '/app/download-map':
             if 'download' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
@@ -449,7 +449,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             tile_id = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tile-id']
             download_queue.add((tile_id, DOWNLOAD))
 
-        if url.path == '/download-manifest':
+        if url.path == '/app/download-manifest':
             if 'download' not in permissions:
                 self.send_response(HTTPStatus.FORBIDDEN)
                 self.end_headers()
@@ -461,7 +461,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if manifest is None:
                 download_queue.add(DOWNLOAD_MANIFEST)
 
-        if url.path == '/tutorial-mode':
+        if url.path == '/app/tutorial-mode':
             unique_id = get_unique_id(self.headers)
             if unique_id is not None:
                 with open(tutorial_mode_path) as f:
@@ -487,7 +487,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(bytes(json.dumps(get_all_bookmarks()), "utf-8"))
             return
 
-        if url.path == '/search':
+        if url.path == '/app/search':
             # TODO - if the query has & or # I think it messes things up? need encoding.
             qs = urllib.parse.parse_qs(url.query)
             search_query = query.query(query.search_normalize(qs['q'][0]))

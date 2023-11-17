@@ -90,7 +90,7 @@ const renderLoop = () => {
     // on demand.
     renderTimeout = setTimeout(renderLoop, 5000)
 
-    fetch('bookmarks', {
+    fetch('/app/bookmarks', {
             method: 'GET'
         })
         .then(res => {
@@ -272,7 +272,7 @@ areasMenu.addTo(map)
 
 // tileId === "all" to delete all areas
 const deleteArea = (tileId => {
-    fetch('map-delete', {
+    fetch('/app/map-delete', {
             method: 'POST', // should be DELETE on the same path as POST, but I don't want to figure this out now
             body: JSON.stringify({
                 'tile-id': tileId
@@ -872,7 +872,7 @@ function downloadArea(tileId) {
     // download. otherwise it has to wait to finish a slower loop before it even knows to go fast.
     updateDownloadStatuses()
 
-    fetch('download-map', {
+    fetch('/app/download-map', {
             method: 'POST',
             body: JSON.stringify({
                 'tile-id': tileId
@@ -914,7 +914,7 @@ const addBookmark = (() => {
     $('#bookmark-edit-save-button').hide()
     $('#bookmark-edit-delete-button').hide()
 
-    fetch('bookmark', {
+    fetch('/app/bookmark', {
             method: 'POST',
             body: JSON.stringify({
                 name: document.getElementById("bookmark-edit-name").value,
@@ -1007,7 +1007,7 @@ const deleteBookmark = (() => {
     $('#bookmark-edit-save-button').hide()
     $('#bookmark-edit-delete-button').hide()
 
-    fetch('bookmark-delete', {
+    fetch('/app/bookmark-delete', {
             method: 'POST', // should be DELETE on the same path as POST, but I don't want to figure this out now
             body: JSON.stringify({
                 id: bookmarkPopup.options.bookmark.id,
@@ -1036,7 +1036,7 @@ const deleteBookmark = (() => {
 
 const clickBookmarksExport = e => {
     // TODO - wtf in local mode firefox keeps opening new tabs
-    document.location = '/export.kmz'
+    document.location = '/app/export.kmz'
 }
 
 const clickBookmarksNextPage = e => {
@@ -1198,7 +1198,7 @@ function updateDownloadStatuses() {
         updateDownloadStatusesTimeout = setTimeout(updateDownloadStatuses, 1000)
     }
 
-    return fetch('map-download-status', {
+    return fetch('/app/map-download-status', {
             method: 'GET'
         })
         .then(res => res.json())
@@ -1346,7 +1346,7 @@ function loadArea(tileId) {
     }
     console.log('adding', tileId)
 
-    const tilesFname = tileId + ".pmtiles"
+    const tilesFname = '/tiles/' + tileId + ".pmtiles"
     areaLayer = protomaps.leafletLayer({
         attribution: (
             '<a href="https://protomaps.com">Protomaps</a> © ' +
@@ -1470,7 +1470,7 @@ const searchControl = new L.Control.Search({
             map.getBounds().getEast() +
             map.getBounds().getWest()
         ) / 2
-        return 'search?q={s}&lat=' + lat + '&lng=' + lng
+        return 'app/search?q={s}&lat=' + lat + '&lng=' + lng
     },
     textPlaceholder: PLACES_SEARCH_TEXT_PLACEHOLDER,
     position: 'topright',
