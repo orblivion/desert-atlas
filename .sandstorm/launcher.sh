@@ -11,10 +11,6 @@ export CA_CERT_PATH=/var/powerbox-http-proxy.pem
 rm -f $CA_CERT_PATH
 
 ./dependencies/powerbox-http-proxy/powerbox-http-proxy &
-while [ ! -e "$CA_CERT_PATH" ] ; do
-    echo "waiting for powerbox-http-proxy to start"
-    sleep .1
-done
 
 # python requests library actually picks this up
 export http_proxy=http://localhost:$POWERBOX_PROXY_PORT

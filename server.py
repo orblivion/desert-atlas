@@ -15,6 +15,9 @@ urllib3.disable_warnings()
 # TODO - could check sandstorm env instead of using this param
 is_local = len(sys.argv) >= 2 and sys.argv[1] == '--local'
 
+POWERBOX_CA_CERT_PATH = "/var/powerbox-http-proxy.pem"
+powerbox_ready = False
+
 # Seems Sandstorm console only shows stderr
 def print_err(*lines):
     sys.stderr.write(" ".join(pformat(line) for line in lines) + "\n")
@@ -761,6 +764,8 @@ class DownloadError(Exception):
     pass
 
 def download_file(fname):
+    global powerbox_ready
+
     if LOCAL_DATA:
         class DummyResponse:
             def __init__(self):
@@ -774,6 +779,14 @@ def download_file(fname):
                 return json.loads(self.content)
         return DummyResponse()
     else:
+        # Wait for powerbox to start if it hasn't
+        while not (powerbox_ready or os.path.exists(POWERBOX_CA_CERT_PATH)):
+            print_err ("waiting for powerbox-http-proxy to start")
+            time.sleep(0.1)
+
+        # Set it to a global variable so we don't read the filesystem constantly
+        powerbox_ready = True
+
         params = {}
         if not is_local:
             params = {"verify": '/var/powerbox-http-proxy.pem'}
