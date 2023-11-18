@@ -1,1 +1,7 @@
 base-map symlink for the purpose of nginx. don't want to move things around too much
+
+---
+
+combined.geojson = countries.geojson + usa-states.geojson (for the state borders) combined into one file so it's just one download
+
+See main README for the sources of the original files

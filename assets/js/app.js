@@ -1407,6 +1407,28 @@ function showGeoJson(geoJson) {
     return geoJsonLayer
 }
 
+geoJsons = {}
+shownGeoJsons = false
+
+async function getAndShowGeoJsons() {
+    // Give a very simple backdrop so people have some idea where on the map they are
+    // These take up less space than tiles, especially when "simplified".
+    // TODO - probably actually replace this with dead simple world map tiles if I can.
+    // It will look better. Also geoJson seems to want to always be on top of tiles so
+    // it'll always show up at least a little bit.
+    let res = await fetch(
+        `/base-map/combined.geojson`,
+        {method: 'GET'}
+    )
+    let [countries_geojson, usa_states_geojson] = await res.json()
+
+    showGeoJson(countries_geojson)
+    showGeoJson(usa_states_geojson)
+
+    shownGeoJsons = true
+}
+getAndShowGeoJsons()
+
 function setGeoJsonOpacityAndBackground() {
     if (map.getZoom() > 6) {
         $('.leaflet-container').css({
@@ -1437,16 +1459,6 @@ function setGeoJsonOpacityAndBackground() {
         })
     }
 }
-
-geoJsons = {}
-
-// Give a very simple backdrop so people have some idea where on the map they are
-// These take up less space than tiles, especially when "simplified".
-// TODO - probably actually replace this with dead simple world map tiles if I can.
-// It will look better. Also geoJson seems to want to always be on top of tiles so
-// it'll always show up at least a little bit.
-showGeoJson(countries_geojson)
-showGeoJson(usa_states_geojson)
 
 updateDownloadStatuses()
 

@@ -34,9 +34,8 @@ opt/app/assets/js/powerbox-helper.js
 opt/app/assets/js/protomaps.js
 opt/app/assets/js/tutorial.js
 opt/app/base-map/base-map
-opt/app/base-map/countries.geojson.js.gz
+opt/app/base-map/combined.geojson.gz
 opt/app/base-map/places.gz
-opt/app/base-map/usa-states.geojson.js.gz
 opt/app/csv_format.py
 opt/app/dependencies/jquery/jquery.min.js
 opt/app/dependencies/leaflet-search/images/loader.gif
