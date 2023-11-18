@@ -1,3 +1,16 @@
+# 2023/11/17 - appVersion 37
+* New world map data
+* Points to Linode bucket named desert-atlas instead of share-a-map (user-facing because of powerbox)
+* base map improvements
+  * Performance
+    * Don't load geojson via html
+      * This is a regression from 36. It was slow and held up everything else, making it slower instead of faster
+    * send geojson gzipped over the wire thanks to nginx
+    * I think this delivers on 36's promise of loading the UI faster than 35
+  * display geojsons only once both are loaded, maintaining the one improvement from 36, which is that the US and rest of the world show up at the same time
+  * show a "Loading" spinner in the help menu before geojson loads. we'll see how that goes over the Internet.
+  * fix recent regression where basemap wasn't fading out when zooming in. This made most of the downloaded map data invisible
+
 # 2023/11/17 - appVersion 36
 
 * Performance
