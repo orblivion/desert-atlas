@@ -358,9 +358,9 @@ LOCAL_DATA = False
 
 # This refers to the version of the generated map data we will be downloading.
 # This number is a timestamp for when the build process began.
-DL_VERSION = "1691527217.0791874"
+DL_VERSION = "1700099624.161532"
 
-DL_URL_DIR = f'https://share-a-map.us-east-1.linodeobjects.com/{DL_VERSION}/'
+DL_URL_DIR = f'https://desert-atlas.us-east-1.linodeobjects.com/{DL_VERSION}/'
 
 filemaps = None
 
