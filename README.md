@@ -47,7 +47,7 @@ Outbound network connections from the backend require explicit user permission (
 First, check out the git submodules:
 
     git submodule init
-    git submodule update
+    git submodule update dependencies
 
 ## Vagrant SPK
 
