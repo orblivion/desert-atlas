@@ -1384,7 +1384,7 @@ function unloadArea(tileId) {
     return true
 }
 
-function showGeoJson(geoJson) {
+function showGeoJson(name, geoJson) {
     // Remove the US since we already have the states. This will avoid the annoying
     // inconsistent double-borders. Still have that problem on the northern and
     // southern borders though.
@@ -1403,31 +1403,11 @@ function showGeoJson(geoJson) {
         }
     }).addTo(map)
     geoJsons[name] = geoJsonLayer
-    setGeoJsonOpacityAndBackground()
     return geoJsonLayer
 }
 
 geoJsons = {}
-shownGeoJsons = false
-
-async function getAndShowGeoJsons() {
-    // Give a very simple backdrop so people have some idea where on the map they are
-    // These take up less space than tiles, especially when "simplified".
-    // TODO - probably actually replace this with dead simple world map tiles if I can.
-    // It will look better. Also geoJson seems to want to always be on top of tiles so
-    // it'll always show up at least a little bit.
-    let res = await fetch(
-        `/base-map/combined.geojson`,
-        {method: 'GET'}
-    )
-    let [countries_geojson, usa_states_geojson] = await res.json()
-
-    showGeoJson(countries_geojson)
-    showGeoJson(usa_states_geojson)
-
-    shownGeoJsons = true
-}
-getAndShowGeoJsons()
+geoJsonsShown = false
 
 function setGeoJsonOpacityAndBackground() {
     if (map.getZoom() > 6) {
@@ -1459,6 +1439,26 @@ function setGeoJsonOpacityAndBackground() {
         })
     }
 }
+
+async function getAndShowGeoJsons() {
+    // Give a very simple backdrop so people have some idea where on the map they are
+    // These take up less space than tiles, especially when "simplified".
+    // TODO - probably actually replace this with dead simple world map tiles if I can.
+    // It will look better. Also geoJson seems to want to always be on top of tiles so
+    // it'll always show up at least a little bit.
+    let res = await fetch(
+        `/base-map/combined.geojson`,
+        {method: 'GET'}
+    )
+    let [countries_geojson, usa_states_geojson] = await res.json()
+
+    showGeoJson('countries', countries_geojson)
+    showGeoJson('usa-states', usa_states_geojson)
+
+    geoJsonsShown = true
+    setGeoJsonOpacityAndBackground()
+}
+getAndShowGeoJsons()
 
 updateDownloadStatuses()
 

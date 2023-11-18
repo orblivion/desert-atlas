@@ -391,7 +391,7 @@ L.Control.Tutorial = L.Control.extend({
     },
 
     setFromMapStatus: function(fullStatus) {
-        if (!shownGeoJsons) {
+        if (!geoJsonsShown) {
             // Irrespective of other states, we're just waiting for things to show up
             this.setState('waiting-for-base-map')
             return
