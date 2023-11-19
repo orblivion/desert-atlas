@@ -118,9 +118,6 @@ L.Control.Tutorial = L.Control.extend({
         `
 
         const stateContent = {
-            'waiting-for-base-map': `
-                <img src="assets/images/loader.gif"> Loading...
-            `,
             'downloader-intro': `
 
                 <h3>Welcome to Desert Atlas</h3>
@@ -391,12 +388,6 @@ L.Control.Tutorial = L.Control.extend({
     },
 
     setFromMapStatus: function(fullStatus) {
-        if (!geoJsonsShown) {
-            // Irrespective of other states, we're just waiting for things to show up
-            this.setState('waiting-for-base-map')
-            return
-        }
-
         // Mode is different from state; mode is user-specific.
         // If the mode is TUTORIAL_DONE, we might still be in a "state" as
         // defined below. It just means it's collapsed by default.

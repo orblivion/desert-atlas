@@ -1407,7 +1407,6 @@ function showGeoJson(name, geoJson) {
 }
 
 geoJsons = {}
-geoJsonsShown = false
 
 function setGeoJsonOpacityAndBackground() {
     if (map.getZoom() > 6) {
@@ -1455,10 +1454,39 @@ async function getAndShowGeoJsons() {
     showGeoJson('countries', countries_geojson)
     showGeoJson('usa-states', usa_states_geojson)
 
-    geoJsonsShown = true
+    loadingMessage.skip = true // in case it hasn't been shown yet
+    loadingMessage.remove()
     setGeoJsonOpacityAndBackground()
 }
 getAndShowGeoJsons()
+
+L.Control.LoadingMessage = L.Control.extend({
+    onAdd: function(map) {
+        let msg = L.DomUtil.create('div');
+        msg.innerHTML = `
+            <div style="padding-left: 3px; padding-right: 3px; background: #f4f4f4; font-size: 30px">
+                <img src="assets/images/loader.gif" width=20 height=20>
+                <span style="padding-bottom:5px">Loading Map...<span>
+            </div>
+        `
+        return msg
+    },
+});
+
+L.control.loadingMessage = function() {
+    return new L.Control.LoadingMessage({
+        position: 'bottomleft'
+    });
+}
+
+const loadingMessage = L.control.loadingMessage()
+
+// Don't show it right away, it could get noisy
+timeout = setTimeout(() => {
+    if (!loadingMessage.skip && map.getZoom() < 7) {
+        loadingMessage.addTo(map)
+    }
+}, 1000)
 
 updateDownloadStatuses()
 
