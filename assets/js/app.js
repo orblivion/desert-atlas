@@ -1463,8 +1463,9 @@ getAndShowGeoJsons()
 L.Control.LoadingMessage = L.Control.extend({
     onAdd: function(map) {
         let msg = L.DomUtil.create('div');
+        // margin-bottom: 1em helpful particularly for very small mobile view
         msg.innerHTML = `
-            <div style="padding-left: 3px; padding-right: 3px; background: #f4f4f4; font-size: 30px">
+            <div style="margin-bottom: 1em; padding-left: 3px; padding-right: 3px; background: #f4f4f4; font-size: 30px">
                 <img src="assets/images/loader.gif" width=20 height=20>
                 <span style="padding-bottom:5px">Loading Map...<span>
             </div>
