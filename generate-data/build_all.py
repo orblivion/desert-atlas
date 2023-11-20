@@ -413,4 +413,6 @@ def make_the_world():
     if not TESTING:
         s3_sync(output_dir, s3_bucket_name, timestamp)
 
+    print ('Built the world! Set the new DL_VERSION in server.py to:', timestamp)
+
 make_the_world()
