@@ -145,7 +145,7 @@ L.Control.Tutorial = L.Control.extend({
                 </p>
 
                 <p>
-                    When you continue, you will be asked to grant permission to this grain to access the map data server.
+                    When you continue, you will be asked to grant permission to this grain to access the map data server (which is likely an S3 service).
                 </p>
                 <button class="da-button tutorial-do-post-download-instructions tutorial-do-continue">Continue</button>
             `,
