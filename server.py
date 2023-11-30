@@ -360,7 +360,10 @@ LOCAL_DATA = False
 # This number is a timestamp for when the build process began.
 DL_VERSION = "1700099624.161532"
 
-DL_URL_DIR = f'https://desert-atlas.us-east-1.linodeobjects.com/{DL_VERSION}/'
+# Note that with Cloudflare I need to use a custom domain for uncapped egress so I just went back to
+#   my domain, albeit with a good subdomain.
+# I have to put DL_VERSION twice because I screwed up copying the S3 bucket. Hopefully not next time around.
+DL_URL_DIR = f'https://desert-atlas.danielkrol.com/{DL_VERSION}/{DL_VERSION}/'
 
 filemaps = None
 
