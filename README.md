@@ -99,8 +99,7 @@ But it involves running `./server.py`. This will start a web server on port 3857
 
 For generating map tile and search data, [see here](generate-data).
 
-# License/Credit
-
+# Licenses/Credit
 
 ## Base map
 
@@ -116,23 +115,23 @@ Note that this is a separate data source than OpenStreetMap (granted, so are the
 * https://creativecommons.org/licenses/by/4.0/
 * http://download.geonames.org/export/dump/
 
-# Map Data
+## Map Data
 
 OpenStreetMap® is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
 
 As of this writing, I get the planet data from planet.osm.org, and I include a much reduced planet-test.osm.pbf in this repository.
 
-## Search Data (derived from Map Data)
-
-I extract search data from the above into an sqlite database that uses the fts5 plugin. See `generate-data` directory.
-
 ## Tiles (derived from Map Data)
 
 I extract tile data from the above into a file in the pmtiles format (see [Protomaps](https://protomaps.com)) and Protomaps schema. See `generate-data` directory.
 
-# Images
+## Search Data (derived from Map Data)
 
-## Application Icons
+I extract search data from the above into an sqlite database that uses the fts5 plugin. See `generate-data` directory.
+
+## Images
+
+### Application Icons
 
 Source images:
 
@@ -140,15 +139,15 @@ Source images:
 * https://openclipart.org/detail/306084/digital-landscape-illustration-2 - CC0
 * https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg - BSD 2-Clause
 
-## search-marker.svg bookmark-marker.svg
+### search-marker.svg bookmark-marker.svg
 
 Possibly edited, original from https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg
 
-# Software Licenses
+## Software Licenses
 
 The original code in this repo: MIT
 
-## Dependencies
+### Dependencies
 
 These things aren't vendored in this repo, but they will be bundled in the resulting app, so I am noting the licenses here.
 
