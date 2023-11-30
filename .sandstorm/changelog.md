@@ -1,4 +1,13 @@
+# 2023/11/30 - appVersion 38 - appMarketingVersion 0.1.0.RC1
+
+* Switch to cloudflare S3, amusingly going back to danielkrol.com but with the desert-atlas subdomain
+  * Cloudflare requires a custom domain for uncapped egress
+* Move the "Map Loading" indicator out of help menu
+  * Let users start reading the help menu even if geojson isn't yet loaded.
+* Let user know that I'm using S3
+
 # 2023/11/17 - appVersion 37
+
 * New world map data
 * Points to Linode bucket named desert-atlas instead of share-a-map (user-facing because of powerbox)
 * base map improvements
