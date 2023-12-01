@@ -128,41 +128,42 @@ Note that this is a separate data source than OpenStreetMap (as are the "wirefra
 
 ## Downloadable Map Data
 
-This is the data that is downloaded explicitly by the user after the grain starts. These attributions include the data generation tools as well as the libraries in the app that uses the data.
+This section relates to the periodic process of generating the regions of the world map which users explicitly choose to download _after_ the grain starts. I.e. they are not built into the app (though some form of it is checked into this repository, as seen below).
 
-This is the periodic process of generating the downloadable regions of the world map that users can download.
+These attributions are for the data _generation_ tools, not the libraries in the app that use the data.
 
 ### Raw Data Source
 
-The downloadable regions (not in this repository or built into the app) are derived from `planet.osm.pbf` from OpenStreetMap®. I also include a much reduced `planet-test.osm.pbf` in this repository.
+All downloadable regions data is derived from `planet.osm.pbf` from OpenStreetMap®. I also include a much reduced `planet-test.osm.pbf` in this repository.
 
 * https://planet.osm.org/ - Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
 
 ### Splitting
 
 > [!NOTE]
-> I believe that these licenses only applies to the splitter, not the app or data itself.
+> I believe that these licenses only apply to the splitter, not the app or data itself.
 
-Mkgmap splitter splits the planet into sizeable osm.pbf chunks.
+Mkgmap splitter splits the planet into smaller osm.pbf chunks.
 
 * https://www.mkgmap.org.uk/download/splitter.html - GPL3, LGPL3, Apache 2, XPP3 (apache-like license)
 
 ### Tiles
 
 > [!NOTE]
-> I believe that these licenses only applies to the tilemaker and go-pmtiles, not the app or data itself.
+> I believe that these licenses only apply to the tilemaker and go-pmtiles, not the app or data itself.
 
-Tilemaker converts from osm.pbf to mbtiles, go-pmtiles converts from mbtiles to pmtiles. I started from Shortbread (CC0) from Geofabrik, edited it to make it Protomaps schema. See `generate-data` directory.
+Tilemaker converts each region from osm.pbf to mbtiles, go-pmtiles converts from mbtiles to pmtiles. I started from the Shortbread schema from Geofabrik, edited it to make into Protomaps schema. See `generate-data` directory.
 
 * https://github.com/systemed/tilemaker/ - [FTWPL](https://github.com/systemed/tilemaker/blob/master/LICENCE.txt)
 * https://github.com/protomaps/go-pmtiles/ - BSD 3-Clause
+* https://github.com/shortbread-tiles/shortbread-docs - [CC0](https://creativecommons.org/public-domain/cc0/]
 
 ### Search
 
 > [!NOTE]
-> I believe that these licenses only applies to pyosmium, not the app or data itself.
+> I believe that this license only applies to pyosmium, not the app or data itself.
 
-Extracting search data from raw OSM data into a csv. See `generate-data` directory.
+Extracting search data from raw OSM data for each region into a csv. See `generate-data` directory.
 
 * https://osmcode.org/pyosmium/ - BSD 2-Clause
 
@@ -171,7 +172,7 @@ Extracting search data from raw OSM data into a csv. See `generate-data` directo
 ### Frontend
 
 * [Leaflet](https://github.com/Leaflet/Leaflet) - Map UI framework - BSD 2-Clause
-* Leaflet Search - UI plugin - MIT
+* Leaflet Search - plugin for search UI - MIT
 * [Protomaps JS](https://github.com/protomaps/protomaps-leaflet) (with modifications) - Display pmtiles vector map files - BSD 3-Clause
 * [JQuery](https://jquery.org/license/) - MIT
 * Powerbox Proxy - Facilitate outbound requests from Sandstorm - Apache 2
@@ -179,7 +180,7 @@ Extracting search data from raw OSM data into a csv. See `generate-data` directo
 
 ### Backend
 
-Downloaded map regions contain csv file that is imported into an SQLite database with the [FTS5 plugin](https://sqlite.org/fts5.html) for full-text search. Search UI works with Leaflet Search.
+Each downloaded map region contains a csv file that is imported into an SQLite database with the [FTS5 plugin](https://sqlite.org/fts5.html) for full-text search.
 
 * SQLite+FTS5 - included in Sandstorm application package via Debian, see below for licensing
 
@@ -191,8 +192,8 @@ The Desert Atlas icon (in this repository, licensed via BSD 2-Clause due to the 
 
 Source images:
 
-* https://openclipart.org/detail/336198/home-map-colour-remix - [CC0](https://creativecommons.org/public-domain/cc0/]
-* https://openclipart.org/detail/306084/digital-landscape-illustration-2 - [CC0](https://creativecommons.org/public-domain/cc0/]
+* https://openclipart.org/detail/336198/home-map-colour-remix - [CC0](https://creativecommons.org/public-domain/cc0/)
+* https://openclipart.org/detail/306084/digital-landscape-illustration-2 - [CC0](https://creativecommons.org/public-domain/cc0/)
 * https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg - BSD 2-Clause
 
 ### search-marker.svg bookmark-marker.svg
@@ -201,4 +202,4 @@ In this repository, possibly edited from original, which can be found here: http
 
 ## Assorted
 
-Various other things from [Debian Bullseye](https://github.com/orblivion/desert-atlas/#licensescredit) (via QubesOS) when creating the Sandstorm package.
+Various other things from [Debian Bullseye](https://www.debian.org/legal/licenses/) (via QubesOS) when creating the Sandstorm package.
