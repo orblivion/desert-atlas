@@ -1,3 +1,7 @@
+# 2023/12/01 - appVersion 39 - appMarketingVersion 0.1.0.RC2
+
+* Update description for market
+
 # 2023/11/30 - appVersion 38 - appMarketingVersion 0.1.0.RC1
 
 * Switch from Linode S3 to cloudflare R2, amusingly going back to danielkrol.com but with the desert-atlas subdomain
