@@ -1,6 +1,6 @@
 Desert Atlas is a general purpose, fully self-hosted map app for the Sandstorm platform (see [What is Sandstorm?](#what-is-sandstorm) below), based on OpenStreetMap. All map data is stored on your own server; you choose the regions you want. The goal is to provide the basic functionality of Google Maps while respecting privacy.
 
-You can check out a live demo [here](https://apps.sandstorm.io/app/e5eaqnrqfrhgax1awtgw9uqayg42kcen2gkpynjs3j5mww7w3rp0?experimental=true) or install it on your Sandstorm instance, but keep in mind that it's still an "experimental" app.
+You can check out a live demo [here](https://apps.sandstorm.io/app/e5eaqnrqfrhgax1awtgw9uqayg42kcen2gkpynjs3j5mww7w3rp0) or install it on your Sandstorm instance.
 
 ![Screenshot](.sandstorm/metadata/screenshots/screenshot-1.png)
 
@@ -10,7 +10,7 @@ Some other self-hosted map apps will still get tile data from external sources o
 
 There are other fully self-hosted OSM solutions, admittedly including at least one that uses docker and is thus probably easy to set up. But thanks to Sandstorm, and Desert Atlas aiming for the "simplest version of everything" in the OSM ecosystem, Desert Atlas is even easier. A "full stack" OSM setup generally includes something like postgres for generating tiles and elasticsearch for search, neither of which play nicely with Sandstorm. Desert Atlas by contrast uses [protomaps](https://protomaps.com) for tiles, and (as of now) sqlite3 with fts5 for search (a home-grown solution, importing search data extracted from raw OSM data using python bindings for the common tool `osmium`). No shade on the other solutions, they have more sophisticated search and nicer map renders, but Desert Atlas is simple enough to be a consumer app.
 
-This is a work in progress, but it's just about at releaseable "minimum viable product" status. Search is basic but functional. UI could use some tweaks. But it basically works. Try it out! Let me know what you think. Chime in on the Sandstorm groups, my email address, or file an issue. The more feedback I get (positive or negative) the more I know it's worth spending time on this.
+This is now at a "minimum viable product" status. Search is basic but functional. UI could use some tweaks. But it's usable. Try it out! Let me know what you think. Chime in on the [Sandstorm groups](https://groups.google.com/g/sandstorm-dev), [Github discussions](https://github.com/orblivion/desert-atlas/discussions), or file a [feature request or bug report](https://github.com/orblivion/desert-atlas/issues) on Github. The more feedback I get (positive or negative) the more I know it's worth spending time on this. (If you know something about OSM or UI and think you could make this better, you're likely right. [See here!](https://github.com/orblivion/desert-atlas/wiki/Where-to-help/))
 
 ## What is Sandstorm?
 
