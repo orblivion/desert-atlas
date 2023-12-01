@@ -101,60 +101,104 @@ For generating map tile and search data, [see here](generate-data).
 
 # Licenses/Credit
 
+The original code in this repo is licensed MIT. However, Desert Atlas strings together a lot of different bits of software and data with different licenses, most of which are bundled in the resulting app. With a couple exceptions noted below, these things aren't vendored in this repository. In any case, I am noting the licenses related to third party work here.
+
+In summary, big thanks for:
+
+* **Map Data**: [OpenStreetMap Foundation](https://www.openstreetmap.org/copyright) and all OSM editors, [GeoNames](https://geonames.org), [Natural Earth](https://www.naturalearthdata.com/), [Lexman](https://github.com/lexman), and [Open Knowledge Foundation](https://okfn.org/)
+* **Map Tiles**: [mkgmap](https://www.mkgmap.org.uk), [Tilemaker](https://github.com/systemed/tilemaker/), [Protomaps](https://protomaps.com) and [Geofabrik](https://www.geofabrik.de/), 
+* **Search**: [SQLite](https://sqlite.org/) and [PyOsmium](https://osmcode.org/pyosmium/)
+* **Front end code**: [Leaflet](https://github.com/Leaflet/Leaflet), [Leaflet Search](https://github.com/stefanocudini/leaflet-search), and [JQuery](https://jquery.com/)
+* **Sandstorm integation**: [Powerbox Proxy](https://github.com/zenhack/powerbox-http-proxy/)
+
 ## Base map
 
-### GeoJSON (the "wireframe" look)
+This is data that is built into the app, and is thus available as soon as the user starts a new grain. It includes a "wireframe" world and U.S. map, and the ability to search for cities and large towns.
 
-* US States https://datahub.io/core/geo-admin1-us
-* World https://datahub.io/core/geo-countries
+### Low detail "wireframe" map (GeoJSON)
 
-### Geonames (search data for countries, states, and cities)
+* US States https://datahub.io/core/geo-admin1-us - [Open Data Commons Public Domain Dedication and License](http://opendatacommons.org/licenses/pddl/1.0/)
+* World https://datahub.io/core/geo-countries - [Open Data Commons Public Domain Dedication and License](http://opendatacommons.org/licenses/pddl/1.0/)
 
-Note that this is a separate data source than OpenStreetMap (granted, so are the geojsons). The license makes it incompatible as a source for importing to OSM's database, but I think it's fine to use side by side as we do here.
+### Search data for countries, states, and cities
 
-* https://creativecommons.org/licenses/by/4.0/
-* http://download.geonames.org/export/dump/
+Note that this is a separate data source than OpenStreetMap (as are the "wireframes"). As I understand, its license makes it incompatible as a source for importing to OSM's database, but I think it's fine to use side by side as we do here. (Let me know if this is wrong, and I can derive this data from OSM data instead)
 
-## Map Data
+* http://download.geonames.org/export/dump/ - [CC-BY](https://creativecommons.org/licenses/by/4.0/)
 
-OpenStreetMap® is open data, licensed under the Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
+## Downloadable Map Data
 
-As of this writing, I get the planet data from planet.osm.org, and I include a much reduced planet-test.osm.pbf in this repository.
+This is the data that is downloaded explicitly by the user after the grain starts. These attributions include the data generation tools as well as the libraries in the app that uses the data.
 
-## Tiles (derived from Map Data)
+This is the periodic process of generating the downloadable regions of the world map that users can download.
 
-I extract tile data from the above into a file in the pmtiles format (see [Protomaps](https://protomaps.com)) and Protomaps schema. See `generate-data` directory.
+### Raw Data Source
 
-## Search Data (derived from Map Data)
+The downloadable regions (not in this repository or built into the app) are derived from `planet.osm.pbf` from OpenStreetMap®. I also include a much reduced `planet-test.osm.pbf` in this repository.
 
-I extract search data from the above into an sqlite database that uses the fts5 plugin. See `generate-data` directory.
+* https://planet.osm.org/ - Open Data Commons Open Database License (ODbL) by the OpenStreetMap Foundation (OSMF).
+
+### Splitting
+
+> [!NOTE]
+> I believe that these licenses only applies to the splitter, not the app or data itself.
+
+Mkgmap splitter splits the planet into sizeable osm.pbf chunks.
+
+* https://www.mkgmap.org.uk/download/splitter.html - GPL3, LGPL3, Apache 2, XPP3 (apache-like license)
+
+### Tiles
+
+> [!NOTE]
+> I believe that these licenses only applies to the tilemaker and go-pmtiles, not the app or data itself.
+
+Tilemaker converts from osm.pbf to mbtiles, go-pmtiles converts from mbtiles to pmtiles. I started from Shortbread (CC0) from Geofabrik, edited it to make it Protomaps schema. See `generate-data` directory.
+
+* https://github.com/systemed/tilemaker/ - [FTWPL](https://github.com/systemed/tilemaker/blob/master/LICENCE.txt)
+* https://github.com/protomaps/go-pmtiles/ - BSD 3-Clause
+
+### Search
+
+> [!NOTE]
+> I believe that these licenses only applies to pyosmium, not the app or data itself.
+
+Extracting search data from raw OSM data into a csv. See `generate-data` directory.
+
+* https://osmcode.org/pyosmium/ - BSD 2-Clause
+
+## App
+
+### Frontend
+
+* [Leaflet](https://github.com/Leaflet/Leaflet) - Map UI framework - BSD 2-Clause
+* Leaflet Search - UI plugin - MIT
+* [Protomaps JS](https://github.com/protomaps/protomaps-leaflet) (with modifications) - Display pmtiles vector map files - BSD 3-Clause
+* [JQuery](https://jquery.org/license/) - MIT
+* Powerbox Proxy - Facilitate outbound requests from Sandstorm - Apache 2
+    * In this repository: `assets/js/powerbox-helper.js`, which is built using typescript from a file in the Powerbox repository. (I didn't want to require npm for building)
+
+### Backend
+
+Downloaded map regions contain csv file that is imported into an SQLite database with the [FTS5 plugin](https://sqlite.org/fts5.html) for full-text search. Search UI works with Leaflet Search.
+
+* SQLite+FTS5 - included in Sandstorm application package via Debian, see below for licensing
 
 ## Images
 
 ### Application Icons
 
+The Desert Atlas icon (in this repository, licensed via BSD 2-Clause due to the below licenses) was put together from a few pieces of clip art:
+
 Source images:
 
-* https://openclipart.org/detail/336198/home-map-colour-remix - CC0
-* https://openclipart.org/detail/306084/digital-landscape-illustration-2 - CC0
+* https://openclipart.org/detail/336198/home-map-colour-remix - [CC0](https://creativecommons.org/public-domain/cc0/]
+* https://openclipart.org/detail/306084/digital-landscape-illustration-2 - [CC0](https://creativecommons.org/public-domain/cc0/]
 * https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg - BSD 2-Clause
 
 ### search-marker.svg bookmark-marker.svg
 
-Possibly edited, original from https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg
+In this repository, possibly edited from original, which can be found here: https://github.com/Leaflet/Leaflet/blob/0042d0b0ddac8e9159ee4f64742bb25b518b9e0f/src/images/marker.svg
 
-## Software Licenses
+## Assorted
 
-The original code in this repo: MIT
-
-### Dependencies
-
-These things aren't vendored in this repo, but they will be bundled in the resulting app, so I am noting the licenses here.
-
-* [Leaflet](https://github.com/Leaflet/Leaflet) - BSD 2-Clause
-* [Leaflet Search](https://github.com/stefanocudini/leaflet-search) - MIT
-* Protomaps JS (with modifications) - BSD 3-Clause
-* Protomaps demo.py (now server.py) - Not sure! It's not on github, I got it from their website when I first extracted data. But I changed it a lot, so I think it's effectively trivial at this point.
-* Powerbox Proxy (for Sandstorm) - Apache 2
-    * Including `assets/js/powerbox-helper.js`. It's built using typescript from a file in the Powerbox repo.
-
+Various other things from [Debian Bullseye](https://github.com/orblivion/desert-atlas/#licensescredit) (via QubesOS) when creating the Sandstorm package.

@@ -24,18 +24,7 @@ As far as I can tell, searching in non-latin characters is not yet supported.
 
 # Thanks
 
-How is all this pulled off? In short, it uses the "simplest version of everything". Many thanks to creators of the many tools that are strung together to make this happen:
-
-* [Protomaps](https://protomaps.com) (vector based rendering in browser, converting mbtiles to pmtiles)
-* [Sqlite FTS5](https://www.sqlite.org/fts5.html) (full text search)
-* [Osmium / PyOsmium](https://osmcode.org/pyosmium/) (Extracting search data from raw OSM data)
-* [Tilemaker](https://github.com/systemed/tilemaker/) (Converting raw OSM data to mbtiles)
-* [Leaflet](https://leafletjs.com/) (UI framework)
-* [MKGMap](https://www.mkgmap.org.uk/download/splitter.html) (Splitting the planet into sizeable chunks)
-* [Geofabrik](https://shortbread.geofabrik.de/schema/) (Legally permissive schema that I modify to work with Protomaps)
-* Whoever is invloved in generating the raw OSM data, I don't even know where to begin with all of that.
-
-I may have even missed one or two, apologies if so!
+How is all this pulled off? In short, it uses the "simplest version of everything". Many thanks to creators of the many tools that are strung together to make this happen. [See here](https://github.com/orblivion/desert-atlas/#licensescredit) for the details. If you're familiar with some of these components and would like to help, [see here](https://github.com/orblivion/desert-atlas/wiki/Where-to-help).
 
 # Feedback
 
