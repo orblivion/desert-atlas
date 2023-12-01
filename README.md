@@ -150,13 +150,13 @@ Mkgmap splitter splits the planet into smaller osm.pbf chunks.
 ### Tiles
 
 > [!NOTE]
-> I believe that these licenses only apply to the tilemaker and go-pmtiles, not the app or data itself.
+> I believe that these licenses only apply to the tilemaker, go-pmtiles, and Shortbread, not the app or data itself.
 
 Tilemaker converts each region from osm.pbf to mbtiles, go-pmtiles converts from mbtiles to pmtiles. I started from the Shortbread schema from Geofabrik, edited it to make into Protomaps schema. See `generate-data` directory.
 
 * https://github.com/systemed/tilemaker/ - [FTWPL](https://github.com/systemed/tilemaker/blob/master/LICENCE.txt)
 * https://github.com/protomaps/go-pmtiles/ - BSD 3-Clause
-* https://github.com/shortbread-tiles/shortbread-docs - [CC0](https://creativecommons.org/public-domain/cc0/]
+* https://github.com/shortbread-tiles/shortbread-docs - [CC0](https://creativecommons.org/public-domain/cc0/)
 
 ### Search
 
