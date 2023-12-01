@@ -1,6 +1,6 @@
 # 2023/11/30 - appVersion 38 - appMarketingVersion 0.1.0.RC1
 
-* Switch to cloudflare S3, amusingly going back to danielkrol.com but with the desert-atlas subdomain
+* Switch from Linode S3 to cloudflare R2, amusingly going back to danielkrol.com but with the desert-atlas subdomain
   * Cloudflare requires a custom domain for uncapped egress
 * Move the "Map Loading" indicator out of help menu
   * Let users start reading the help menu even if geojson isn't yet loaded.

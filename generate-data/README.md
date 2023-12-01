@@ -59,7 +59,7 @@ Available via pip, though you can get it on Debian as `python3-pyosmium`.
 
 ## Install `s3cmd`
 
-Necessary to upload the result to an s3 bucket (Amazon, Linode, etc)
+Necessary to upload the result to an s3 bucket (Amazon, Linode, Cloudflare, etc)
 
 Available via pip, though you can get it on Debian as `s3cmd`.
 
