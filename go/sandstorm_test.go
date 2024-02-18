@@ -8,14 +8,14 @@ import (
 
 // Confirms they're both or neither nil. If neither,
 // compares the *values* of the strings.
-func cmpSidPtrs(a *SandstormId, b *SandstormId) bool {
+func cmpSidPtrs(a *SandstormUserId, b *SandstormUserId) bool {
 	if a == nil && b == nil {
 		return true
 	}
 	return *a == *b
 }
 
-func logSidPtr(s *SandstormId) string {
+func logSidPtr(s *SandstormUserId) string {
 	return logStrPtr((*string)(s))
 }
 
@@ -52,25 +52,25 @@ func TestIsLocalDev(t *testing.T) {
 	}
 }
 
-func TestGetSandstormId(t *testing.T) {
+func TestGetSandstormUserId(t *testing.T) {
 	sTest := "test-id"
-	sidTest := SandstormId(sTest)
+	sidTest := SandstormUserId(sTest)
 	sBlank := ""
 
 	req, _ := http.NewRequest("GET", "", nil)
 	req.Header.Set("X-Sandstorm-User-Id", sTest)
-	if got, want := GetSandstormId(req), &sidTest; !cmpSidPtrs(got, want) {
+	if got, want := GetSandstormUserId(req), &sidTest; !cmpSidPtrs(got, want) {
 		t.Errorf(`X-Sandstorm-User-Id = %s expected to return %s`, sTest, sidTest)
 	}
 
 	req, _ = http.NewRequest("GET", "", nil)
-	if GetSandstormId(req) != nil {
+	if GetSandstormUserId(req) != nil {
 		t.Errorf(`X-Sandstorm-User-Id = nil expected to return nil`)
 	}
 
 	req, _ = http.NewRequest("GET", "", nil)
 	req.Header.Set("X-Sandstorm-User-Id", sBlank)
-	if GetSandstormId(req) != nil {
+	if GetSandstormUserId(req) != nil {
 		t.Errorf(`X-Sandstorm-User-Id = \"%s\" expected to return nil`, sBlank)
 	}
 }
@@ -174,12 +174,12 @@ func TestSandstormPermissions(t *testing.T) {
 
 func TestGetUniqueId(t *testing.T) {
 	sTest := "test-id"
-	sidTest := SandstormId(sTest)
+	sidTest := SandstormUserId(sTest)
 
 	tests := []struct {
 		ssId       *string
 		isLocalDev bool
-		uniqueId   *SandstormId
+		uniqueId   *SandstormUserId
 	}{
 		{
 			ssId:       nil,
