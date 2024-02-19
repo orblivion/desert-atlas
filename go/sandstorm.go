@@ -9,21 +9,21 @@ type Permission string
 
 const HeaderLocalDevelopment = "X-Local-Development"
 const HeaderSandstormPermissions = "X-Sandstorm-Permissions"
-const HeaderSandstormId = "X-Sandstorm-User-Id"
+const HeaderSandstormUserId = "X-Sandstorm-User-Id"
 
 const PermissionBookmarks = Permission("bookmarks")
 const PermissionDownload = Permission("download")
 
 type Permissions []Permission
 
-type SandstormId string
+type SandstormUserId string
 
 func IsLocalDev(r *http.Request) bool {
 	return r.Header.Get(HeaderLocalDevelopment) == "true"
 }
 
-func GetSandstormId(r *http.Request) *SandstormId {
-	sid := SandstormId(r.Header.Get(HeaderSandstormId))
+func GetSandstormUserId(r *http.Request) *SandstormUserId {
+	sid := SandstormUserId(r.Header.Get(HeaderSandstormUserId))
 	if sid != "" {
 		return &sid
 	}
@@ -51,11 +51,11 @@ func SandstormPermissions(r *http.Request) Permissions {
 	return ps
 }
 
-func GetUniqueId(r *http.Request) *SandstormId {
+func GetUniqueId(r *http.Request) *SandstormUserId {
 	if IsLocalDev(r) {
 		return nil
 	}
 	// Anon can't persist identity even through a page load,
 	// so we're giving up on saving tutorial modes for them.
-	return GetSandstormId(r)
+	return GetSandstormUserId(r)
 }
