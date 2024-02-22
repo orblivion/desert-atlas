@@ -37,6 +37,12 @@ func (s *Server) tutorialFilePath() string {
 	return filepath.Join(s.userDataPath(), "tutorial.json")
 }
 
+func (s *Server) tutorialCreateTempFile() (*os.File, error) {
+	// Create the temp file in the same dir to make sure it's in the same partition.
+	// Previously I'd created it under /tmp but there was a problem doing os.Rename after.
+	return os.CreateTemp(s.userDataPath(), "tutorial.*.json.tmp")
+}
+
 func (s *Server) InitTutorial() error {
 	_, err := os.Stat(s.tutorialFilePath())
 
@@ -113,7 +119,7 @@ func (s *Server) TutorialModeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Write result to temp file
-		wFile, err := os.CreateTemp("", "tutorial.*.json")
+		wFile, err := s.tutorialCreateTempFile()
 		if err != nil {
 			fmt.Printf("Error creating temp file: %s\n", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
