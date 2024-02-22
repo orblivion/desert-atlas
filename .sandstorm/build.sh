@@ -5,6 +5,7 @@ cd /opt/app
 
 # Powerbox Proxy
 
+echo "Setting up powerbox-http-proxy"
 (cd dependencies/powerbox-http-proxy; go build)
 
 # Instead of installing npm (a lot of packages on Debian!) and building this
@@ -15,6 +16,7 @@ git -C dependencies/powerbox-http-proxy rev-parse HEAD | grep 40d655f2b9083cb487
     echo "Error: Powerbox Proxy was updated, doublecheck that index.ts (powerbox-helper.js) is unchanged, and update this hash" && exit 1)
 
 # Not quite submodules
+echo "Setting up some js dependencies"
 (cd dependencies/jquery; ./setup.sh)
 (cd dependencies/leaflet; ./setup.sh)
 (cd dependencies/protomaps.js; ./setup.sh)
@@ -23,10 +25,14 @@ git -C dependencies/powerbox-http-proxy rev-parse HEAD | grep 40d655f2b9083cb487
 # (I don't know if spk pack would catch this)
 find assets -type l ! -exec test -e {} \; -exec false "{}" "+" || (echo "Some symlinked files didn't get created!"; exit 1)
 
+echo "Making sure certain python stuff is in the __pycache__"
 # Pre-import to create __pycache__, which doesn't get created when you `spk dev`
 # These __pycache__ items are referenced by sandstorm-files.list
 python3 -c "import csv_format"
 python3 -c "import query"
+
+echo "Building go server"
+(cd go; go build .)
 
 echo "Built!"
 

@@ -344,7 +344,7 @@ L.Control.Tutorial = L.Control.extend({
             })
 
             $('.tutorial-do-skip').on('click', () => {
-                fetch('/app/tutorial-mode', {
+                fetch('/app-go/tutorial-mode', {
                         // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                         method: 'POST',
                         body: JSON.stringify({
@@ -358,7 +358,7 @@ L.Control.Tutorial = L.Control.extend({
             })
 
             $('.tutorial-do-continue').on('click', () => {
-                fetch('/app/tutorial-mode', {
+                fetch('/app-go/tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
                     body: JSON.stringify({
@@ -372,7 +372,7 @@ L.Control.Tutorial = L.Control.extend({
 
             $('.tutorial-do-restart').on('click', () => {
                 // In case they want to see the intro info again
-                fetch('/app/tutorial-mode', {
+                fetch('/app-go/tutorial-mode', {
                     // NOTE: This will have no effect for anon users. They will always start with TUTORIAL_INTRO on page reload.
                     method: 'POST',
                     body: JSON.stringify({

@@ -481,24 +481,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if manifest is None:
                 download_queue.add(DOWNLOAD_MANIFEST)
 
-        if url.path == '/app/tutorial-mode':
-            unique_id = get_unique_id(self.headers)
-            if unique_id is not None:
-                with open(tutorial_mode_path) as f:
-                    tutorial_modes = json.load(f)
-
-                new_tutorial_mode = json.loads(self.rfile.read(int(self.headers['Content-Length'])))['tutorial-mode']
-                tutorial_modes[unique_id] = {
-                    'mode': new_tutorial_mode,
-                    'type': get_tutorial_type(self.headers),
-                }
-
-                with open(tutorial_mode_path, "w") as f:
-                    json.dump(tutorial_modes, f)
-
-            self.send_response(HTTPStatus.OK)
-            self.end_headers()
-
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
         if url.path.endswith('bookmarks'):

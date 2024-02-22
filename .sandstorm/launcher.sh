@@ -17,6 +17,7 @@ export http_proxy=http://localhost:$POWERBOX_PROXY_PORT
 export https_proxy=http://localhost:$POWERBOX_PROXY_PORT
 
 ./server.py &
+(cd go; ./desert-atlas) &
 
 export HOME=/var
 

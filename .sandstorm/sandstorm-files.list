@@ -46,6 +46,7 @@ opt/app/dependencies/leaflet/leaflet.css
 opt/app/dependencies/leaflet/leaflet.js
 opt/app/dependencies/powerbox-http-proxy/powerbox-http-proxy
 opt/app/dependencies/protomaps.js/protomaps.js
+opt/app/go/desert-atlas
 opt/app/query.py
 opt/app/server.py
 opt/app/service-config/mime.types
@@ -145,6 +146,7 @@ usr/lib/python3.9/__pycache__/zipfile.cpython-39.pyc
 usr/lib/python3.9/collections
 usr/lib/python3.9/collections/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3.9/collections/__pycache__/abc.cpython-39.pyc
+usr/lib/python3.9/dist-packages
 usr/lib/python3.9/email
 usr/lib/python3.9/email/__pycache__/__init__.cpython-39.pyc
 usr/lib/python3.9/email/__pycache__/_encoded_words.cpython-39.pyc
@@ -505,6 +507,7 @@ usr/lib/python3/dist-packages/urllib3/util/__pycache__/wait.cpython-39.pyc
 usr/lib/python3/dist-packages/urllib3/util/connection.py
 usr/lib/python3/dist-packages/urllib3/util/retry.py
 usr/lib/python3/dist-packages/urllib3/util/ssl_.py
+usr/lib/python3/dist-packages/zope.interface-5.2.0-nspkg.pth
 usr/lib/ssl/openssl.cnf
 usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
 usr/lib/x86_64-linux-gnu/ld-2.31.so
