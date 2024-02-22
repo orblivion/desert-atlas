@@ -34,7 +34,7 @@ type TutorialUpdate struct {
 }
 
 func (s *Server) tutorialFilePath() string {
-	return filepath.Join(s.dataDir, "tutorial.json")
+	return filepath.Join(s.userDataPath(), "tutorial.json")
 }
 
 func (s *Server) InitTutorial() error {
@@ -47,7 +47,7 @@ func (s *Server) InitTutorial() error {
 
 	// os.IsNotExist error means it doesn't exist yet, initialize it
 	if os.IsNotExist(err) {
-		return os.WriteFile(s.tutorialFilePath(), []byte("{}"), 0600)
+		return os.WriteFile(s.tutorialFilePath(), []byte("{}"), 0640)
 	}
 
 	// Some other error means all bets are off, don't proceed

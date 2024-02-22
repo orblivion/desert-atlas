@@ -13,7 +13,7 @@ urllib3.disable_warnings()
 # Run without Sandstorm. (This might not work so well over time, since I don't
 # check that it still works as I make changes).
 # TODO - could check sandstorm env instead of using this param
-is_local = len(sys.argv) >= 2 and sys.argv[1] == '--local'
+is_local = '--local' in sys.argv[1:]
 
 POWERBOX_CA_CERT_PATH = "/var/powerbox-http-proxy.pem"
 powerbox_ready = False
@@ -49,9 +49,9 @@ def get_unique_id(headers):
     return headers['X-Sandstorm-User-Id']
 
 if is_local:
-    # Can't mess with var if not in sandstorm
-    # TODO - allow param to be set to save it, and a different param for this. require one or the other.
-    basedir = tempfile.TemporaryDirectory().name
+    # Matching the path in the go server. See initLocalServer in server.go.
+    basedir = "/tmp/desert-atlas-fe66b63c13a042734a5aee2341fa1240"
+    print ("local mode, data is saved to:", basedir)
 else:
     basedir = '/var'
 

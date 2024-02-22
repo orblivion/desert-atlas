@@ -49,6 +49,8 @@ func TestTutorialInit(t *testing.T) {
 	s := initTestServer()
 	defer teardownTestServer(&s)
 
+	s.makeSubDirs()
+
 	parts := strings.Split(s.tutorialFilePath(), "/")
 	if parts[len(parts)-1] != "tutorial.json" {
 		t.Fatal("tutorial path not as expected")
