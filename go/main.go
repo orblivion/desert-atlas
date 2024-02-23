@@ -29,7 +29,8 @@ func main() {
 	s.InitTutorial()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/app-go/tutorial-mode", s.TutorialModeHandler).Methods("POST")
+	r.HandleFunc("/app-go/tutorial-mode", s.TutorialModePostHandler).Methods("POST")
+	r.HandleFunc("/_internal/tutorial-mode", s.TutorialModeGetHandler).Methods("GET")
 
 	log.Println("Serving at localhost:3858")
 	log.Fatal((&http.Server{Handler: r, Addr: "localhost:3858"}).ListenAndServe())

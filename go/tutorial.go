@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -84,7 +85,7 @@ func validateTutorialMode(m TutorialMode) bool {
 	}
 }
 
-func (s *Server) TutorialModeHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) TutorialModePostHandler(w http.ResponseWriter, r *http.Request) {
 	var update TutorialUpdate
 	err := json.NewDecoder(r.Body).Decode(&update)
 	if err != nil {
@@ -99,6 +100,7 @@ func (s *Server) TutorialModeHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO - this gets a bit scary race-condition-wise,
 	// but tutorial is not super important.
 	// probably move this to sqlite3 tho.
+	// Or could try a mutex?
 	var tf TutorialFile
 	rFile, err := os.Open(s.tutorialFilePath())
 	if err != nil {
@@ -139,4 +141,54 @@ func (s *Server) TutorialModeHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// for has userId
+func DetermineTutorialMode(sUserId SandstormUserId, typeFromRequest TutorialType, file *TutorialFile) TutorialMode {
+	modeForUser, ok := (*file)[sUserId]
+	// If permissions changed, restart the tutorial since the instructions will be different
+	if ok && modeForUser.Type == typeFromRequest {
+		return modeForUser.Mode
+	}
+	return TutorialModeIntro
+}
+
+// for no userId. Separating this out so that I have another function on the
+// same level of abstraction that doesn't involve opening the tutorial file in
+// the first place. I don't want to have the file opening be part of the logic
+// because I want it consistent with the POST function in this way. And also it's
+// nice to not do I/O in tests.
+//
+// Yes this is dumb but it feels better to me to have things well organized and
+// not have conceptual exceptions. Sue me.
+func DefaultTutorialMode() TutorialMode {
+	return TutorialModeIntro
+}
+
+func (s *Server) TutorialModeGetHandler(w http.ResponseWriter, r *http.Request) {
+	var mode TutorialMode
+	if userId := GetSandstormUserId(r); userId != nil {
+
+		// We could even delete this on app version upgrade to enforce
+		// showing any important updates.
+		var tf TutorialFile
+		rFile, err := os.Open(s.tutorialFilePath())
+		if err != nil {
+			fmt.Printf("Error opening tutorial json file: %s\n", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if err = json.NewDecoder(rFile).Decode(&tf); err != nil {
+			fmt.Printf("Error decoding json: %s\n", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		mode = DetermineTutorialMode(*userId, GetTutorialType(SandstormPermissions(r)), &tf)
+	} else {
+		// Anon users always start on intro
+		mode = DefaultTutorialMode()
+	}
+
+	io.WriteString(w, string(mode))
 }
