@@ -30,24 +30,6 @@ def get_permissions(headers):
     else:
         return headers['X-Sandstorm-Permissions'].split(',')
 
-# The purpose of this is to reset the user's tutorial mode to intro if the
-# permissions change, since there's a different set of instructions
-def get_tutorial_type(headers):
-    permissions = get_permissions(headers)
-    if 'download' in permissions:
-        return TUTORIAL_TYPE_DOWNLOADER
-    elif 'bookmarks' in permissions:
-        return TUTORIAL_TYPE_BOOKMARKER
-    else:
-        return TUTORIAL_TYPE_VIEWER
-
-def get_unique_id(headers):
-    if is_local or not 'X-Sandstorm-User-Id' in headers:
-        # Anon can't persist identity even through a page load, so we're giving up on saving tutorial modes.
-        return None
-
-    return headers['X-Sandstorm-User-Id']
-
 if is_local:
     # Matching the path in the go server. See initLocalServer in server.go.
     basedir = "/tmp/desert-atlas-fe66b63c13a042734a5aee2341fa1240"
@@ -231,19 +213,6 @@ def migrate_legacy_bookmarks():
 
 migrate_legacy_bookmarks()
 
-tutorial_mode_path = os.path.join(user_data_dir, "tutorial.json")
-if not os.path.exists(tutorial_mode_path):
-    with open(tutorial_mode_path, 'w') as f:
-        f.write("{}")
-
-TUTORIAL_INTRO = "TUTORIAL_INTRO"
-TUTORIAL_STARTED = "TUTORIAL_STARTED"
-TUTORIAL_DONE = "TUTORIAL_DONE"
-
-TUTORIAL_TYPE_DOWNLOADER = "TUTORIAL_TYPE_DOWNLOADER"
-TUTORIAL_TYPE_BOOKMARKER = "TUTORIAL_TYPE_BOOKMARKER"
-TUTORIAL_TYPE_VIEWER = "TUTORIAL_TYPE_VIEWER"
-
 BASEMAP_TILE = "base-map"
 
 def import_basemap_search():
@@ -365,6 +334,9 @@ DL_VERSION = "1700099624.161532"
 # I have to put DL_VERSION twice because I screwed up copying the S3 bucket. Hopefully not next time around.
 DL_URL_DIR = f'https://desert-atlas.danielkrol.com/{DL_VERSION}/{DL_VERSION}/'
 
+GO_SERVER = 'http://127.0.0.1:3858/'
+INTERNAL_TUTORIAL_URL = f'{GO_SERVER}/_internal/tutorial-mode'
+
 filemaps = None
 
 manifest_path = os.path.join(basedir, 'manifest.' + DL_VERSION + '.json')
@@ -391,6 +363,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
         print_err(fmt % args)
+
+    def go_internal_get(self, url):
+        pass_through_headers = {
+            header: self.headers[header]
+            for header
+            in ['X-Sandstorm-User-Id', 'X-Sandstorm-Permissions']
+        }
+        return requests.get(url, headers=pass_through_headers)
 
     def do_POST(self):
         url = urllib.parse.urlparse(self.path)
@@ -563,22 +543,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
 
-            unique_id = get_unique_id(self.headers)
-            if unique_id is not None:
-                # We could even delete this on app version upgrade to enforce
-                # showing any important updates.
-                with open(tutorial_mode_path) as f:
-                    tutorial_modes = json.load(f)
-                    tutorial_mode_info = tutorial_modes.get(get_unique_id(self.headers))
+            response = self.go_internal_get(INTERNAL_TUTORIAL_URL)
+            if response.status_code != 200:
+                raise Exception("Error getting tutorial mode", response.status_code)
 
-                    # If permissions changed, restart the tutorial
-                    if tutorial_mode_info is not None and tutorial_mode_info['type'] == get_tutorial_type(self.headers):
-                        tutorial_mode = tutorial_mode_info['mode']
-                    else:
-                        tutorial_mode = TUTORIAL_INTRO
-            else:
-                # Anon users always start on intro
-                tutorial_mode = TUTORIAL_INTRO
+            tutorial_mode = response.text
 
             available_areas_status = ""
             if manifest_error:
