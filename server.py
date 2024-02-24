@@ -96,22 +96,8 @@ def copy_bookmark(orig_bookmark):
 
     return bookmark
 
-# TODO - Delete this after app release. This is only relevant to pre-release test users.
-def insert_legacy_bookmark(bookmark):
-    con = sqlite3.connect(bookmarks_db_path)
-    cur = con.cursor()
-
-    # Only insert if it's not already in the db. If for whatever reason this
-    # fails midway on the first try, we don't want to overwrite in case there
-    # have been changes.
-    if cur.execute("SELECT id FROM bookmarks WHERE id=?", (bookmark['id'],)).fetchone() is None:
-        _insert_bookmark_base(bookmark["id"], bookmark)
-
 def insert_bookmark(bookmark):
     bookmark_id = str(uuid.uuid1())
-    return _insert_bookmark_base(bookmark_id, bookmark)
-
-def _insert_bookmark_base(bookmark_id, bookmark):
     con = sqlite3.connect(bookmarks_db_path)
     cur = con.cursor()
     cur.execute(
@@ -199,19 +185,6 @@ def get_all_bookmarks():
     }
 
 create_bookmarks_table()
-
-# TODO - Delete this after app release. This is only relevant to pre-release test users.
-def migrate_legacy_bookmarks():
-    old_bookmarks_path = os.path.join(user_data_dir, "bookmarks.json")
-    if os.path.exists(old_bookmarks_path):
-        with open(old_bookmarks_path, 'r') as f:
-            for bookmark_id, bookmark in json.load(f).items():
-                bookmark['id'] = bookmark_id
-                insert_legacy_bookmark(dict(bookmark))
-
-        shutil.move(old_bookmarks_path, old_bookmarks_path + '.old')
-
-migrate_legacy_bookmarks()
 
 BASEMAP_TILE = "base-map"
 
