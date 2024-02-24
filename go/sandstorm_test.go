@@ -26,32 +26,6 @@ func logStrPtr(s *string) string {
 	return "\"" + *s + "\""
 }
 
-func TestIsLocalDev(t *testing.T) {
-	sWrong := "wrong"
-	sTrue := "true"
-	sBlank := ""
-
-	req, _ := http.NewRequest("GET", "", nil)
-	req.Header.Set("X-Local-Development", sTrue)
-	if !IsLocalDev(req) {
-		t.Errorf(`X-Local-Development = "%s" expected to return true`, sTrue)
-	}
-
-	wrongTests := [](*string){
-		nil, &sWrong, &sBlank,
-	}
-
-	for _, val := range wrongTests {
-		req, _ := http.NewRequest("GET", "", nil)
-		if val != nil {
-			req.Header.Set("X-Local-Development", *val)
-		}
-		if IsLocalDev(req) {
-			t.Errorf(`X-Local-Development = %s expected to return false`, logStrPtr(val))
-		}
-	}
-}
-
 func TestGetSandstormUserId(t *testing.T) {
 	sTest := "test-id"
 	sidTest := SandstormUserId(sTest)
@@ -76,7 +50,9 @@ func TestGetSandstormUserId(t *testing.T) {
 }
 
 func TestSandstormPermissions(t *testing.T) {
-	sTrue := "true"
+	s := initTestServer()
+	defer teardownTestServer(&s)
+
 	sBookmarks := "bookmarks"
 	sDownload := "download"
 	sDownloadBookmarks := "download,bookmarks"
@@ -85,14 +61,14 @@ func TestSandstormPermissions(t *testing.T) {
 
 	tests := []struct {
 		ssPerm            *string
-		localDev          *string
+		localDev          bool
 		bookmarksExpected bool
 		downloadExpected  bool
 	}{
 		// local dev is false, sandstorm not set
 		{
 			ssPerm:            nil,
-			localDev:          nil,
+			localDev:          false,
 			bookmarksExpected: false,
 			downloadExpected:  false,
 		},
@@ -100,25 +76,25 @@ func TestSandstormPermissions(t *testing.T) {
 		// local dev is true, sandstorm maybe set to something
 		{
 			ssPerm:            nil,
-			localDev:          &sTrue,
+			localDev:          true,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
 		{
 			ssPerm:            &sBlank,
-			localDev:          &sTrue,
+			localDev:          true,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
 		{
 			ssPerm:            &sBookmarks,
-			localDev:          &sTrue,
+			localDev:          true,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
 		{
 			ssPerm:            &sBookmarks,
-			localDev:          &sTrue,
+			localDev:          true,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
@@ -126,25 +102,25 @@ func TestSandstormPermissions(t *testing.T) {
 		// local dev is false, sandstorm set to something
 		{
 			ssPerm:            &sBookmarks,
-			localDev:          nil,
+			localDev:          false,
 			bookmarksExpected: true,
 			downloadExpected:  false,
 		},
 		{
 			ssPerm:            &sDownload,
-			localDev:          nil,
+			localDev:          false,
 			bookmarksExpected: false,
 			downloadExpected:  true,
 		},
 		{
 			ssPerm:            &sDownloadBookmarks,
-			localDev:          nil,
+			localDev:          false,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
 		{
 			ssPerm:            &sBookmarksDownload,
-			localDev:          nil,
+			localDev:          false,
 			bookmarksExpected: true,
 			downloadExpected:  true,
 		},
@@ -155,17 +131,15 @@ func TestSandstormPermissions(t *testing.T) {
 		if tt.ssPerm != nil {
 			req.Header.Set("X-Sandstorm-Permissions", *tt.ssPerm)
 		}
-		if tt.localDev != nil {
-			req.Header.Set("X-Local-Development", *tt.localDev)
-		}
+		s.isLocal = tt.localDev
 
-		errMsgPart := fmt.Sprintf(`X-Sandstorm-Permissions: %s, X-Local-Development: %s`, logStrPtr(tt.ssPerm), logStrPtr(tt.localDev))
+		errMsgPart := fmt.Sprintf(`X-Sandstorm-Permissions: %s, isLocal: %v`, logStrPtr(tt.ssPerm), tt.localDev)
 
-		if got, want := SandstormPermissions(req).Has(PermissionBookmarks), tt.bookmarksExpected; want != got {
+		if got, want := s.SandstormPermissions(req).Has(PermissionBookmarks), tt.bookmarksExpected; want != got {
 			t.Errorf(`%s Bookmarks permission expected: %v got: %v`, errMsgPart, want, got)
 		}
 
-		if got, want := SandstormPermissions(req).Has(PermissionDownload), tt.downloadExpected; want != got {
+		if got, want := s.SandstormPermissions(req).Has(PermissionDownload), tt.downloadExpected; want != got {
 			t.Errorf(`%s Download permission expected: %v got: %v`, errMsgPart, want, got)
 		}
 	}

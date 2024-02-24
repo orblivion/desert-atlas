@@ -117,7 +117,7 @@ func (s *Server) TutorialModePostHandler(w http.ResponseWriter, r *http.Request)
 	if userId := GetSandstormUserId(r); userId != nil {
 		tf[*userId] = TutorialStatus{
 			Mode: TutorialMode(update.Mode),
-			Type: GetTutorialType(SandstormPermissions(r)),
+			Type: GetTutorialType(s.SandstormPermissions(r)),
 		}
 
 		// Write result to temp file
@@ -184,7 +184,7 @@ func (s *Server) TutorialModeGetHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		mode = DetermineTutorialMode(*userId, GetTutorialType(SandstormPermissions(r)), &tf)
+		mode = DetermineTutorialMode(*userId, GetTutorialType(s.SandstormPermissions(r)), &tf)
 	} else {
 		// Anon users always start on intro
 		mode = DefaultTutorialMode()

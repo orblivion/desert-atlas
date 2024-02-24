@@ -23,7 +23,7 @@ func initLocalServer() (s Server, err error) {
 		return
 	}
 
-	s = Server{localBase}
+	s = Server{baseDir: localBase, isLocal: true}
 
 	if err = s.makeSubDirs(); err != nil {
 		return
@@ -52,7 +52,7 @@ func makeDirExist(path string) error {
 
 // Server for running inside Sandstorm
 func initSandstormServer() (s Server, err error) {
-	s = Server{"/var"}
+	s = Server{baseDir: "/var"}
 	err = s.makeSubDirs()
 
 	return
@@ -64,4 +64,5 @@ func (s *Server) makeSubDirs() error {
 
 type Server struct {
 	baseDir string
+	isLocal bool
 }

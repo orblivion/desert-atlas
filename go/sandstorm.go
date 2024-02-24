@@ -18,10 +18,6 @@ type Permissions []Permission
 
 type SandstormUserId string
 
-func IsLocalDev(r *http.Request) bool {
-	return r.Header.Get(HeaderLocalDevelopment) == "true"
-}
-
 func GetSandstormUserId(r *http.Request) *SandstormUserId {
 	sid := SandstormUserId(r.Header.Get(HeaderSandstormUserId))
 	if sid != "" {
@@ -39,8 +35,8 @@ func (pp Permissions) Has(hp Permission) bool {
 	return false
 }
 
-func SandstormPermissions(r *http.Request) Permissions {
-	if IsLocalDev(r) {
+func (s *Server) SandstormPermissions(r *http.Request) Permissions {
+	if s.isLocal {
 		return Permissions{PermissionBookmarks, PermissionDownload}
 	}
 	var ps Permissions
