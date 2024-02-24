@@ -50,12 +50,3 @@ func SandstormPermissions(r *http.Request) Permissions {
 	}
 	return ps
 }
-
-func GetUniqueId(r *http.Request) *SandstormUserId {
-	if IsLocalDev(r) {
-		return nil
-	}
-	// Anon can't persist identity even through a page load, so we're giving up
-	// on certain things for them, such as saving tutorial modes.
-	return GetSandstormUserId(r)
-}
