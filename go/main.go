@@ -14,12 +14,20 @@ func main() {
 
 	isLocal := slices.Contains(os.Args[1:], "--local")
 
+	one, _ := os.LookupEnv("SANDSTORM")
+
 	if isLocal {
+		if one == "1" {
+			log.Fatalf("Server appears to be running within Sandstorm; run without --local ?")
+		}
 		s, err = initLocalServer()
 		if err != nil {
 			log.Fatalf("Error initializing local Server: %v", err)
 		}
 	} else {
+		if one != "1" {
+			log.Fatalf("Server appears to be running locally; run with --local ?")
+		}
 		s, err = initSandstormServer()
 		if err != nil {
 			log.Fatalf("Error initializing Server for sandstorm: %v", err)
