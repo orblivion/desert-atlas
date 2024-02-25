@@ -8,22 +8,29 @@ import (
 	"testing"
 	"time"
 )
+type testServerParams struct {
+	skipSubDirs bool
+}
 
-// Separated out so we can test makeSubDirs (and maybe other things later)
-func initTestServerBare() Server {
+func initTestServer(paramsSlice ...testServerParams) Server {
+	if len(paramsSlice) > 1 {
+		log.Fatal("Don't put more than one testServerParams struct")
+	}
+	params := testServerParams{}
+	if len(paramsSlice) == 1 {
+		params = paramsSlice[0]
+	}
+
 	dir, err := os.MkdirTemp("", "tutorial-test")
 	if err != nil {
 		log.Fatal(err)
 	}
-	return Server{baseDir: dir}
-}
+	s := Server{baseDir: dir}
 
-// Server for running most tests (exceptions would be where
-// we'd use initTestServerBare instead)
-func initTestServer() Server {
-	s := initTestServerBare()
-	if err := s.makeSubDirs(); err != nil {
-		log.Fatal(err)
+	if !params.skipSubDirs {
+		if err := s.makeSubDirs(); err != nil {
+			log.Fatal(err)
+		}
 	}
 	return s
 }
@@ -39,8 +46,8 @@ func teardownTestServer(s *Server) {
 }
 
 func TestMakeSubDirs(t *testing.T) {
-	// use "Bare" variant to test the dir creation
-	s := initTestServerBare()
+	// skipSubDirs so we can test the dir creation
+	s := initTestServer(testServerParams{skipSubDirs: true})
 	defer teardownTestServer(&s)
 
 	if _, err := os.Stat(s.userDataPath()); err == nil || !os.IsNotExist(err) {
