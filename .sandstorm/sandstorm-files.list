@@ -8,6 +8,8 @@ etc/ld.so.cache
 etc/locale.alias
 etc/localtime
 etc/mime.types
+etc/protocols
+etc/services
 etc/ssl/certs/ca-certificates.crt
 etc/ssl/openssl.cnf
 launcher.sh

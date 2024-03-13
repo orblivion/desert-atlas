@@ -65,20 +65,6 @@ for fname_to_delete in glob.glob(os.path.join(big_tmp_dir, '*/*.tar.gz')):
 # issue, map data (including search) could be blown away and re-downloaded.
 bookmarks_db_path = os.path.join(user_data_dir, "bookmarks.db")
 
-def create_bookmarks_table():
-    con = sqlite3.connect(bookmarks_db_path)
-    cur = con.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS
-        bookmarks (
-            id VARCHAR PRIMARY KEY,
-            version INT,
-            name VARCHAR,
-            lat VARCHAR, -- TODO - make into a number? for now it's a faithful reproduction of a decimal.
-            lng VARCHAR -- TODO - make into a number? for now it's a faithful reproduction of a decimal.
-        )
-    """)
-
 # Avoid issues
 def copy_bookmark(orig_bookmark):
     bookmark = {
@@ -183,8 +169,6 @@ def get_all_bookmarks():
         }
         for bookmark_id, version, name, lat, lng in q_results
     }
-
-create_bookmarks_table()
 
 BASEMAP_TILE = "base-map"
 

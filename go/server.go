@@ -2,9 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"os"
 	"path/filepath"
 )
+
+type Server struct {
+	baseDir     string
+	bookmarksDB *sqlx.DB
+	isLocal     bool
+}
 
 func (s *Server) userDataPath() string {
 	return filepath.Join(s.baseDir, "data")
@@ -28,6 +35,8 @@ func initLocalServer() (s Server, err error) {
 	if err = s.makeSubDirs(); err != nil {
 		return
 	}
+
+	err = s.initBookmarksDB()
 
 	return
 }
@@ -53,16 +62,16 @@ func makeDirExist(path string) error {
 // Server for running inside Sandstorm
 func initSandstormServer() (s Server, err error) {
 	s = Server{baseDir: "/var"}
-	err = s.makeSubDirs()
+
+	if err = s.makeSubDirs(); err != nil {
+		return
+	}
+
+	err = s.initBookmarksDB()
 
 	return
 }
 
 func (s *Server) makeSubDirs() error {
 	return makeDirExist(s.userDataPath())
-}
-
-type Server struct {
-	baseDir string
-	isLocal bool
 }

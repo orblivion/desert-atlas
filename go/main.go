@@ -16,6 +16,8 @@ func main() {
 
 	one, _ := os.LookupEnv("SANDSTORM")
 
+	// Double check that SANDSTORM=1 and --local are mutually exclusive,
+	// and initialize the correct type of server.
 	if isLocal {
 		if one == "1" {
 			log.Fatalf("Server appears to be running within Sandstorm; run without --local ?")

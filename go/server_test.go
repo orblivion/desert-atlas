@@ -8,8 +8,10 @@ import (
 	"testing"
 	"time"
 )
+
 type testServerParams struct {
-	skipSubDirs bool
+	skipSubDirs    bool // default to having subdirs, almost everything uses them
+	useBookmarksDB bool // default to not having bookmarks db, probably most things won't use it
 }
 
 func initTestServer(paramsSlice ...testServerParams) Server {
@@ -20,6 +22,9 @@ func initTestServer(paramsSlice ...testServerParams) Server {
 	if len(paramsSlice) == 1 {
 		params = paramsSlice[0]
 	}
+	if params.skipSubDirs && params.useBookmarksDB {
+		log.Fatal("Can't create db if we skip creating subdirectories")
+	}
 
 	dir, err := os.MkdirTemp("", "tutorial-test")
 	if err != nil {
@@ -28,7 +33,12 @@ func initTestServer(paramsSlice ...testServerParams) Server {
 	s := Server{baseDir: dir}
 
 	if !params.skipSubDirs {
-		if err := s.makeSubDirs(); err != nil {
+		if err = s.makeSubDirs(); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if params.useBookmarksDB {
+		if err = s.initBookmarksDB(); err != nil {
 			log.Fatal(err)
 		}
 	}
